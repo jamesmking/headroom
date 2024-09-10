@@ -1,0 +1,20 @@
+.button {
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.1875;
+  box-sizing: border-box;
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  margin: 0 0 22px;
+  padding: 8px 10px 7px;
+  border: 2px solid transparent;
+  border-radius: 0;
+  color: #fff;
+  background-color: #003458;
+  box-shadow: 0 2px 0 #000;
+  text-align: center;
+  vertical-align: top;
+  cursor: pointer;
+  -webkit-appearance: none;
+}

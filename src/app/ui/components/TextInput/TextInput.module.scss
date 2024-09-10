@@ -1,0 +1,5 @@
+@use "../../scss/helpers/all" as h;
+
+.textInput {
+  @include h.input-common;
+}

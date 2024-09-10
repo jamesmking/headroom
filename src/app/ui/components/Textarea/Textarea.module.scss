@@ -1,0 +1,5 @@
+@use "../../scss/helpers/all" as h;
+
+.textarea {
+  @include h.input-common;
+}
