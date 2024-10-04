@@ -2,12 +2,11 @@ import { InputType, InputModeType } from "../../types";
 import styles from "./TextInput.module.scss";
 
 interface Props {
-  type: InputType;
+  type?: InputType;
   id: string;
   name: string;
   value?: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  error?: string;
   autoComplete?: string;
   ariaDescribedBy?: boolean;
   inputMode?: InputModeType;
@@ -21,7 +20,6 @@ export const TextInput = ({
   name,
   value,
   onChange,
-  error,
   autoComplete,
   ariaDescribedBy,
   inputMode,
@@ -34,7 +32,7 @@ export const TextInput = ({
       id={id}
       name={name}
       type={type}
-      value={value}
+      defaultValue={value}
       autoComplete={autoComplete}
       aria-describedby={ariaDescribedBy ? `${id}-hint` : undefined}
       onChange={onChange}

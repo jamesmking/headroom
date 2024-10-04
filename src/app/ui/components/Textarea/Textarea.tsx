@@ -23,7 +23,7 @@ export const Textarea = ({
   testId,
 }: Props): JSX.Element => {
   return (
-    <FormGroup error={!!error}>
+    <FormGroup>
       {label && <Label text={label} inputId={id} />}
       {error && <ErrorMessage text={error} />}
       <textarea

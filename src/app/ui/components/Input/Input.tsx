@@ -31,7 +31,7 @@ export const Input = ({
   spellCheck,
 }: Props): JSX.Element => {
   return (
-    <FormGroup error={!!error} testId={testId}>
+    <FormGroup testId={testId}>
       {label && <Label text={label} inputId={id} />}
       {error && <ErrorMessage text={error} />}
       <TextInput
@@ -39,7 +39,6 @@ export const Input = ({
         id={id}
         name={name}
         value={value}
-        error={error}
         onChange={onChange}
         ariaDescribedBy={ariaDescribedBy}
         inputMode={inputMode}

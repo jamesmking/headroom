@@ -1,20 +1,20 @@
 "use client";
-import React, { useState } from "react";
-import styles from "./page.module.scss";
-import { AddTaskForm, TaskList } from "@/app/components";
-import { ColumnType, TaskType } from "@/app/types";
+import React, { useEffect, useState } from "react";
+import { TaskForm, TaskList } from "@/app/components";
+import { StatusType, TaskType, FormValues } from "@/app/types";
+import { Main } from "@/app/ui";
 
-const columns: ColumnType[] = [
+const statuses: StatusType[] = [
   {
-    id: "1",
+    id: "TODO",
     title: "To do",
   },
   {
-    id: "2",
+    id: "DOING",
     title: "Doing",
   },
   {
-    id: "3",
+    id: "DONE",
     title: "Done",
   },
 ];
@@ -22,35 +22,77 @@ const columns: ColumnType[] = [
 const defaultTasks: TaskType[] = [
   {
     id: "1",
-    title: "Task 1",
+    title: "Sign and post the paperwork",
     description: "Description 1",
-    completed: false,
     lastUpdated: new Date(),
+    status: "TODO",
   },
   {
     id: "2",
-    title: "Task 2",
+    title: "Write tests for all the new components",
     description: "Description 2",
-    completed: true,
     lastUpdated: new Date(),
+    status: "DOING",
+  },
+  {
+    id: "3",
+    title: "Pay VAT bill",
+    description: "Description 2",
+    lastUpdated: new Date(),
+    status: "DONE",
+  },
+  {
+    id: "4",
+    title: "Go for a run",
+    description: "Description 1",
+    lastUpdated: new Date(),
+    status: "TODO",
   },
 ];
 
 export default function Home() {
   const [tasks, setTasks] = useState<TaskType[]>(defaultTasks);
-  const addTask = (task: TaskType) => {
-    const newTask = {
+  const addTask = (task: FormValues) => {
+    const newTask: TaskType = {
       ...task,
       id: (tasks.length + 1).toString(),
       lastUpdated: new Date(),
+      status: "TODO",
     };
     setTasks((prevTasks) => [...prevTasks, newTask]);
   };
 
+  const updateTask = (task: FormValues) => {
+    if ("status" in task) {
+      const updatedTask: TaskType = {
+        ...task,
+        lastUpdated: new Date(),
+      };
+      setTasks((prevTasks) =>
+        prevTasks.map((t) => (t.id === updatedTask.id ? updatedTask : t)),
+      );
+    }
+  };
+
+  const deleteTask = (id: string) => {
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+  };
+
+  useEffect(() => {
+    console.log("Tasks", tasks);
+  }, [tasks]);
+
   return (
-    <main className={styles.main}>
-      <AddTaskForm addTask={addTask} />
-      <TaskList tasks={tasks} columns={columns} />
-    </main>
+    <Main>
+      <TaskForm formAction={addTask} />
+      <TaskList
+        tasks={tasks}
+        statuses={statuses}
+        deleteTask={deleteTask}
+        updateTask={updateTask}
+      />
+    </Main>
   );
 }
+
+export const revalidate = 0;
