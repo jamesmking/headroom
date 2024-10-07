@@ -1,4 +1,4 @@
-import React, { useState, FormEvent, ChangeEvent } from "react";
+import React, { useState, useCallback, FormEvent, ChangeEvent } from "react";
 import { Button, Fieldset, Input, Select, Textarea } from "@/app/ui";
 import styles from "./TaskForm.module.scss";
 import {
@@ -30,7 +30,7 @@ interface TaskFormProps {
   mode?: "add" | "edit";
   task?: TaskType;
   formAction: (task: FormValues) => void;
-  callback?: (action: "edit" | "delete" | undefined) => void;
+  callback?: () => void;
 }
 
 export const TaskForm = ({
@@ -51,23 +51,27 @@ export const TaskForm = ({
     emptyFormValues,
   );
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const newErrors = {
-      title: validateTitle(formValues.title),
-      description: validateDescription(formValues.description || ""),
-    };
-    if (isNotEmpty(newErrors)) {
-      setErrors(newErrors);
-    } else {
-      setErrors(emptyFormValues);
-      setFormValues(emptyFormValues);
-      formAction(formValues);
-    }
-    if (callback) {
-      callback(undefined);
-    }
-  }
+  const handleSubmit = useCallback(
+    (event: FormEvent<HTMLFormElement>) => {
+      console.log(formValues);
+      event.preventDefault();
+      const newErrors = {
+        title: validateTitle(formValues.title),
+        description: validateDescription(formValues.description || ""),
+      };
+      if (isNotEmpty(newErrors)) {
+        setErrors(newErrors);
+      } else {
+        formAction(formValues);
+        setErrors(emptyFormValues);
+        setFormValues(emptyFormValues);
+        if (callback) {
+          callback();
+        }
+      }
+    },
+    [formValues, formAction, callback, emptyFormValues],
+  );
 
   function handleChange(
     event: ChangeEvent<
@@ -84,7 +88,7 @@ export const TaskForm = ({
   return (
     <div className={styles.wrap}>
       <form onSubmit={handleSubmit}>
-        <Fieldset legend="Task">
+        <Fieldset legend="Add a new task">
           <Input
             id="title"
             name="title"

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { TaskForm, TaskList } from "@/app/components";
 import { StatusType, TaskType, FormValues } from "@/app/types";
-import { Main } from "@/app/ui";
+import { Main, Modal } from "@/app/ui";
 
 const statuses: StatusType[] = [
   {
@@ -84,7 +84,9 @@ export default function Home() {
 
   return (
     <Main>
-      <TaskForm formAction={addTask} />
+      <Modal>
+        <TaskForm formAction={addTask} />
+      </Modal>
       <TaskList
         tasks={tasks}
         statuses={statuses}

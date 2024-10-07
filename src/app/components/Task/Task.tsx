@@ -13,6 +13,7 @@ type TaskAction = "edit" | "delete" | undefined;
 
 export const Task = ({ task, handleDelete, updateTask }: TaskProps) => {
   const [action, setAction] = useState<TaskAction>(undefined);
+  const resetAction = () => setAction(undefined);
   return (
     <div
       className={`${styles.task} ${styles[`task-${task.status.toLowerCase()}`]}`}
@@ -47,7 +48,7 @@ export const Task = ({ task, handleDelete, updateTask }: TaskProps) => {
             mode="edit"
             task={task}
             formAction={updateTask}
-            callback={setAction}
+            callback={resetAction}
           />
         </div>
       )}
