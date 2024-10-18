@@ -4,7 +4,7 @@ import styles from "./Textarea.module.scss";
 interface Props {
   id: string;
   name: string;
-  value?: string;
+  value?: string | number | readonly string[] | undefined;
   onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   rows?: number;
   label?: string;
@@ -34,7 +34,7 @@ export const Textarea = ({
         data-testid={testId}
         title={label}
         onChange={onChange}
-        value={value}
+        defaultValue={value}
       />
     </FormGroup>
   );

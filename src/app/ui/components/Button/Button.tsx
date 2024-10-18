@@ -26,9 +26,11 @@ export const Button = ({
   if (href === undefined) {
     return (
       <button
+        role={"button"}
         className={styles.button}
         data-testid={testId}
         type={type}
+        tabIndex={0}
         onClick={onClick}
         disabled={disabled}
         id={id}

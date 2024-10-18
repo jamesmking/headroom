@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useCallback, FormEvent, ChangeEvent } from "react";
 import { Button, Fieldset, Input, Select, Textarea } from "@/app/ui";
 import styles from "./TaskForm.module.scss";
@@ -8,23 +10,19 @@ import {
   TaskType,
 } from "@/app/types";
 
-function isNotEmpty(obj: {
+const isNotEmpty = (obj: {
   title: string;
   description: string;
   [key: string]: string;
-}): boolean {
-  return Object.keys(obj).some((key) => obj[key]?.length > 0);
-}
+}): boolean => Object.keys(obj).some((key) => obj[key]?.length > 0);
 
-function validateTitle(title: string) {
-  return title.trim() === "" ? "Title is required" : "";
-}
+const validateTitle = (title: string) =>
+  title.trim() === "" ? "Title is required" : "";
 
-function validateDescription(description: string) {
-  return description.trim().length > 500
+const validateDescription = (description: string) =>
+  description.trim().length > 500
     ? "Description should be below 500 characters"
     : "";
-}
 
 interface TaskFormProps {
   mode?: "add" | "edit";
@@ -39,11 +37,7 @@ export const TaskForm = ({
   formAction,
   callback,
 }: TaskFormProps) => {
-  const emptyFormValues: AddFormValues = {
-    title: "",
-    description: "",
-  };
-
+  const emptyFormValues: AddFormValues = { title: "", description: "" };
   const defaultFormValues = mode === "edit" && task ? task : emptyFormValues;
 
   const [formValues, setFormValues] = useState(defaultFormValues);
@@ -53,7 +47,6 @@ export const TaskForm = ({
 
   const handleSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
-      console.log(formValues);
       event.preventDefault();
       const newErrors = {
         title: validateTitle(formValues.title),
@@ -65,25 +58,20 @@ export const TaskForm = ({
         formAction(formValues);
         setErrors(emptyFormValues);
         setFormValues(emptyFormValues);
-        if (callback) {
-          callback();
-        }
+        callback?.();
       }
     },
-    [formValues, formAction, callback, emptyFormValues],
+    [formValues, formAction, callback],
   );
 
-  function handleChange(
+  const handleChange = (
     event: ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
-  ) {
+  ) => {
     const { name, value } = event.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
-  }
+    setFormValues({ ...formValues, [name]: value });
+  };
 
   return (
     <div className={styles.wrap}>
@@ -108,18 +96,9 @@ export const TaskForm = ({
           {mode === "edit" && (
             <Select
               options={[
-                {
-                  value: "TODO",
-                  text: "To do",
-                },
-                {
-                  value: "DOING",
-                  text: "Doing",
-                },
-                {
-                  value: "DONE",
-                  text: "Done",
-                },
+                { value: "TODO", text: "To do" },
+                { value: "DOING", text: "Doing" },
+                { value: "DONE", text: "Done" },
               ]}
               value={task?.status}
               label="Status"

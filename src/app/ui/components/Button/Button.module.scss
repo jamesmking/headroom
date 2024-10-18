@@ -6,7 +6,6 @@
   display: inline-block;
   position: relative;
   width: 100%;
-  margin: 0 0 22px;
   padding: 8px 10px 7px;
   border: 2px solid transparent;
   border-radius: 0;
@@ -17,4 +16,8 @@
   vertical-align: top;
   cursor: pointer;
   -webkit-appearance: none;
+  transition: opacity .2s ease-in-out;
+  &:disabled {
+    opacity: .5;
+  }
 }

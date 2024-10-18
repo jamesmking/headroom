@@ -2,10 +2,12 @@ type Status = "TODO" | "DOING" | "DONE";
 
 export interface TaskType {
   id: string;
+  userId: string;
   title: string;
-  description?: string;
+  description: string | null;
   status: Status;
-  lastUpdated: Date;
+  created: Date;
+  updated: Date | null;
 }
 
 export interface StatusType {
@@ -21,7 +23,7 @@ export interface AddFormValues {
 export interface UpdateFormValues {
   id: string;
   title: string;
-  description?: string;
+  description: string;
   status: Status;
 }
 

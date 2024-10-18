@@ -1,20 +1,13 @@
 import { Task } from "@/app/components";
-import { TaskType, StatusType, FormValues } from "@/app/types";
+import { TaskType, StatusType } from "@/app/types";
 import styles from "./TaskList.module.scss";
 
 interface TaskListProps {
-  tasks: TaskType[];
+  tasks: TaskType[] | undefined;
   statuses: StatusType[];
-  deleteTask: (id: string) => void;
-  updateTask: (task: FormValues) => void;
 }
 
-export const TaskList = ({
-  tasks,
-  statuses,
-  deleteTask,
-  updateTask,
-}: TaskListProps) => {
+export const TaskList = ({ tasks, statuses }: TaskListProps) => {
   return (
     <div className={styles.wrap}>
       {statuses.map((status) => (
@@ -26,14 +19,7 @@ export const TaskList = ({
           {tasks &&
             tasks
               .filter((task) => task.status === status.id)
-              .map((task) => (
-                <Task
-                  key={task.id}
-                  task={task}
-                  handleDelete={deleteTask}
-                  updateTask={updateTask}
-                />
-              ))}
+              .map((task) => <Task key={task.id} task={task} />)}
           {!tasks ||
             (tasks.filter((task) => task.status === status.id).length === 0 && (
               <span>Nothing to see here</span>

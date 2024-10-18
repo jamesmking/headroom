@@ -1,13 +1,12 @@
-import React from "react";
-import { Main, Modal } from "@/app/ui";
-import { auth } from "@/app/auth";
-import { SignInButton } from "@/app/components/Auth/SignInButton";
 import { fetchTasks } from "@/app/lib/data";
-import { TaskFormAdd, TaskList } from "@/app/components";
+import { Main } from "@/app/ui/components/Main";
 import { StatusType } from "@/app/types";
 
-export default async function Home() {
-  const session = await auth();
+import React from "react";
+import { TaskFormAdd, TaskList } from "@/app/components";
+import { Modal } from "@/app/ui";
+
+export default async function Tasks() {
   const tasks = await fetchTasks();
   const statuses: StatusType[] = [
     {
@@ -23,16 +22,11 @@ export default async function Home() {
       title: "Done",
     },
   ];
-  if (!session)
-    return (
-      <Main>
-        <SignInButton />
-      </Main>
-    );
+  const closeModal = false;
   return (
     <Main>
       <TaskList tasks={tasks} statuses={statuses} />
-      <Modal>
+      <Modal triggerClose={closeModal}>
         <TaskFormAdd />
       </Modal>
       <noscript>

@@ -1,25 +1,29 @@
+"use client";
 import React, { useState } from "react";
 import styles from "./Task.module.scss";
-import { TaskType, FormValues } from "@/app/types";
-import { TaskForm } from "@/app/components";
+import { TaskType } from "@/app/types";
+import { TaskFormEdit } from "@/app/components";
+import { deleteTask } from "@/app/lib/actions";
 
 interface TaskProps {
   task: TaskType;
-  handleDelete: (id: string) => void;
-  updateTask: (task: FormValues) => void;
 }
 
 type TaskAction = "edit" | "delete" | undefined;
 
-export const Task = ({ task, handleDelete, updateTask }: TaskProps) => {
+export const Task = ({ task }: TaskProps) => {
   const [action, setAction] = useState<TaskAction>(undefined);
-  const resetAction = () => setAction(undefined);
+  const resetTaskCard = () => setAction(undefined);
+  const handleDelete = async (id: string) => {
+    await deleteTask(id);
+  };
+
   return (
     <div
       className={`${styles.task} ${styles[`task-${task.status.toLowerCase()}`]}`}
     >
       {action === undefined && (
-        <div>
+        <>
           <h3 className={styles.title}>{task.title}</h3>
           <p className={styles.description}>{task.description}</p>
           <hr className={styles.spacer} />
@@ -39,22 +43,15 @@ export const Task = ({ task, handleDelete, updateTask }: TaskProps) => {
               Delete<span className={styles.vh}> {task.title}</span>
             </button>
           </div>
-        </div>
+        </>
       )}
 
       {action === "edit" && (
-        <div>
-          <TaskForm
-            mode="edit"
-            task={task}
-            formAction={updateTask}
-            callback={resetAction}
-          />
-        </div>
+        <TaskFormEdit task={task} callBack={resetTaskCard} />
       )}
 
       {action === "delete" && (
-        <div>
+        <>
           <h3 className={styles.title}>
             Are you sure you want to delete this task?
           </h3>
@@ -67,15 +64,11 @@ export const Task = ({ task, handleDelete, updateTask }: TaskProps) => {
             >
               Yes, delete
             </button>
-
-            <button
-              className={styles.button}
-              onClick={() => setAction(undefined)}
-            >
+            <button className={styles.button} onClick={resetTaskCard}>
               No, cancel
             </button>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
