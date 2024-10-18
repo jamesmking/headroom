@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./app.scss";
 import { auth } from "@/app/auth";
 import { SignOutButton } from "@/app/components/Auth/SignOutButton";
+import { Header } from "@/app/ui";
 
 export const metadata: Metadata = {
   title: "Head Room",
@@ -16,14 +17,13 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="logoWrap">
-          <img src="logo.svg" className="logo" />
-        </div>
-        {session && (
-          <div>
-            {`Logged in as ${session.user?.name}`} <SignOutButton />
-          </div>
-        )}
+        <Header>
+          {session && (
+            <div>
+              {`Logged in as ${session.user?.name}`} <SignOutButton />
+            </div>
+          )}
+        </Header>
         {children}
       </body>
     </html>
