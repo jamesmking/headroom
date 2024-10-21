@@ -22,6 +22,7 @@ const SubmitButton = ({ label, loading }: SubmitButtonProps) => {
 export const TaskFormAdd = () => {
   const [formState, action] = useFormState(createTask, EMPTY_FORM_STATE);
   const formRef = useFormReset(formState);
+
   return (
     <div className={styles.wrap}>
       <form action={action} ref={formRef}>

@@ -12,6 +12,7 @@ interface Props {
   inputMode?: InputModeType;
   testId?: string;
   spellCheck?: boolean;
+  ref?: React.RefObject<HTMLInputElement>;
 }
 
 export const TextInput = ({
@@ -25,6 +26,7 @@ export const TextInput = ({
   inputMode,
   testId,
   spellCheck,
+  ref,
 }: Props): JSX.Element => {
   return (
     <input
@@ -39,6 +41,8 @@ export const TextInput = ({
       data-testid={testId}
       inputMode={inputMode ? inputMode : undefined}
       spellCheck={spellCheck}
+      ref={ref}
+      autoFocus={true}
     />
   );
 };

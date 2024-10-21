@@ -25,7 +25,9 @@ export const Task = ({ task }: TaskProps) => {
       {action === undefined && (
         <>
           <h3 className={styles.title}>{task.title}</h3>
-          <p className={styles.description}>{task.description}</p>
+          {task.description && (
+            <p className={styles.description}>{task.description}</p>
+          )}
           <hr className={styles.spacer} />
           <div className={styles.actions}>
             <button

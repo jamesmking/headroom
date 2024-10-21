@@ -40,7 +40,7 @@ export const Modal = ({
   }, [isOpen]);
 
   return (
-    <div>
+    <>
       <div className={styles.modal}>
         <div className={styles.content}>
           <button onClick={closeModal} className={styles.closeButton}>
@@ -50,6 +50,6 @@ export const Modal = ({
         </div>
       </div>
       <Fab handleClick={openModal} text={"Add a new task"} />
-    </div>
+    </>
   );
 };

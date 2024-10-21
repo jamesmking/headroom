@@ -15,6 +15,7 @@ interface Props {
   testId?: string;
   inputMode?: InputModeType;
   spellCheck?: boolean;
+  ref?: React.RefObject<HTMLInputElement>;
 }
 
 export const Input = ({
@@ -29,6 +30,7 @@ export const Input = ({
   ariaDescribedBy,
   inputMode,
   spellCheck,
+  ref,
 }: Props): JSX.Element => {
   return (
     <FormGroup testId={testId}>
@@ -43,6 +45,7 @@ export const Input = ({
         ariaDescribedBy={ariaDescribedBy}
         inputMode={inputMode}
         spellCheck={spellCheck}
+        ref={ref}
       />
     </FormGroup>
   );

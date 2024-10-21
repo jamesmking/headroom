@@ -1,9 +1,12 @@
+@use "../../scss/settings/all" as s;
+
 .legend {
-  color: #000;
+  color: s.$blueDark;
   box-sizing: border-box;
   display: table;
   max-width: 100%;
   margin-bottom: 10px;
   padding: 0;
   white-space: normal;
+  font-weight: 700;
 }

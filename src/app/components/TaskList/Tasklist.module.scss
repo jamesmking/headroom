@@ -30,6 +30,7 @@
   border-left: 1em solid #000;
   line-height: 1em;
   padding-left: 10px;
+  text-transform: uppercase;
   .status-todo & {
     border-left-color: s.$red;
   }
@@ -41,3 +42,10 @@
   }
 }
 
+.empty {
+  color: s.$blueDark;
+  margin: 1rem 0;
+  display: block;
+  text-align: center;
+  padding: 2rem;
+}

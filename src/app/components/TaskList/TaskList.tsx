@@ -22,7 +22,9 @@ export const TaskList = ({ tasks, statuses }: TaskListProps) => {
               .map((task) => <Task key={task.id} task={task} />)}
           {!tasks ||
             (tasks.filter((task) => task.status === status.id).length === 0 && (
-              <span>Nothing to see here</span>
+              <span className={styles.empty}>
+                There are no tasks in the {status.title} column
+              </span>
             ))}
         </div>
       ))}
