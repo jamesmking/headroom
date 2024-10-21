@@ -1,6 +1,6 @@
 "use client";
 import styles from "./TaskFormEdit.module.scss";
-import { Button, Fieldset, Input, Select, Textarea } from "@/app/ui";
+import { Button, Fieldset, Input, Radios, Textarea } from "@/app/ui";
 import React, { useEffect } from "react";
 
 import { TaskType } from "@/app/types";
@@ -30,29 +30,30 @@ export const TaskFormEdit = ({ task, callBack }: TaskFormEditProps) => {
           <p>{formState.message}</p>
           <input id="taskId" name="taskId" value={task.id} type="hidden" />
           <Input
-            id="title"
-            name="title"
+            id={`title-${task.id}`}
+            name={`title`}
             label="Title"
             value={task.title}
             error={formState.fieldErrors["title"]?.[0]}
           />
           <Textarea
-            id="description"
-            name="description"
+            id={`description-${task.id}`}
+            name={`description`}
             label="Description"
             value={task.description || ""}
             error={formState.fieldErrors["description"]?.[0]}
           />
-          <Select
+          <Radios
             options={[
               { value: "TODO", text: "To do" },
               { value: "DOING", text: "Doing" },
               { value: "DONE", text: "Done" },
             ]}
             value={task?.status}
-            label="Status"
-            id="status"
-            name="status"
+            legendText="Status"
+            id={`status-${task.id}`}
+            name={`status`}
+            inline={true}
           />
           <Button testId={"update-task-button"}>Update task</Button>
         </Fieldset>

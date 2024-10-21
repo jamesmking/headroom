@@ -1,0 +1,12 @@
+@use "@/app/ui/scss/helpers/all" as h;
+
+.form {
+  display: inline-block;
+}
+
+.button {
+  background: none;
+  border: none;
+  font-size: inherit;
+  @include h.link-common;
+}

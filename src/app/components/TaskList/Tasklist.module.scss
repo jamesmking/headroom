@@ -1,9 +1,10 @@
 @use "@/app/ui/scss/helpers/all" as h;
+@use "@/app/ui/scss/settings/all" as s;
 
 .wrap {
   display: flex;
-  padding: 20px;
-  gap: 20px;
+  padding: 1rem;
+  gap: 1rem;
   flex-direction: column;
   @include h.mq('s') {
     flex-direction: row;
@@ -23,20 +24,20 @@
 }
 
 .title {
-  font-size: 20px;
+  font-size: 1rem;
   font-weight: 600;
   margin-bottom:20px;
   border-left: 1em solid #000;
   line-height: 1em;
   padding-left: 10px;
   .status-todo & {
-    border-left-color: #b77362;
+    border-left-color: s.$red;
   }
   .status-doing & {
-    border-left-color: #7e94a2;
+    border-left-color: s.$blue;
   }
   .status-done & {
-    border-left-color: #93a889;
+    border-left-color: s.$green;
   }
 }
 

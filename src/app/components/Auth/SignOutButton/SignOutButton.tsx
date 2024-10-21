@@ -1,4 +1,5 @@
 import { signOut } from "@/app/auth";
+import styles from "./SignOutButton.module.scss";
 
 export function SignOutButton() {
   return (
@@ -7,8 +8,11 @@ export function SignOutButton() {
         "use server";
         await signOut();
       }}
+      className={styles.form}
     >
-      <button type="submit">Sign Out</button>
+      <button type="submit" className={styles.button}>
+        Sign out
+      </button>
     </form>
   );
 }

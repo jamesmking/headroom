@@ -1,5 +1,6 @@
 export { Button } from "./components/Button";
 export { ErrorMessage } from "./components/ErrorMessage";
+export { Fab } from "./components/Fab";
 export { Fieldset } from "./components/Fieldset";
 export { FormGroup } from "./components/FormGroup";
 export { Header } from "./components/Header";
@@ -8,6 +9,7 @@ export { Label } from "./components/Label";
 export { Legend } from "./components/Legend";
 export { Main } from "./components/Main";
 export { Modal } from "./components/Modal";
+export { Radios } from "./components/Radios";
 export { Select } from "./components/Select";
 export { TextInput } from "./components/TextInput";
 export { Textarea } from "./components/Textarea";

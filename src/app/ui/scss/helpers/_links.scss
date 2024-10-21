@@ -1,0 +1,16 @@
+@mixin link-common {
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  &:hover {
+    text-decoration-thickness: 2px;
+  }
+  &:focus {
+    outline: 3px solid rgba(255, 255, 255, 0.5);
+    background: #fff;
+    border: none;
+    color: #000;
+    text-decoration: none;
+  }
+}

@@ -1,0 +1,17 @@
+@import "../settings/all";
+
+.template {
+  background: $greyLight;
+  color: $blueDark;
+  font-family: $body-font-family;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  @media print {
+    background: white;
+    color: #333;
+  }
+}
+
+.template__body {
+  margin: 0;
+}

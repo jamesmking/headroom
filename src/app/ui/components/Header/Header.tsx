@@ -15,16 +15,16 @@ export const Header = ({
 }: Props): JSX.Element => {
   return (
     <header className={styles.header} data-testid={testId} id={id}>
-      <div className={styles.logo}>
+      <h1 className={styles.logo}>
         <Image
           src="/HeadRoomLogo.svg"
-          alt="Head Room Logo"
+          alt="Head Room - De-clutter your mind"
           className={styles.logoImage}
           width={150}
           height={56}
         />
-      </div>
-      {children}
+      </h1>
+      <div className={styles.userInfo}>{children}</div>
     </header>
   );
 };

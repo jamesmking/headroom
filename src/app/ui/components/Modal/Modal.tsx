@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, ReactNode } from "react";
+import { Fab } from "@/app/ui";
 import styles from "./Modal.module.scss";
 
 interface Props {
@@ -48,7 +49,7 @@ export const Modal = ({
           {children}
         </div>
       </div>
-      <button onClick={openModal}>Add</button>
+      <Fab handleClick={openModal} text={"Add a new task"} />
     </div>
   );
 };

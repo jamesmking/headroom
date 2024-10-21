@@ -1,0 +1,49 @@
+.radios {
+
+}
+
+.inline {
+  display: flex;
+}
+
+.item {
+  .inline & {
+    flex-grow: 1;
+    text-align: center;
+  }
+}
+
+.input {
+  .inline & {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+  }
+}
+
+.label {
+  .inline & {
+    padding: .5rem;
+    display: block;
+    cursor: pointer;
+    border: 1px solid #000;
+    box-shadow: inset rgba(50, 50, 93, 0.25) 0 2px 5px -1px, inset rgba(0, 0, 0, 0.5) 0px 1px 3px -1px;
+    margin-left: -1px;
+  }
+}
+
+.input:checked + .label {
+  .inline & {
+    background: #35363b;
+    color: #fff;
+    box-shadow: 0px -2px 0px 0px #002d18 inset;
+  }
+}
+
+.inline .item:first-child .label {
+    border-radius: 0.5rem 0 0 0.5rem;
+}
+
+.inline .item:last-child .label {
+  border-radius: 0 0.5rem 0.5rem 0;
+}
