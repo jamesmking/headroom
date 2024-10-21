@@ -27,7 +27,7 @@ export const statusEnum = pgEnum("status", ["TODO", "DOING", "DONE"]);
 
 export const tasksTable = pgTable("tasks", {
   id: uuid().primaryKey().defaultRandom(),
-  userId: uuid("user_id")
+  userId: text("user_id")
     .references(() => users.id)
     .notNull(),
   title: varchar().notNull(),
