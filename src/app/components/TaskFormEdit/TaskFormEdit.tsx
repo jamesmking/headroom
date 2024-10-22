@@ -17,7 +17,6 @@ export const TaskFormEdit = ({ task, callBack }: TaskFormEditProps) => {
   const [formState, action] = useFormState(updateTask, EMPTY_FORM_STATE);
 
   useEffect(() => {
-    console.log(formState.status);
     if (formState.status === "SUCCESS" && callBack) {
       callBack(new FormData());
     }

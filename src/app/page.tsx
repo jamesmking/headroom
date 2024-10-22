@@ -26,21 +26,41 @@ export default async function Home() {
   ];
   if (!session)
     return (
-      <Main>
-        <div className={styles.content}>
-          <p className={styles.lead}>Give yourself some head room.</p>
-          <p>
-            Clear your mind and tackle your tasks with ease. Transfer your long
-            to-do list into this simple, intuitive app, and take control of your
-            day.
-          </p>
-          <p>
-            You will need a Google account to access the app and save your
-            list—keeping everything safe and accessible wherever you go.
-          </p>
-          <SignInButton />
+      <div className={styles.homepage}>
+        <div className={styles.mainWrap}>
+          <main>
+            <div className={styles.content}>
+              <p className={styles.lead}>Give yourself some head room.</p>
+              <p>
+                Clear your mind and tackle your tasks with ease. Transfer your
+                long to-do list into this simple, intuitive app, and take
+                control of your day.
+              </p>
+              <p>
+                You will need a Google account to access the app and save your
+                list—keeping everything safe and accessible wherever you go.
+              </p>
+              <SignInButton />
+            </div>
+          </main>
         </div>
-      </Main>
+        <footer className={styles.footer}>
+          <p>
+            This is a work in progress project, and there are plenty of things
+            on my todo list to improve the code and user experience.
+          </p>
+          <p>
+            If you have any suggestions, send me an email{" "}
+            <a href="mailto:hello@jamesmichaelking.com">
+              hello@jamesmichaelking.com
+            </a>
+          </p>
+          <p>
+            Source code available on{" "}
+            <a href="https://github.com/jamesmking/headroom">GitHub</a>
+          </p>
+        </footer>
+      </div>
     );
   return (
     <Main>
