@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect, ReactNode, useCallback } from "react";
 import { Fab } from "@/app/ui";
 import styles from "./Modal.module.scss";
 
@@ -21,10 +21,10 @@ export const Modal = ({
     setIsOpen(true);
   };
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsOpen(false);
     resetTrigger && triggerClose && resetTrigger();
-  };
+  }, [setIsOpen, resetTrigger, triggerClose]);
 
   useEffect(() => {
     document.body.classList.toggle(styles.modalOpen, isOpen);
@@ -32,7 +32,7 @@ export const Modal = ({
 
   useEffect(() => {
     if (triggerClose) closeModal();
-  }, [triggerClose]);
+  }, [triggerClose, closeModal]);
 
   useEffect(() => {
     const close = (e: KeyboardEvent) => {
@@ -42,7 +42,7 @@ export const Modal = ({
       window.addEventListener("keydown", close);
       return () => window.removeEventListener("keydown", close);
     }
-  }, [isOpen]);
+  }, [isOpen, closeModal]);
 
   return (
     <>

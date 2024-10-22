@@ -1,5 +1,5 @@
 import React from "react";
-import { Main, Modal } from "@/app/ui";
+import { Main } from "@/app/ui";
 import { auth } from "@/app/auth";
 import { SignInButton } from "@/app/components/Auth/SignInButton";
 import { fetchTasks } from "@/app/lib/data";

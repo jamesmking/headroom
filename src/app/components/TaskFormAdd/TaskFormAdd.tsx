@@ -33,7 +33,7 @@ export const TaskFormAdd = ({ onSuccess }: TaskFormProps) => {
         onSuccess();
       }
     }
-  }, [formState]);
+  }, [formState, onSuccess]);
 
   return (
     <div className={styles.wrap}>
