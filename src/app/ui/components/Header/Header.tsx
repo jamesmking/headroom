@@ -24,7 +24,7 @@ export const Header = ({
           height={56}
         />
       </h1>
-      <div className={styles.userInfo}>{children}</div>
+      {children && <div className={styles.userInfo}>{children}</div>}
     </header>
   );
 };

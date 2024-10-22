@@ -36,13 +36,6 @@ export const TaskFormEdit = ({ task, callBack }: TaskFormEditProps) => {
             value={task.title}
             error={formState.fieldErrors["title"]?.[0]}
           />
-          <Textarea
-            id={`description-${task.id}`}
-            name={`description`}
-            label="Description"
-            value={task.description || ""}
-            error={formState.fieldErrors["description"]?.[0]}
-          />
           <Radios
             options={[
               { value: "TODO", text: "To do" },
@@ -55,6 +48,14 @@ export const TaskFormEdit = ({ task, callBack }: TaskFormEditProps) => {
             name={`status`}
             inline={true}
           />
+          <Textarea
+            id={`description-${task.id}`}
+            name={`description`}
+            label="Description"
+            value={task.description || ""}
+            error={formState.fieldErrors["description"]?.[0]}
+          />
+
           <Button testId={"update-task-button"}>Update task</Button>
         </Fieldset>
       </form>

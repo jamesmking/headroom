@@ -23,7 +23,7 @@ export const TaskList = ({ tasks, statuses }: TaskListProps) => {
           {!tasks ||
             (tasks.filter((task) => task.status === status.id).length === 0 && (
               <span className={styles.empty}>
-                There are no tasks in the {status.title} column
+                You do not have any tasks with the <b>{status.title}</b> status
               </span>
             ))}
         </div>

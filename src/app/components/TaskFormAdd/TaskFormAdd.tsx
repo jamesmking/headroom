@@ -1,7 +1,7 @@
 "use client";
 import styles from "./TaskFormAdd.module.scss";
 import { Button, Fieldset, Input, Textarea } from "@/app/ui";
-import React from "react";
+import React, { useEffect } from "react";
 import { useFormStatus, useFormState } from "react-dom";
 import { createTask } from "@/app/lib/actions";
 import { EMPTY_FORM_STATE } from "@/app/utils/taskForm";
@@ -19,9 +19,21 @@ const SubmitButton = ({ label, loading }: SubmitButtonProps) => {
   );
 };
 
-export const TaskFormAdd = () => {
+interface TaskFormProps {
+  onSuccess?: () => void;
+}
+
+export const TaskFormAdd = ({ onSuccess }: TaskFormProps) => {
   const [formState, action] = useFormState(createTask, EMPTY_FORM_STATE);
   const formRef = useFormReset(formState);
+
+  useEffect(() => {
+    if (formState.status === "SUCCESS") {
+      if (onSuccess) {
+        onSuccess();
+      }
+    }
+  }, [formState]);
 
   return (
     <div className={styles.wrap}>

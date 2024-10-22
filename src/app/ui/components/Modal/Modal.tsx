@@ -5,11 +5,13 @@ import styles from "./Modal.module.scss";
 
 interface Props {
   triggerClose?: boolean;
+  resetTrigger?: () => void;
   children: ReactNode;
 }
 
 export const Modal = ({
   triggerClose = false,
+  resetTrigger,
   children,
 }: Props): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +21,10 @@ export const Modal = ({
     setIsOpen(true);
   };
 
-  const closeModal = () => setIsOpen(false);
+  const closeModal = () => {
+    setIsOpen(false);
+    resetTrigger && triggerClose && resetTrigger();
+  };
 
   useEffect(() => {
     document.body.classList.toggle(styles.modalOpen, isOpen);

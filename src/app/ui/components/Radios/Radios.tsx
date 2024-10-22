@@ -51,7 +51,13 @@ export const Radios = ({
                   onChange={onChange}
                   defaultChecked={option.value === value}
                 />
-                <label className={styles.label} htmlFor={radioId}>
+                <label
+                  className={[
+                    styles.label,
+                    styles[`status-${option.value.toLowerCase()}`],
+                  ].join(" ")}
+                  htmlFor={radioId}
+                >
                   {option.text}
                 </label>
               </div>

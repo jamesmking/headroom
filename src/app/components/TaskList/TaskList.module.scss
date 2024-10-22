@@ -24,21 +24,22 @@
 }
 
 .title {
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: 600;
   margin-bottom:20px;
   border-left: 1em solid #000;
+  letter-spacing: -0.02em;
+  word-spacing: -0.1em;
   line-height: 1em;
   padding-left: 10px;
-  text-transform: uppercase;
   .status-todo & {
-    border-left-color: s.$red;
+    border-left-color: s.$status-todo;
   }
   .status-doing & {
-    border-left-color: s.$blue;
+    border-left-color: s.$status-doing;
   }
   .status-done & {
-    border-left-color: s.$green;
+    border-left-color: s.$status-done;
   }
 }
 
@@ -46,6 +47,9 @@
   color: s.$blueDark;
   margin: 1rem 0;
   display: block;
-  text-align: center;
-  padding: 2rem;
+  opacity: .6;
+  @include h.mq('s') {
+    text-align: center;
+    padding: 2rem;
+  }
 }

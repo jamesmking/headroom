@@ -1,0 +1,9 @@
+@use "@/app/ui/scss/helpers/all" as h;
+@use "@/app/ui/scss/settings/colours" as c;
+
+.button {
+  @include h.heroButton;
+  margin-top: 1rem;
+  letter-spacing: -0.02em;
+  word-spacing: -0.1em;
+}

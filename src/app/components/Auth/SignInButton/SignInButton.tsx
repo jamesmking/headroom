@@ -1,4 +1,5 @@
 import { signIn } from "@/app/auth";
+import styles from "./SignInButton.module.scss";
 
 export const SignInButton = () => {
   return (
@@ -8,7 +9,9 @@ export const SignInButton = () => {
         await signIn("google");
       }}
     >
-      <button type="submit">Sign in</button>
+      <button type="submit" className={styles.button}>
+        Sign in with Google
+      </button>
     </form>
   );
 };
