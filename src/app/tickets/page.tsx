@@ -1,12 +1,12 @@
-import { TicketList } from "@/features/tickets/components/ticket-list";
-import { TicketUpsertForm } from "@/features/tickets/components/ticket-upsert-form";
+import { Form } from "@/features/tickets/components/form";
+import { List } from "@/features/tickets/components/list";
 
 const Tickets = () => {
   return (
     <div>
       <h1>Tickets</h1>
-      <TicketUpsertForm />
-      <TicketList />
+      <Form />
+      <List />
     </div>
   );
 };

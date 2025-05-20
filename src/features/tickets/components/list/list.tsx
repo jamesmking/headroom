@@ -1,16 +1,16 @@
-import { TicketItem } from "@/features/tickets/components/ticket-item";
+import { Ticket } from "@/features/tickets/components/ticket";
 import { getTickets } from "@/features/tickets/queries/get-tickets";
 
-const TicketList = async () => {
+const List = async () => {
   const tickets = await getTickets();
   return (
     <div>
       {tickets.length === 0 && <div>No tickets found</div>}
       {tickets.map((ticket) => (
-        <TicketItem key={ticket.id} ticket={ticket} />
+        <Ticket key={ticket.id} ticket={ticket} />
       ))}
     </div>
   );
 };
 
-export { TicketList };
+export { List };
