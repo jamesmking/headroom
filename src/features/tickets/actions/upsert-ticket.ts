@@ -1,0 +1,44 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { prisma } from "@/lib/prisma";
+import { ticketsPath } from "@/routes";
+
+const upsertTicketSchema = z.object({
+  title: z.string().min(1, { message: "Title is required" }),
+});
+
+export const upsertTicket = async (
+  id: string | undefined,
+  _actionState: {
+    message: string;
+    payload?: FormData;
+  },
+  formData: FormData,
+) => {
+  try {
+    const data = upsertTicketSchema.parse({
+      title: formData.get("title"),
+    });
+
+    await prisma.ticket.upsert({
+      where: {
+        id: id || "",
+      },
+      update: data,
+      create: data,
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { message: error.issues[0].message, payload: formData };
+    }
+    return { message: "Something went wrong", payload: formData };
+  }
+
+  revalidatePath(ticketsPath());
+  // if (id) {
+  //   redirect(ticketPath(id));
+  // }
+  return { message: "Ticket created" };
+};

@@ -1,0 +1,5 @@
+@use "../styles/variables/colours" as colours;
+
+.html {
+  background: colours.$page-background;
+}
