@@ -1,0 +1,18 @@
+.Navigation {
+  display: flex;
+  gap: 1rem;
+}
+
+.Link {
+  text-decoration: none;
+  color: #000;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+}
+
+.LinkActive {
+  font-weight: bold;
+  color: #007bff;
+}

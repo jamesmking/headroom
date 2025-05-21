@@ -2,13 +2,13 @@
 import { Field } from "@base-ui-components/react/field";
 import { useActionState } from "react";
 import { upsertTicket } from "@/features/tickets/actions/upsert-ticket";
-import styles from "./form.module.scss";
+import styles from "./ticketForm.module.scss";
 
 type TicketUpsertFormProps = {
   ticket?: { title: string; id: string };
 };
 
-const Form = ({ ticket }: TicketUpsertFormProps) => {
+const TicketForm = ({ ticket }: TicketUpsertFormProps) => {
   const [actionState, action] = useActionState(
     upsertTicket.bind(null, ticket?.id),
     {
@@ -43,4 +43,4 @@ const Form = ({ ticket }: TicketUpsertFormProps) => {
   );
 };
 
-export { Form };
+export { TicketForm };

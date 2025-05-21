@@ -1,7 +1,7 @@
 import { Ticket } from "@/features/tickets/components/ticket";
 import { getTickets } from "@/features/tickets/queries/get-tickets";
 
-const List = async () => {
+const TicketList = async () => {
   const tickets = await getTickets();
   return (
     <div>
@@ -13,4 +13,4 @@ const List = async () => {
   );
 };
 
-export { List };
+export { TicketList };

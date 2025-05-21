@@ -1,0 +1,12 @@
+@use '@/styles/variables/typography' as t;
+
+.Header {
+  background: #ccc;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.Brand {
+  font-weight: t.$hr-font-weight-bold;
+}
