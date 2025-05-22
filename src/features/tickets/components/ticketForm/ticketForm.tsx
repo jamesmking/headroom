@@ -1,46 +1,26 @@
-"use client";
-import { Field } from "@base-ui-components/react/field";
-import { useActionState } from "react";
-import { upsertTicket } from "@/features/tickets/actions/upsert-ticket";
-import styles from "./ticketForm.module.scss";
+'use client';
+import {useActionState} from 'react';
+import {Button} from '@/components/button';
+import {Field} from '@/components/field';
+import {upsertTicket} from '@/features/tickets/actions/upsert-ticket';
 
 type TicketUpsertFormProps = {
-  ticket?: { title: string; id: string };
+  ticket?: {title: string; id: string};
 };
 
-const TicketForm = ({ ticket }: TicketUpsertFormProps) => {
-  const [actionState, action] = useActionState(
-    upsertTicket.bind(null, ticket?.id),
-    {
-      message: "",
-    },
-  );
+const TicketForm = ({ticket}: TicketUpsertFormProps) => {
+  const [actionState, action] = useActionState(upsertTicket.bind(null, ticket?.id), {
+    message: '',
+  });
   return (
-    <form action={action} className={"flex flex-col gap-y-4"} noValidate={true}>
+    <form action={action} className={'flex flex-col gap-y-4'} noValidate={true}>
       <input type="hidden" name="ticketId" value={ticket?.id} />
 
-      {actionState?.message && (
-        <div className="text-sm text-green-500">{actionState.message}</div>
-      )}
-
-      <Field.Root className={styles.Field}>
-        <Field.Label className={styles.Label}>Name</Field.Label>
-        <Field.Control
-          required
-          placeholder="Required"
-          className={styles.Input}
-          id="title"
-          name="title"
-        />
-
-        <Field.Error className={styles.Error} forceShow={!!actionState.message}>
-          {actionState.message}
-        </Field.Error>
-      </Field.Root>
-
-      <button type="submit">{ticket ? "Update" : "Create"}</button>
+      {actionState?.message && <div className="text-sm text-green-500">{actionState.message}</div>}
+      <Field name="title" id="title" value="a" label="Title" />
+      <Button>{ticket ? 'Update' : 'Create'}</Button>
     </form>
   );
 };
 
-export { TicketForm };
+export {TicketForm};

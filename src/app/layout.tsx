@@ -1,17 +1,17 @@
-import "@/styles/app.scss";
-import clsx from "clsx";
-import type { Metadata } from "next";
-import { Geist } from "next/font/google";
-import { Footer } from "@/components/footer";
-import { Header } from "@/components/header";
-import styles from "./layout.module.scss";
+import '@/styles/app.scss';
+import clsx from 'clsx';
+import type {Metadata} from 'next';
+import {Geist} from 'next/font/google';
+import {Footer} from '@/components/footer';
+import {Header} from '@/components/header';
+import styles from './layout.module.scss';
 
 export const metadata: Metadata = {
-  title: "Headroom",
+  title: 'Headroom',
 };
 
 const geist = Geist({
-  subsets: ["latin"],
+  subsets: ['latin'],
 });
 
 export default function RootLayout({
@@ -20,15 +20,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={clsx(styles.html, geist.className)}
-      suppressHydrationWarning={true}
-    >
+    <html lang="en" className={clsx(styles.html, geist.className)} suppressHydrationWarning={true}>
       <body>
         <div className="root">
           <Header />
-          {children}
+          <main className={styles.Main}>{children}</main>
           <Footer />
         </div>
       </body>
