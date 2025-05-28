@@ -1,0 +1,95 @@
+@use '@/styles/variables/colours' as c;
+@use '@/styles/helpers/links' as l;
+
+.Button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  width: 2.5rem;
+  padding: 0;
+  margin: 0;
+  outline: 0;
+  border: 1px solid #eee;
+  border-radius: 0.375rem;
+  background-color: transparent;
+  user-select: none;
+  cursor: pointer;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: #eee;
+    }
+  }
+
+  &:active {
+    background-color: #ccc;
+  }
+
+  &[data-popup-open] {
+    background-color: #ccc;
+  }
+
+  &:focus-visible {
+    outline: 2px solid c.$hr-focus-outline;
+    outline-offset: -1px;
+  }
+}
+
+.ButtonIcon {
+  margin-right: -0.25rem;
+}
+
+.Positioner {
+  outline: 0;
+}
+
+.Popup {
+  box-sizing: border-box;
+  padding-block: 0.25rem;
+  border-radius: 0.375rem;
+  background-color: #fff;
+  color: #000;
+  transition:
+    transform 150ms,
+    opacity 150ms;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  outline: 1px solid #ccc;
+  box-shadow:
+    0 10px 15px -3px #ccc,
+    0 4px 6px -4px #eee;
+}
+
+.Item {
+  outline: 0;
+  cursor: default;
+  user-select: none;
+  padding-block: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 2rem;
+  display: flex;
+  font-size: 0.875rem;
+  line-height: 1rem;
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+    color: #fff;
+  }
+
+  &[data-highlighted]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    border-radius: 0.25rem;
+    background-color: #000;
+  }
+}

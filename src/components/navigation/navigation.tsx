@@ -1,6 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
+import {LucideSettings} from 'lucide-react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {homePath, settingsPath, ticketsPath} from '@/routes';
@@ -21,7 +22,7 @@ const Navigation = () => {
     },
     {
       href: settingsPath(),
-      label: 'Settings',
+      label: <LucideSettings className={styles.Icon}>Settings</LucideSettings>,
     },
   ];
 

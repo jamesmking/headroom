@@ -1,12 +1,17 @@
 @use '@/styles/variables/typography' as t;
+@use '@/styles/variables/colours' as c;
 
 .Header {
-  background: #ccc;
-  padding: 1rem;
+  background: c.$hr-header-bg;
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  padding: 0 0 0 1rem;
 }
 
 .Brand {
   font-weight: t.$hr-font-weight-bold;
+  color: #fff;
+  font-size: 1.2rem;
+  letter-spacing: -0.025rem;
 }

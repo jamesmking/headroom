@@ -1,0 +1,11 @@
+@mixin link-common {
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  &:hover {
+    text-decoration-thickness: 2px;
+  }
+  &:focus {
+  }
+}

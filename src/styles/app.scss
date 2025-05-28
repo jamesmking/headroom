@@ -1,4 +1,5 @@
 @use 'reset';
+@use 'variables/colours' as c;
 
 * {
   box-sizing: border-box;
@@ -11,6 +12,10 @@ html {
   text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: c.$hr-page-bg;
 }
 
 .root {

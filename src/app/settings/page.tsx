@@ -1,3 +1,9 @@
+import type {Metadata} from 'next';
+
+export const metadata: Metadata = {
+  title: 'Headroom | Settings',
+};
+
 const Tickets = () => {
   return (
     <div>

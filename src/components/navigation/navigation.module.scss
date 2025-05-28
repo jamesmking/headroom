@@ -1,18 +1,61 @@
+@use '@/styles/variables/colours' as c;
+@use '@/styles/helpers/links' as l;
+
 .Navigation {
   display: flex;
-  gap: 1rem;
 }
 
 .Link {
-  text-decoration: none;
-  color: #000;
-
+  @include l.link-common();
+  color: #fff;
+  padding: 1rem;
+  display: block;
+  position: relative;
+  align-content: center;
+  transition: background-color 0.3s ease;
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0;
+    background-color: transparent;
+    transition: background-color 0.5s ease;
+  }
   &:hover {
-    background-color: #f0f0f0;
+    background-color: darken(c.$hr-header-bg, 10%);
+  }
+  &:focus {
+    background: darken(c.$hr-header-bg, 10%);
+    border: none;
+    color: #fff;
+    text-decoration: none;
+  }
+  &:focus-visible {
+    outline: 3px solid c.$hr-focus-outline;
+    outline-offset: -2px;
   }
 }
 
 .LinkActive {
-  font-weight: bold;
-  color: #007bff;
+  background: c.$hr-page-bg;
+  color: #000;
+  text-decoration: none;
+  &:after {
+    height: 4px;
+    background-color: c.$hr-brand-accent;
+  }
+  &:hover {
+    background-color: c.$hr-page-bg;
+  }
+  &:focus {
+    background: c.$hr-page-bg;
+    color: #000;
+  }
+}
+
+.Icon {
+  width: 1.2rem;
+  height: 1.2rem;
 }

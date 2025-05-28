@@ -1,8 +1,10 @@
 'use client';
 import {useActionState} from 'react';
 import {Button} from '@/components/button';
+import {Collapse} from '@/components/collapse';
 import {Field} from '@/components/field';
 import {upsertTicket} from '@/features/tickets/actions/upsert-ticket';
+import styles from './ticketForm.module.scss';
 
 type TicketUpsertFormProps = {
   ticket?: {title: string; id: string};
@@ -13,13 +15,21 @@ const TicketForm = ({ticket}: TicketUpsertFormProps) => {
     message: '',
   });
   return (
-    <form action={action} className={'flex flex-col gap-y-4'} noValidate={true}>
-      <input type="hidden" name="ticketId" value={ticket?.id} />
-
-      {actionState?.message && <div className="text-sm text-green-500">{actionState.message}</div>}
-      <Field name="title" id="title" value="a" label="Title" />
-      <Button>{ticket ? 'Update' : 'Create'}</Button>
-    </form>
+    <>
+      <Collapse title={'Add a new ticket'}>
+        <form action={action} className={styles.Form} noValidate={true}>
+          <input type="hidden" name="ticketId" value={ticket?.id} />
+          <Field
+            name="title"
+            id="title"
+            label="Title"
+            hideLabel={true}
+            error={actionState.message}
+          />
+          <Button>{ticket ? 'Update' : 'Add'} ticket</Button>
+        </form>
+      </Collapse>
+    </>
   );
 };
 
