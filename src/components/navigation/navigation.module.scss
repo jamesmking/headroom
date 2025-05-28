@@ -24,10 +24,10 @@
     transition: background-color 0.5s ease;
   }
   &:hover {
-    background-color: darken(c.$hr-header-bg, 10%);
+    background-color: c.$blue-black;
   }
   &:focus {
-    background: darken(c.$hr-header-bg, 10%);
+    background: c.$blue-black;
     border: none;
     color: #fff;
     text-decoration: none;

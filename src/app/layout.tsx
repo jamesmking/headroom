@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={clsx(styles.html, geist.className)} suppressHydrationWarning={true}>
+    <html lang="en" className={clsx(geist.className)} suppressHydrationWarning={true}>
       <body>
         <div className="root">
           <Header />

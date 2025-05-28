@@ -1,0 +1,8 @@
+@use '@/styles/helpers/links' as l;
+
+.BackLink {
+  @include l.link-common();
+  margin-bottom: 1rem;
+  display: inline-block;
+  color: #0b0c0c;
+}

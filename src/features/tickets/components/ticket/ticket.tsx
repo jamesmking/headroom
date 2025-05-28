@@ -1,7 +1,9 @@
 import {AlertDialog} from '@base-ui-components/react/alert-dialog';
+import Link from 'next/link';
 import {deleteTicket} from '@/features/tickets/actions/delete-ticket';
-import styles from './ticket.module.scss';
+import {ticketViewPath} from '@/routes';
 import {TicketMenu} from '../ticketMenu';
+import styles from './ticket.module.scss';
 
 type TicketProps = {
   ticket: {title: string; id: string};
@@ -12,7 +14,11 @@ const Ticket = ({ticket}: TicketProps) => {
   return (
     <div className={styles.Ticket}>
       <div className={styles.TicketTop}>
-        <h3 className={styles.TicketTitle}>{ticket.title}</h3>
+        <h3 className={styles.TicketTitle}>
+          <Link href={ticketViewPath(ticket.id)} className={styles.TicketLink}>
+            {ticket.title}
+          </Link>
+        </h3>
         <TicketMenu ticketId={ticket.id} />
       </div>
       {/*<div>*/}

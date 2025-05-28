@@ -1,0 +1,51 @@
+@use '../variables/colours' as c;
+
+@mixin button($variant: default) {
+  background: c.$hr-brand-accent;
+  display: inline-flex;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.5rem;
+  justify-content: center;
+  text-decoration: none;
+  line-height: 1.5;
+  min-height: 1.5rem;
+  transition: background 0.3s ease;
+  &:hover {
+    background: c.$blue-dark;
+  }
+  &:active {
+    background: c.$blue-dark;
+  }
+  &:disabled {
+    cursor: not-allowed;
+  }
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(11, 12, 12, 0.25);
+  }
+  @if $variant == danger {
+    background: c.$red;
+    &:hover {
+      background: c.$red-dark;
+    }
+    &:active {
+      background: c.$red-dark;
+    }
+  }
+  @if $variant == outline {
+    background: #fff;
+    color: #0b0c0c;
+    border: 2px solid c.$hr-brand-accent;
+    &:hover {
+      background: c.$blue-lightest;
+    }
+    &:active {
+      background: c.$blue-lightest;
+    }
+  }
+}
