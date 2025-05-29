@@ -18,6 +18,7 @@ datasource db {
 model Ticket {
   id        String   @id @default(cuid())
   title     String
+  description String? @db.VarChar(2048)
   status    TicketStatus @default(BACKLOG)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

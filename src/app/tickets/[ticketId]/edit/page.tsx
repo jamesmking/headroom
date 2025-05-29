@@ -2,6 +2,7 @@ import {notFound} from 'next/navigation';
 import {getTicket} from '@/features/tickets/queries/get-ticket';
 import styles from './page.module.scss';
 import type {Metadata} from 'next';
+import {TicketForm} from '@/features/tickets/components/ticketForm';
 
 export const metadata: Metadata = {
   title: `Headroom - Ticket - Edit`,
@@ -21,7 +22,11 @@ const TicketEditPage = async ({params}: TicketEditPageProps) => {
     notFound();
   }
 
-  return <div className={styles.Page}>{ticket.title}</div>;
+  return (
+    <div className={styles.Page}>
+      <TicketForm ticket={ticket} />
+    </div>
+  );
 };
 
 export default TicketEditPage;

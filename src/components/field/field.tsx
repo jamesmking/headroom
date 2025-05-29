@@ -1,5 +1,6 @@
 import {Field as FormField} from '@base-ui-components/react/field';
 import styles from './field.module.scss';
+import {ReactElement} from 'react';
 
 type FieldProps = {
   name: string;
@@ -7,9 +8,11 @@ type FieldProps = {
   label: string;
   hideLabel?: boolean;
   error?: string;
+  defaultValue?: string;
+  render?: ReactElement;
 };
 
-const Field = ({name, id, label, hideLabel, error}: FieldProps) => {
+const Field = ({name, id, label, hideLabel, error, defaultValue, render}: FieldProps) => {
   return (
     <>
       <FormField.Root className={styles.Field}>
@@ -27,6 +30,8 @@ const Field = ({name, id, label, hideLabel, error}: FieldProps) => {
           id={id}
           name={name}
           placeholder={hideLabel ? label : ''}
+          defaultValue={defaultValue}
+          render={render || <input type="text" />}
         />
       </FormField.Root>
     </>

@@ -4,13 +4,14 @@ import {deleteTicket} from '@/features/tickets/actions/delete-ticket';
 import {ticketViewPath} from '@/routes';
 import {TicketMenu} from '../ticketMenu';
 import styles from './ticket.module.scss';
+import {Ticket} from '@/generated/prisma';
 
 type TicketProps = {
-  ticket: {title: string; id: string};
+  ticket: Ticket;
   isDetail?: boolean;
 };
 
-const Ticket = ({ticket}: TicketProps) => {
+const TicketCard = ({ticket}: TicketProps) => {
   return (
     <div className={styles.Ticket}>
       <div className={styles.TicketTop}>
@@ -21,6 +22,7 @@ const Ticket = ({ticket}: TicketProps) => {
         </h3>
         <TicketMenu ticketId={ticket.id} />
       </div>
+      {ticket.description && <p className={styles.Description}>{ticket.description}</p>}
       {/*<div>*/}
       {/*  <AlertDialog.Root>*/}
       {/*    <AlertDialog.Trigger data-color="red" className={styles.Button}>*/}
@@ -48,4 +50,4 @@ const Ticket = ({ticket}: TicketProps) => {
   );
 };
 
-export {Ticket};
+export {TicketCard};
