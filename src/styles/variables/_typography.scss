@@ -1,1 +1,23 @@
-$hr-font-weight-bold: 600 !default;
+// Two families, one rule: anything that expresses a time, a duration or a
+// countdown is set in the mono face so times align into a scannable column.
+$font-sans: var(--font-sans), 'Helvetica Neue', Arial, sans-serif;
+$font-mono: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+
+$weight-regular: 400;
+$weight-medium: 500;
+$weight-semibold: 600;
+$weight-bold: 700;
+
+// Type scale
+$text-2xs: 0.6875rem; // 11 — eyebrow labels
+$text-xs: 0.75rem; // 12
+$text-sm: 0.8125rem; // 13
+$text-base: 0.9375rem; // 15
+$text-md: 1.0625rem; // 17
+$text-lg: 1.375rem; // 22
+$text-xl: 1.875rem; // 30
+$text-2xl: 2.5rem; // 40 — the headline duration on Today
+
+$leading-tight: 1.15;
+$leading-snug: 1.35;
+$leading-normal: 1.5;

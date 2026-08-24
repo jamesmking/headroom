@@ -1,23 +1,87 @@
 @use 'reset';
 @use 'variables/colours' as c;
+@use 'variables/typography' as t;
+@use 'helpers/focus' as f;
+@use 'helpers/utilities' as u;
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
   text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: c.$hr-page-bg;
+  background: c.$paper;
+  color: c.$ink-900;
+  font-family: t.$font-sans;
+  font-size: t.$text-base;
+  line-height: t.$leading-normal;
 }
 
 .root {
   isolation: isolate;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+// Anything focusable gets a visible ring, including elements not covered by a
+// component mixin.
+:focus-visible {
+  @include f.focus-ring();
+}
+
+// Text available to assistive technology only.
+.sr-only {
+  @include u.visually-hidden;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: t.$weight-semibold;
+  line-height: t.$leading-tight;
+  letter-spacing: -0.015em;
+}
+
+strong,
+b {
+  font-weight: t.$weight-semibold;
+}
+
+::selection {
+  background: c.$focus;
+  color: c.$focus-ink;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

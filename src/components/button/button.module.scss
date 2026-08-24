@@ -1,22 +1,36 @@
 @use '@/styles/helpers/buttons' as b;
 
-.Button {
-  @include b.button();
+.Primary {
+  @include b.button(primary);
+}
+.Secondary {
+  @include b.button(secondary);
+}
+.Ghost {
+  @include b.button(ghost);
+}
+.Danger {
+  @include b.button(danger);
 }
 
-.Icon {
-  margin-right: 0.5rem;
-  height: 1.5rem;
-  width: 1.5rem;
-  animation: spin 1s infinite linear;
-  display: block;
+.Small {
+  min-height: 1.875rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+}
+
+.Block {
+  width: 100%;
+}
+
+.Spinner {
+  height: 0.875rem;
+  width: 0.875rem;
+  animation: spin 0.9s linear infinite;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
+  to {
     transform: rotate(360deg);
   }
 }

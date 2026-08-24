@@ -1,0 +1,56 @@
+@use '@/styles/helpers/focus' as f;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Filter {
+  display: flex;
+  align-items: center;
+  gap: s.$space-2;
+  flex-wrap: wrap;
+}
+
+.Legend {
+  font-size: t.$text-xs;
+  color: c.$ink-500;
+  margin-right: 0.25rem;
+}
+
+.Chip {
+  @include f.focusable(1px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border: 1px solid c.$line-strong;
+  border-radius: 999px;
+  background: c.$card;
+  color: c.$ink-700;
+  font-size: t.$text-xs;
+  font-weight: t.$weight-medium;
+  padding: 0.3125rem 0.75rem;
+  text-decoration: none;
+
+  &:hover {
+    background: c.$card-hover;
+    border-color: c.$ink-300;
+  }
+}
+
+.Active {
+  background: c.$ink-900;
+  border-color: c.$ink-900;
+  color: #fff;
+
+  &:hover {
+    background: c.$ink-900;
+    border-color: c.$ink-900;
+  }
+}
+
+.Dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--role-colour, #{c.$ink-300});
+  box-shadow: inset 0 0 0 1px rgba(19, 26, 33, 0.2);
+}

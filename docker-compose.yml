@@ -1,0 +1,24 @@
+# Local development database.
+# Production databases are provisioned separately; the app only needs
+# DATABASE_URL to point at them.
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: headroom-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: headroom
+      POSTGRES_PASSWORD: headroom
+      POSTGRES_DB: headroom
+    ports:
+      - '5432:5432'
+    volumes:
+      - headroom-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U headroom -d headroom']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  headroom-pgdata:

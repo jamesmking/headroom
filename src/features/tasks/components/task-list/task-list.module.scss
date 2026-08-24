@@ -1,0 +1,15 @@
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.List {
+  display: flex;
+  flex-direction: column;
+}
+
+.Footer {
+  padding: s.$space-3 s.$space-4;
+  border-top: 1px solid c.$line;
+  font-size: t.$text-xs;
+  color: c.$ink-500;
+}

@@ -1,33 +1,196 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
-model Ticket {
-  id        String   @id @default(cuid())
-  title     String
-  description String? @db.VarChar(2048)
-  status    TicketStatus @default(BACKLOG)
+// ---------------------------------------------------------------------------
+// Auth.js models
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts   Account[]
+  sessions   Session[]
+  settings   UserSettings?
+  roles      Role[]
+  meetings   Meeting[]
+  tasks      Task[]
+  dailyTasks DailyTask[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------------------------------------------------------------------------
+// Application models
+// ---------------------------------------------------------------------------
+
+/// Per-user preferences. Sensitive values (icalUrl) are only ever read on the
+/// server and are never included in a payload sent to the browser.
+model UserSettings {
+  id                 String  @id @default(cuid())
+  userId             String  @unique
+  /// Minutes from local midnight, e.g. 09:00 => 540
+  workdayStartMinutes Int    @default(540)
+  /// Minutes from local midnight, e.g. 17:30 => 1050
+  workdayEndMinutes   Int    @default(1050)
+  /// IANA timezone used to render iCal instants as local wall-clock times
+  timeZone            String @default("Europe/London")
+  icalUrl             String? @db.Text
+  icalEnabled         Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-enum TicketStatus {
+model Role {
+  id          String  @id @default(cuid())
+  userId      String
+  name        String
+  shortName   String
+  /// Hex colour, e.g. #3373b0
+  colour      String
+  description String? @db.Text
+  active      Boolean @default(true)
+  sortOrder   Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  meetings Meeting[]
+  tasks    Task[]
+
+  @@index([userId, active])
+}
+
+enum Recurrence {
+  NONE
+  DAILY
+  WEEKDAYS
+  WEEKLY
+  FORTNIGHTLY
+}
+
+/// Meetings are stored as a local calendar date plus wall-clock minute offsets
+/// rather than absolute instants. A 10:00 stand-up stays at 10:00 across DST
+/// boundaries, and availability becomes integer arithmetic.
+model Meeting {
+  id           String     @id @default(cuid())
+  userId       String
+  roleId       String?
+  title        String
+  /// The date of the first (or only) occurrence
+  date         DateTime   @db.Date
+  startMinutes Int
+  endMinutes   Int
+  notes        String?    @db.Text
+  recurrence   Recurrence @default(NONE)
+  /// Inclusive last date a recurring meeting may occur on. Null = no end.
+  recurrenceEndDate DateTime? @db.Date
+  /// Occurrence dates that have been individually cancelled
+  skippedDates DateTime[] @db.Date
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role? @relation(fields: [roleId], references: [id], onDelete: SetNull)
+
+  @@index([userId, date])
+}
+
+enum TaskStatus {
   BACKLOG
   TODO
-  DOING
   DONE
-  ARCHIVED
+}
+
+model Task {
+  id        String     @id @default(cuid())
+  userId    String
+  roleId    String?
+  title     String
+  jiraUrl   String?    @db.Text
+  dueDate   DateTime?  @db.Date
+  status    TaskStatus @default(BACKLOG)
+  notes     String?    @db.Text
+  sortOrder Int        @default(0)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role?       @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  dailyTasks DailyTask[]
+
+  @@index([userId, status])
+  @@index([userId, dueDate])
+}
+
+/// "I intend to work on this task on this day." Deliberately separate from
+/// Task.dueDate so tasks never need artificial due dates to reach Today.
+model DailyTask {
+  id        String   @id @default(cuid())
+  userId    String
+  taskId    String
+  date      DateTime @db.Date
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, date])
+  @@index([userId, date])
 }

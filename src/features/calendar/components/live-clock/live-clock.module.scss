@@ -1,0 +1,12 @@
+@use '@/styles/helpers/typography' as ty;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/typography' as t;
+
+.Clock {
+  @include ty.temporal;
+  font-size: t.$text-xl;
+  font-weight: t.$weight-medium;
+  color: c.$ink-900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}

@@ -1,0 +1,24 @@
+@use '@/styles/variables/spacing' as s;
+
+.Form {
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-3;
+}
+
+.Row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: s.$space-3;
+}
+
+.Footer {
+  display: flex;
+  gap: s.$space-2;
+}
+
+@media (max-width: 720px) {
+  .Row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

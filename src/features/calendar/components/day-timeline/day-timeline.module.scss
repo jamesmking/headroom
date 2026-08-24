@@ -1,0 +1,294 @@
+@use '@/styles/helpers/focus' as f;
+@use '@/styles/helpers/typography' as ty;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Timeline {
+  display: flex;
+  flex-direction: column;
+  padding: s.$space-2 0;
+}
+
+.Row {
+  display: grid;
+  grid-template-columns: 4.25rem minmax(0, 1fr);
+  gap: s.$space-3;
+  position: relative;
+  min-height: var(--row-height, 3.5rem);
+  padding: 0 s.$space-4;
+}
+
+/// The time rail. Monospaced and tabular so every start time lines up and the
+/// day can be read as a single vertical column.
+.Rail {
+  @include ty.temporal;
+  font-size: t.$text-xs;
+  color: c.$ink-500;
+  padding-top: 0.5rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.RailStrong {
+  color: c.$ink-700;
+  font-weight: t.$weight-medium;
+}
+
+// --- Booked time ------------------------------------------------------------
+
+.Event {
+  border: 1px solid c.$line;
+  border-left: 3px solid var(--role-colour, #{c.$ink-300});
+  border-radius: s.$radius;
+  background: c.$card;
+  padding: s.$space-3 s.$space-3 s.$space-3 s.$space-4;
+  margin: 0.25rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  position: relative;
+}
+
+/// Family events are not one of the user's roles: a hatched flag distinguishes
+/// them by texture as well as colour, and they carry no edit controls.
+.Family {
+  border-left-color: c.$family;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(107, 122, 136, 0.05) 0,
+      rgba(107, 122, 136, 0.05) 4px,
+      transparent 4px,
+      transparent 9px
+    ),
+    c.$card;
+}
+
+.Current {
+  border-color: c.$now;
+  box-shadow: 0 0 0 1px c.$now;
+}
+
+.EventTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: s.$space-3;
+}
+
+.Title {
+  font-size: t.$text-base;
+  font-weight: t.$weight-semibold;
+  color: c.$ink-900;
+  line-height: t.$leading-snug;
+  min-width: 0;
+}
+
+.Meta {
+  display: flex;
+  align-items: center;
+  gap: s.$space-3;
+  flex-wrap: wrap;
+  font-size: t.$text-xs;
+  color: c.$ink-500;
+}
+
+.Range {
+  @include ty.temporal;
+  color: c.$ink-600;
+}
+
+.Notes {
+  font-size: t.$text-xs;
+  color: c.$ink-600;
+  line-height: t.$leading-snug;
+  white-space: pre-wrap;
+  margin-top: 0.125rem;
+}
+
+.Tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  color: c.$ink-500;
+}
+
+.TagIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.Actions {
+  display: flex;
+  gap: 0.125rem;
+  flex: 0 0 auto;
+}
+
+/// Edit affordances stay quiet until the row is hovered or focused, so the
+/// timeline reads as information rather than a bank of controls.
+.InlineAction {
+  @include f.focusable(1px);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: s.$radius-sm;
+  color: c.$ink-500;
+  font-size: t.$text-xs;
+  padding: 0.1875rem 0.5rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  opacity: 0;
+  transition:
+    opacity 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+
+  &:hover {
+    color: c.$accent;
+    border-color: c.$line-strong;
+  }
+}
+
+.Event:hover .InlineAction,
+.InlineAction:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .InlineAction {
+    opacity: 1;
+  }
+}
+
+// --- Free time --------------------------------------------------------------
+
+/// A gap is drawn as open space rather than a filled block: the whole point of
+/// the application is the room between commitments, so it is shown as room.
+.Free {
+  display: flex;
+  // Top-aligned so the gap label sits level with the start time in the rail.
+  align-items: flex-start;
+  gap: s.$space-3;
+  margin: 0;
+  padding: 0.5rem s.$space-2 0;
+  min-width: 0;
+  position: relative;
+}
+
+.Rule {
+  flex: 1 1 auto;
+  border-top: 1px dashed c.$line-strong;
+  // Nudge onto the label's baseline rather than the top of the flex line.
+  margin-top: 0.5rem;
+}
+
+.FreeLabel {
+  @include ty.temporal;
+  font-size: t.$text-xs;
+  color: c.$ink-600;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.FreeAdd {
+  @include f.focusable(1px);
+  flex: 0 0 auto;
+  background: transparent;
+  border: 1px dashed c.$line-strong;
+  border-radius: s.$radius-sm;
+  color: c.$ink-500;
+  font-size: t.$text-xs;
+  padding: 0.1875rem 0.5rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  opacity: 0;
+  transition:
+    opacity 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+
+  &:hover {
+    color: c.$accent;
+    border-color: c.$accent;
+  }
+}
+
+// Reveal the affordance on hover, and always for keyboard users.
+.Free:hover .FreeAdd,
+.FreeAdd:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .FreeAdd {
+    opacity: 1;
+  }
+}
+
+// --- Now marker -------------------------------------------------------------
+
+.NowLine {
+  position: absolute;
+  left: 4.25rem;
+  right: s.$space-4;
+  height: 0;
+  border-top: 2px solid c.$now;
+  top: var(--now-offset, 0%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.NowDot {
+  position: absolute;
+  left: -0.3125rem;
+  top: -0.3125rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: c.$now;
+}
+
+.NowLabel {
+  @include ty.temporal;
+  position: absolute;
+  right: 0;
+  top: -1.125rem;
+  font-size: 0.6875rem;
+  font-weight: t.$weight-medium;
+  color: c.$now;
+  background: c.$card;
+  padding: 0 0.25rem;
+}
+
+// --- Outside working hours --------------------------------------------------
+
+.OutsideNote {
+  @include ty.eyebrow;
+  padding: s.$space-3 s.$space-4 s.$space-2;
+  color: c.$ink-500;
+}
+
+.AllDay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: s.$space-2;
+  padding: s.$space-3 s.$space-4;
+  border-bottom: 1px solid c.$line;
+}
+
+.AllDayEvent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: t.$text-xs;
+  color: c.$ink-700;
+  background: c.$paper-sunken;
+  border-radius: s.$radius-sm;
+  padding: 0.25rem 0.5rem;
+}

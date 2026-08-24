@@ -1,0 +1,28 @@
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Message {
+  border-radius: s.$radius;
+  padding: s.$space-2 s.$space-3;
+  font-size: t.$text-sm;
+  border: 1px solid transparent;
+}
+
+.Error {
+  background: c.$danger-wash;
+  border-color: c.$danger;
+  color: c.$danger-dark;
+}
+
+.Success {
+  background: c.$success-wash;
+  border-color: c.$success;
+  color: c.$success;
+}
+
+.Warning {
+  background: c.$warning-wash;
+  border-color: c.$warning;
+  color: c.$warning;
+}

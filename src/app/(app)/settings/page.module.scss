@@ -1,0 +1,49 @@
+@use '@/styles/helpers/typography' as ty;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Page {
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-4;
+  max-width: 60rem;
+}
+
+.Eyebrow {
+  @include ty.eyebrow;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.Heading {
+  @include ty.heading(t.$text-lg);
+}
+
+.Account {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: s.$space-2 s.$space-4;
+  font-size: t.$text-sm;
+}
+
+.Term {
+  color: c.$ink-500;
+}
+
+.Value {
+  color: c.$ink-900;
+}
+
+.Mono {
+  font-family: t.$font-mono;
+  font-size: t.$text-xs;
+}
+
+.Note {
+  font-size: t.$text-xs;
+  color: c.$ink-500;
+  border-top: 1px solid c.$line;
+  margin-top: s.$space-3;
+  padding-top: s.$space-3;
+}

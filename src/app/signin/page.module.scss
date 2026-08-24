@@ -1,0 +1,86 @@
+@use '@/styles/helpers/buttons' as b;
+@use '@/styles/helpers/surfaces' as surf;
+@use '@/styles/helpers/typography' as ty;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Screen {
+  flex: 1 1 auto;
+  display: grid;
+  place-items: center;
+  padding: s.$space-6 s.$space-4;
+  background: c.$ink-900;
+}
+
+.Card {
+  @include surf.card;
+  width: 100%;
+  max-width: 26rem;
+  padding: s.$space-6;
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-4;
+}
+
+.Brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.Wordmark {
+  font-family: t.$font-mono;
+  font-size: t.$text-lg;
+  font-weight: t.$weight-semibold;
+  letter-spacing: -0.02em;
+}
+
+.Bracket {
+  font-family: t.$font-mono;
+  font-size: t.$text-lg;
+  font-weight: t.$weight-semibold;
+  color: c.$accent;
+}
+
+.Lede {
+  color: c.$ink-600;
+  font-size: t.$text-sm;
+}
+
+.Submit {
+  @include b.button(primary);
+  min-height: 2.75rem;
+  font-size: t.$text-base;
+}
+
+.Icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.Error {
+  border: 1px solid c.$danger;
+  background: c.$danger-wash;
+  border-radius: s.$radius;
+  padding: s.$space-3;
+  font-size: t.$text-sm;
+  color: c.$danger-dark;
+}
+
+.ErrorTitle {
+  font-weight: t.$weight-semibold;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.Note {
+  @include ty.eyebrow;
+  border-top: 1px solid c.$line;
+  padding-top: s.$space-3;
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: t.$font-sans;
+  font-size: t.$text-xs;
+  color: c.$ink-500;
+}

@@ -1,0 +1,60 @@
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Form {
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-3;
+}
+
+.Status {
+  display: flex;
+  align-items: center;
+  gap: s.$space-2;
+  font-size: t.$text-sm;
+  color: c.$ink-600;
+  background: c.$paper;
+  border: 1px solid c.$line;
+  border-radius: s.$radius;
+  padding: s.$space-2 s.$space-3;
+}
+
+.Host {
+  font-family: t.$font-mono;
+  font-size: t.$text-xs;
+  color: c.$ink-900;
+}
+
+.Toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: s.$space-2;
+  font-size: t.$text-sm;
+  color: c.$ink-700;
+}
+
+.Checkbox {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.1875rem;
+  accent-color: c.$accent;
+  flex: 0 0 auto;
+}
+
+.Footer {
+  display: flex;
+  gap: s.$space-2;
+  align-items: center;
+}
+
+.Spacer {
+  flex: 1 1 auto;
+}
+
+.Privacy {
+  font-size: t.$text-xs;
+  color: c.$ink-500;
+  border-top: 1px solid c.$line;
+  padding-top: s.$space-3;
+}

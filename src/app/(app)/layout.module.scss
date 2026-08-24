@@ -1,0 +1,15 @@
+@use '@/styles/variables/spacing' as s;
+
+.Main {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: s.$shell-max-width;
+  margin: 0 auto;
+  padding: s.$space-5;
+}
+
+@media (max-width: 767px) {
+  .Main {
+    padding: s.$space-4;
+  }
+}

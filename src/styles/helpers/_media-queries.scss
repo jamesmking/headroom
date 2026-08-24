@@ -3,18 +3,15 @@
     @media (min-width: 576px) {
       @content;
     }
-  }
-  @else if $breakpoint == 'm' {
+  } @else if $breakpoint == 'm' {
     @media (min-width: 768px) {
       @content;
     }
-  }
-  @else if $breakpoint == 'l' {
+  } @else if $breakpoint == 'l' {
     @media (min-width: 992px) {
       @content;
     }
-  }
-  @else if $breakpoint == 'xl' {
+  } @else if $breakpoint == 'xl' {
     @media (min-width: 1200px) {
       @content;
     }

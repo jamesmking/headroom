@@ -1,0 +1,41 @@
+@use '@/styles/helpers/focus' as f;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Nav {
+  display: flex;
+  align-items: center;
+  gap: s.$space-1;
+}
+
+.Link {
+  @include f.focusable(-2px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem s.$space-3;
+  border-radius: s.$radius;
+  font-size: t.$text-sm;
+  font-weight: t.$weight-medium;
+  color: rgba(255, 255, 255, 0.72);
+  text-decoration: none;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: #fff;
+  }
+}
+
+.Active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.Icon {
+  width: 1rem;
+  height: 1rem;
+}

@@ -1,33 +1,37 @@
+import type {Metadata, Viewport} from 'next';
+import {IBM_Plex_Mono, IBM_Plex_Sans} from 'next/font/google';
 import '@/styles/app.scss';
-import clsx from 'clsx';
-import type {Metadata} from 'next';
-import {Geist} from 'next/font/google';
-import {Footer} from '@/components/footer';
-import {Header} from '@/components/header';
-import styles from './layout.module.scss';
 
-export const metadata: Metadata = {
-  title: 'Headroom',
-};
-
-const geist = Geist({
+const sans = IBM_Plex_Sans({
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-sans',
+  display: 'swap',
 });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en" className={clsx(geist.className)} suppressHydrationWarning={true}>
-      <body>
-        <div className="root">
-          <Header />
-          <main className={styles.Main}>{children}</main>
-          <Footer />
-        </div>
-      </body>
-    </html>
-  );
-}
+const mono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-mono',
+  display: 'swap',
+});
+
+export const metadata: Metadata = {
+  title: {default: 'Headroom', template: '%s · Headroom'},
+  description: 'A personal daily command centre for working across several teams.',
+  robots: {index: false, follow: false},
+};
+
+export const viewport: Viewport = {
+  themeColor: '#131a21',
+};
+
+const RootLayout = ({children}: Readonly<{children: React.ReactNode}>) => (
+  <html lang="en-GB" className={`${sans.variable} ${mono.variable}`}>
+    <body>
+      <div className="root">{children}</div>
+    </body>
+  </html>
+);
+
+export default RootLayout;

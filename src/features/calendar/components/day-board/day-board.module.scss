@@ -1,0 +1,32 @@
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Empty {
+  padding: s.$space-6 s.$space-4;
+  text-align: center;
+  color: c.$ink-500;
+  font-size: t.$text-sm;
+}
+
+.EmptyHeadline {
+  font-size: t.$text-md;
+  font-weight: t.$weight-semibold;
+  color: c.$ink-900;
+  margin-bottom: s.$space-1;
+}
+
+.Summary {
+  display: flex;
+  gap: s.$space-4;
+  padding: s.$space-3 s.$space-4;
+  border-top: 1px solid c.$line;
+  font-size: t.$text-xs;
+  color: c.$ink-500;
+  flex-wrap: wrap;
+}
+
+.SummaryValue {
+  color: c.$ink-900;
+  font-weight: t.$weight-medium;
+}

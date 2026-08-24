@@ -1,0 +1,42 @@
+@use '../variables/colours' as c;
+@use '../variables/typography' as t;
+
+/// Small uppercase section label. Used to title panels without adding weight.
+@mixin eyebrow {
+  font-family: t.$font-mono;
+  font-size: t.$text-2xs;
+  font-weight: t.$weight-medium;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: c.$ink-500;
+}
+
+/// Times, durations and countdowns. Tabular figures keep columns aligned.
+@mixin temporal {
+  font-family: t.$font-mono;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+@mixin heading($size: t.$text-lg) {
+  font-family: t.$font-sans;
+  font-size: $size;
+  font-weight: t.$weight-semibold;
+  line-height: t.$leading-tight;
+  letter-spacing: -0.015em;
+  color: c.$ink-900;
+}
+
+@mixin truncate($lines: 1) {
+  @if $lines == 1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}

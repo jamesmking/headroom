@@ -1,0 +1,86 @@
+@use '@/styles/helpers/focus' as f;
+@use '@/styles/helpers/typography' as ty;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Header {
+  background: c.$ink-900;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.Inner {
+  max-width: s.$shell-max-width;
+  margin: 0 auto;
+  padding: s.$space-3 s.$space-5;
+  display: flex;
+  align-items: center;
+  gap: s.$space-5;
+}
+
+.Brand {
+  @include f.focusable(-2px);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  text-decoration: none;
+  border-radius: s.$radius-sm;
+  flex: 0 0 auto;
+}
+
+.Wordmark {
+  font-family: t.$font-mono;
+  font-size: t.$text-md;
+  font-weight: t.$weight-semibold;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+/// The bracket references the product idea: the space you have left.
+.Bracket {
+  color: c.$focus;
+  font-family: t.$font-mono;
+  font-size: t.$text-md;
+  font-weight: t.$weight-semibold;
+}
+
+.Nav {
+  flex: 1 1 auto;
+}
+
+.SkipLink {
+  @include f.focusable(0);
+  position: absolute;
+  left: s.$space-4;
+  top: s.$space-2;
+  transform: translateY(-200%);
+  background: c.$focus;
+  color: c.$focus-ink;
+  padding: s.$space-2 s.$space-4;
+  border-radius: s.$radius;
+  font-size: t.$text-sm;
+  font-weight: t.$weight-semibold;
+  text-decoration: none;
+  transition: transform 0.12s ease;
+
+  &:focus {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .Inner {
+    flex-wrap: wrap;
+    gap: s.$space-3;
+    padding: s.$space-3 s.$space-4;
+  }
+
+  .Nav {
+    order: 3;
+    flex-basis: 100%;
+    overflow-x: auto;
+  }
+}

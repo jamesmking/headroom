@@ -1,0 +1,18 @@
+@use '../variables/colours' as c;
+
+/// A single focus treatment used everywhere, so keyboard position is never
+/// ambiguous. Two-tone so it stays visible on both light and coloured surfaces.
+@mixin focus-ring($offset: 2px) {
+  outline: 3px solid c.$focus;
+  outline-offset: $offset;
+  box-shadow: 0 0 0 ($offset + 3px) rgba(19, 26, 33, 0.55);
+}
+
+@mixin focusable($offset: 2px) {
+  &:focus {
+    outline: none;
+  }
+  &:focus-visible {
+    @include focus-ring($offset);
+  }
+}

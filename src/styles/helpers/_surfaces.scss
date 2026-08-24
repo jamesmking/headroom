@@ -1,0 +1,16 @@
+@use '../variables/colours' as c;
+@use '../variables/spacing' as s;
+
+@mixin card {
+  background: c.$card;
+  border: 1px solid c.$line;
+  border-radius: s.$radius-lg;
+}
+
+/// A titled region of the dashboard.
+@mixin panel {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}

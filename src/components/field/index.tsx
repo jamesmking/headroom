@@ -1,1 +1,1 @@
-export {Field} from './field';
+export {Field, fieldStyles} from './field';

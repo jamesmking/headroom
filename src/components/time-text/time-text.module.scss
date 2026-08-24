@@ -1,0 +1,5 @@
+@use '@/styles/helpers/typography' as ty;
+
+.Time {
+  @include ty.temporal;
+}

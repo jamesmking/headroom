@@ -1,0 +1,173 @@
+@use '@/styles/helpers/focus' as f;
+@use '@/styles/helpers/links' as l;
+@use '@/styles/helpers/typography' as ty;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: s.$space-3;
+  align-items: center;
+  padding: s.$space-3 s.$space-4;
+  border-bottom: 1px solid c.$line;
+  border-left: 3px solid var(--role-colour, transparent);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: c.$card-hover;
+  }
+}
+
+.Done {
+  .Title {
+    color: c.$ink-500;
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+  }
+}
+
+.Main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.Title {
+  font-size: t.$text-sm;
+  font-weight: t.$weight-medium;
+  color: c.$ink-900;
+  line-height: t.$leading-snug;
+}
+
+.Meta {
+  display: flex;
+  align-items: center;
+  gap: s.$space-3;
+  flex-wrap: wrap;
+  font-size: t.$text-xs;
+  color: c.$ink-500;
+}
+
+.Jira {
+  @include l.link;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: t.$text-xs;
+}
+
+.Due {
+  @include ty.temporal;
+  font-size: 0.6875rem;
+}
+
+.Overdue {
+  color: c.$danger;
+  font-weight: t.$weight-medium;
+}
+
+.DueToday {
+  color: c.$warning;
+  font-weight: t.$weight-medium;
+}
+
+.Controls {
+  display: flex;
+  align-items: center;
+  gap: s.$space-2;
+  flex: 0 0 auto;
+}
+
+// --- Status control ---------------------------------------------------------
+
+/// Three submit buttons rather than a radio group: a status change is always
+/// an explicit press, never a side effect of a change event.
+.Status {
+  display: inline-flex;
+  border: 1px solid c.$line-strong;
+  border-radius: s.$radius;
+  overflow: hidden;
+  background: c.$card;
+}
+
+.StatusButton {
+  @include f.focusable(-2px);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border: none;
+  background: transparent;
+  font-size: 0.6875rem;
+  font-weight: t.$weight-medium;
+  color: c.$ink-500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
+
+  & + & {
+    border-left: 1px solid c.$line-strong;
+  }
+
+  &:hover {
+    background: c.$paper-sunken;
+    color: c.$ink-900;
+  }
+
+  &:focus-visible {
+    z-index: 1;
+  }
+}
+
+.StatusCurrent {
+  background: c.$ink-900;
+  color: #fff;
+
+  &:hover {
+    background: c.$ink-900;
+    color: #fff;
+  }
+}
+
+// --- Icon actions -----------------------------------------------------------
+
+.Action {
+  @include f.focusable(1px);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: s.$radius-sm;
+  color: c.$ink-500;
+  padding: 0.25rem;
+  cursor: pointer;
+  display: inline-flex;
+  line-height: 0;
+
+  &:hover {
+    color: c.$accent;
+    border-color: c.$line-strong;
+  }
+}
+
+.ActionOn {
+  color: c.$accent;
+  border-color: c.$accent-wash;
+  background: c.$accent-wash;
+}
+
+@media (max-width: 700px) {
+  .Row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .Controls {
+    justify-content: flex-start;
+  }
+}

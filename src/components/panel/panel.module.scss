@@ -1,0 +1,46 @@
+@use '@/styles/helpers/surfaces' as surf;
+@use '@/styles/helpers/typography' as ty;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+
+.Panel {
+  @include surf.panel;
+}
+
+.Header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: s.$space-3;
+  padding: s.$space-4 s.$space-4 s.$space-3;
+  border-bottom: 1px solid c.$line;
+  min-height: 3rem;
+}
+
+.Title {
+  @include ty.eyebrow;
+  display: flex;
+  align-items: baseline;
+  gap: s.$space-2;
+}
+
+.Count {
+  @include ty.temporal;
+  color: c.$ink-500;
+  font-size: 0.6875rem;
+}
+
+.Actions {
+  display: flex;
+  align-items: center;
+  gap: s.$space-1;
+}
+
+.Body {
+  padding: s.$space-4;
+  min-width: 0;
+}
+
+.Flush {
+  padding: 0;
+}

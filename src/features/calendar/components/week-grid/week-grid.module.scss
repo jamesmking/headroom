@@ -1,0 +1,167 @@
+@use '@/styles/helpers/focus' as f;
+@use '@/styles/helpers/typography' as ty;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-top: 1px solid c.$line;
+}
+
+.Day {
+  border-right: 1px solid c.$line;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 18rem;
+
+  &:last-child {
+    border-right: none;
+  }
+}
+
+.Weekend {
+  background: c.$paper;
+}
+
+.Today {
+  background: c.$accent-wash;
+}
+
+.DayHead {
+  padding: s.$space-3 s.$space-3 s.$space-2;
+  border-bottom: 1px solid c.$line;
+}
+
+.DayName {
+  @include ty.eyebrow;
+  display: block;
+}
+
+.DayNumber {
+  @include ty.temporal;
+  font-size: t.$text-md;
+  font-weight: t.$weight-semibold;
+  color: c.$ink-900;
+  line-height: 1.2;
+}
+
+.TodayMarker {
+  color: c.$accent;
+}
+
+.Events {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: s.$space-2;
+  flex: 1 1 auto;
+}
+
+.Event {
+  border-left: 3px solid var(--role-colour, #{c.$ink-300});
+  background: c.$card;
+  border: 1px solid c.$line;
+  border-left-width: 3px;
+  border-radius: s.$radius-sm;
+  padding: 0.375rem 0.5rem;
+  min-width: 0;
+}
+
+.Family {
+  border-left-color: c.$family;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(107, 122, 136, 0.06) 0,
+      rgba(107, 122, 136, 0.06) 4px,
+      transparent 4px,
+      transparent 9px
+    ),
+    c.$card;
+}
+
+.EventTime {
+  @include ty.temporal;
+  font-size: 0.6875rem;
+  color: c.$ink-500;
+  display: block;
+}
+
+.EventTitle {
+  font-size: t.$text-xs;
+  font-weight: t.$weight-medium;
+  color: c.$ink-900;
+  line-height: t.$leading-snug;
+  display: block;
+}
+
+.AllDay {
+  font-size: 0.6875rem;
+  color: c.$ink-600;
+}
+
+.Quiet {
+  @include ty.temporal;
+  font-size: t.$text-xs;
+  color: c.$ink-500;
+  padding: s.$space-3;
+}
+
+.DayFoot {
+  @include ty.temporal;
+  border-top: 1px solid c.$line;
+  padding: s.$space-2 s.$space-3;
+  font-size: 0.6875rem;
+  color: c.$ink-600;
+}
+
+.FootValue {
+  color: c.$ink-900;
+  font-weight: t.$weight-medium;
+}
+
+.Nav {
+  display: flex;
+  align-items: center;
+  gap: s.$space-2;
+}
+
+.NavLink {
+  @include f.focusable(1px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid c.$line-strong;
+  border-radius: s.$radius;
+  background: c.$card;
+  color: c.$ink-700;
+  font-size: t.$text-xs;
+  font-weight: t.$weight-medium;
+  padding: 0.3125rem 0.625rem;
+  text-decoration: none;
+
+  &:hover {
+    background: c.$card-hover;
+    border-color: c.$ink-300;
+  }
+}
+
+@media (max-width: 1000px) {
+  .Grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .Day {
+    border-bottom: 1px solid c.$line;
+    min-height: 12rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .Grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

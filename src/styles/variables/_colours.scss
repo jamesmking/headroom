@@ -1,21 +1,48 @@
-$blue-black: #161f27;
-$blue-darkest: #283848;
-$blue-dark: #314b65;
-$blue-mid: #4c6f91;
-$blue-light: #98b1ca;
-$blue-lightest: #e0ebf7;
+// ---------------------------------------------------------------------------
+// Headroom palette
+//
+// Cool, low-chroma neutrals so that user-defined role colours are the only
+// saturated thing on screen. Text tokens are contrast-checked against $paper
+// and $card for WCAG AA.
+// ---------------------------------------------------------------------------
 
-$grey-dark: #4a4a4a;
-$grey-light: #f2f2f2;
+// Ink
+$ink-900: #131a21; // primary text          19.1:1 on $card
+$ink-700: #33414e; // secondary text         9.9:1 on $card
+$ink-600: #4c5c6a; // tertiary text          6.7:1 on $card
+$ink-500: #5a6874; // muted labels           5.7:1 on $card, 5.0:1 on $paper
+$ink-300: #9aa8b4; // borders and markers only — too light for text
 
-$yellow: #f2c94c;
+// Surfaces
+$paper: #eceff3; // page background
+$paper-sunken: #e3e8ed; // wells, inset areas
+$card: #ffffff;
+$card-hover: #f7f9fb;
 
-$red-dark: #c0392b;
-$red: #e74c3c;
+// Lines
+$line: #dbe1e8;
+$line-strong: #c3ced8;
 
-$hr-page-bg: $grey-light;
-$hr-header-bg: $blue-darkest;
+// Action
+$accent: #1f5f9e; //                          6.0:1 on $card
+$accent-dark: #17466f;
+$accent-wash: #e7effa;
 
-$hr-brand-accent: #3373b0;
-$hr-brand-danger: $red;
-$hr-focus-outline: $yellow;
+// Feedback
+$danger: #b03024;
+$danger-dark: #8a251b;
+$danger-wash: #fbebe9;
+$success: #1f6f4f;
+$success-wash: #e6f3ec;
+$warning: #8a5a00;
+$warning-wash: #fdf3e0;
+
+// Focus ring — deliberately high-contrast against every surface above
+$focus: #f2c94c;
+$focus-ink: #131a21;
+
+// Now marker
+$now: #c2381f;
+
+// Family calendar events are neutral: they are not one of the user's roles
+$family: #6b7a88;

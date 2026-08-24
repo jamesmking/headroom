@@ -1,15 +1,15 @@
 @use '../variables/colours' as c;
+@use 'focus' as f;
 
-@mixin link-common {
-  cursor: pointer;
+@mixin link {
+  @include f.focusable(1px);
+  color: c.$accent;
   text-decoration: underline;
   text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+  text-underline-offset: 2px;
+  border-radius: 2px;
   &:hover {
+    color: c.$accent-dark;
     text-decoration-thickness: 2px;
-  }
-  &:focus-visible {
-    outline: 2px solid c.$hr-focus-outline;
-    outline-offset: -1px;
   }
 }

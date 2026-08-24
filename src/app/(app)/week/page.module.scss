@@ -1,0 +1,33 @@
+@use '@/styles/helpers/typography' as ty;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Page {
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-4;
+}
+
+.Eyebrow {
+  @include ty.eyebrow;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.Heading {
+  @include ty.heading(t.$text-lg);
+}
+
+.Totals {
+  display: flex;
+  gap: s.$space-5;
+  flex-wrap: wrap;
+  font-size: t.$text-sm;
+  color: c.$ink-600;
+}
+
+.TotalValue {
+  color: c.$ink-900;
+  font-weight: t.$weight-medium;
+}
