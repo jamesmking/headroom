@@ -3,17 +3,24 @@
 @use '@/styles/variables/typography' as t;
 
 .Empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: s.$space-3;
   padding: s.$space-6 s.$space-4;
   text-align: center;
   color: c.$ink-500;
   font-size: t.$text-sm;
 }
 
+.EmptyBody {
+  max-width: 28rem;
+}
+
 .EmptyHeadline {
   font-size: t.$text-md;
   font-weight: t.$weight-semibold;
   color: c.$ink-900;
-  margin-bottom: s.$space-1;
 }
 
 .Summary {

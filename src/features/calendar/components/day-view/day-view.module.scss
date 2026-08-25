@@ -51,6 +51,19 @@
   color: c.$accent;
 }
 
+.Carry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: s.$space-3;
+  flex-wrap: wrap;
+}
+
+.CarryNote {
+  font-size: t.$text-xs;
+  color: c.$ink-500;
+}
+
 @media (max-width: 1100px) {
   .Columns {
     grid-template-columns: minmax(0, 1fr);

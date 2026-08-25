@@ -19,13 +19,15 @@ type Editor = {mode: 'create'; draft: MeetingDraft} | {mode: 'edit'; meetingId: 
 type DayBoardProps = {
   title: string;
   date: DateKey;
+  /** Draws the live now-line and keeps the wording in the present tense. */
+  isToday: boolean;
   events: CalendarEvent[];
   meetings: MeetingRecord[];
   roles: RoleSummary[];
+  defaultRoleId: string | null;
   workingHours: WorkingHours;
   timeZone: string;
   initialMinutes: number;
-  showNow: boolean;
 };
 
 /**
@@ -37,17 +39,32 @@ type DayBoardProps = {
 export const DayBoard = ({
   title,
   date,
+  isToday,
   events,
   meetings,
   roles,
+  defaultRoleId,
   workingHours,
   timeZone,
   initialMinutes,
-  showNow,
 }: DayBoardProps) => {
   const [editor, setEditor] = useState<Editor>(null);
 
   const close = useCallback(() => setEditor(null), []);
+
+  const startCreate = (startMinutes?: number, endMinutes?: number) =>
+    setEditor({
+      mode: 'create',
+      draft: {
+        date,
+        startMinutes,
+        // Default to half an hour, or the whole gap when it is shorter.
+        endMinutes:
+          startMinutes === undefined
+            ? undefined
+            : Math.min(endMinutes ?? Infinity, startMinutes + 30),
+      },
+    });
 
   const summary = buildDaySummary(events, workingHours);
   const meetingCount = events.filter(event => !event.allDay).length;
@@ -63,18 +80,20 @@ export const DayBoard = ({
       meta={meetingCount > 0 ? `${meetingCount} booked` : undefined}
       flush
       actions={
-        <Button
-          variant="secondary"
-          size="small"
-          onClick={() => setEditor({mode: 'create', draft: {date}})}
-        >
+        <Button variant="secondary" size="small" onClick={() => startCreate()}>
           <Plus size={14} aria-hidden="true" />
           Add meeting
         </Button>
       }
     >
       {editor?.mode === 'create' && (
-        <MeetingForm key="create" roles={roles} draft={editor.draft} onDone={close} />
+        <MeetingForm
+          key={`create-${editor.draft.startMinutes ?? 'default'}`}
+          roles={roles}
+          draft={editor.draft}
+          defaultRoleId={defaultRoleId}
+          onDone={close}
+        />
       )}
       {editor?.mode === 'edit' && editing && (
         <MeetingForm
@@ -82,6 +101,7 @@ export const DayBoard = ({
           roles={roles}
           meeting={editing}
           occurrenceDate={date}
+          defaultRoleId={defaultRoleId}
           onDone={close}
         />
       )}
@@ -89,10 +109,19 @@ export const DayBoard = ({
       {events.length === 0 ? (
         <div className={styles.Empty}>
           <p className={styles.EmptyHeadline}>Nothing in the diary.</p>
-          <p>
+          <p className={styles.EmptyBody}>
             The whole working day is yours —{' '}
             <TimeText>{formatDuration(summary.totalFreeMinutes)}</TimeText> of it.
           </p>
+          {/* The one action this state invites, offered where the eye already is. */}
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={() => startCreate(workingHours.startMinutes, workingHours.endMinutes)}
+          >
+            <Plus size={14} aria-hidden="true" />
+            Add a meeting
+          </Button>
         </div>
       ) : (
         <DayTimeline
@@ -100,26 +129,16 @@ export const DayBoard = ({
           workingHours={workingHours}
           timeZone={timeZone}
           initialMinutes={initialMinutes}
-          showNow={showNow}
+          showNow={isToday}
           onEditMeeting={meetingId => setEditor({mode: 'edit', meetingId})}
-          onAddMeetingAt={(startMinutes, endMinutes) =>
-            setEditor({
-              mode: 'create',
-              draft: {
-                date,
-                startMinutes,
-                // Default to half an hour, or the whole gap when it is shorter.
-                endMinutes: Math.min(endMinutes, startMinutes + 30),
-              },
-            })
-          }
+          onAddMeetingAt={startCreate}
         />
       )}
 
       {events.length > 0 && (
         <div className={styles.Summary}>
           <span>
-            Free today{' '}
+            {isToday ? 'Free today' : 'Free'}{' '}
             <TimeText className={styles.SummaryValue}>
               {formatDuration(summary.totalFreeMinutes)}
             </TimeText>

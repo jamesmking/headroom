@@ -1,0 +1,88 @@
+@use '@/styles/helpers/typography' as ty;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Details {
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-3;
+  padding: s.$space-4;
+  border-left: 3px solid var(--role-colour, #{c.$ink-300});
+}
+
+.Family {
+  border-left-color: c.$family;
+}
+
+.Title {
+  @include ty.heading(t.$text-md);
+}
+
+.When {
+  @include ty.temporal;
+  font-size: t.$text-base;
+  color: c.$ink-900;
+  font-weight: t.$weight-medium;
+}
+
+.Duration {
+  color: c.$ink-500;
+  font-weight: t.$weight-regular;
+}
+
+.Meta {
+  display: flex;
+  align-items: center;
+  gap: s.$space-3;
+  flex-wrap: wrap;
+  font-size: t.$text-sm;
+  color: c.$ink-600;
+}
+
+.Facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: s.$space-2 s.$space-4;
+  font-size: t.$text-sm;
+  margin: 0;
+}
+
+.Term {
+  @include ty.eyebrow;
+  padding-top: 0.1875rem;
+}
+
+.Value {
+  color: c.$ink-700;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.Actions {
+  display: flex;
+  gap: s.$space-2;
+  flex-wrap: wrap;
+  align-items: center;
+  border-top: 1px solid c.$line;
+  padding-top: s.$space-3;
+}
+
+.Spacer {
+  flex: 1 1 auto;
+}
+
+.ReadOnly {
+  display: flex;
+  align-items: center;
+  gap: s.$space-2;
+  border-top: 1px solid c.$line;
+  padding-top: s.$space-3;
+  font-size: t.$text-xs;
+  color: c.$ink-500;
+}
+
+.Icon {
+  flex: none;
+  color: c.$ink-500;
+}

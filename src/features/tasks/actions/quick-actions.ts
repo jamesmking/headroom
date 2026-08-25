@@ -79,3 +79,49 @@ export const deleteTask = async (formData: FormData): Promise<void> => {
   await prisma.task.deleteMany({where: {id, userId}});
   revalidatePath('/', 'layout');
 };
+
+/**
+ * Move everything still unfinished from one day's plan onto another.
+ *
+ * Completed work stays where it was done — the record of what a day actually
+ * contained should not follow you into tomorrow.
+ */
+export const carryUnfinishedWork = async (formData: FormData): Promise<void> => {
+  const userId = await requireUserId();
+  const from = String(formData.get('from') ?? '');
+  const to = String(formData.get('to') ?? '');
+
+  if (!isDateKey(from) || !isDateKey(to) || from === to) return;
+
+  const fromDate = fromDateKey(from);
+  const toDate = fromDateKey(to);
+
+  const entries = await prisma.dailyTask.findMany({
+    where: {userId, date: fromDate, task: {status: {not: 'DONE'}}},
+    orderBy: [{sortOrder: 'asc'}, {createdAt: 'asc'}],
+    select: {id: true, taskId: true},
+  });
+
+  if (entries.length === 0) return;
+
+  // Append after whatever is already planned for the destination day.
+  const existing = await prisma.dailyTask.count({where: {userId, date: toDate}});
+
+  await prisma.$transaction([
+    // A task already on the destination day would violate the (taskId, date)
+    // uniqueness, so create only the ones that are genuinely new and drop the
+    // originals either way.
+    prisma.dailyTask.createMany({
+      data: entries.map((entry, index) => ({
+        userId,
+        taskId: entry.taskId,
+        date: toDate,
+        sortOrder: existing + index,
+      })),
+      skipDuplicates: true,
+    }),
+    prisma.dailyTask.deleteMany({where: {id: {in: entries.map(entry => entry.id)}}}),
+  ]);
+
+  revalidatePath('/', 'layout');
+};

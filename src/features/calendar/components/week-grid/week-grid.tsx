@@ -1,115 +1,210 @@
+'use client';
+
 import clsx from 'clsx';
-import {ChevronLeft, ChevronRight} from 'lucide-react';
+import {Plus} from 'lucide-react';
 import Link from 'next/link';
 import {Panel} from '@/components/panel';
 import {TimeText} from '@/components/time-text';
-import {buildDaySummary} from '@/features/availability/availability';
+import {buildDaySummary, type FreePeriod} from '@/features/availability/availability';
 import type {CalendarEvent, WorkingHours} from '@/features/calendar/types';
-import {type DateKey, addDays, fromDateKey, isWeekend} from '@/lib/dates';
+import {type DateKey, formatLongDate, fromDateKey, isWeekend} from '@/lib/dates';
 import {formatDuration, formatTime} from '@/lib/time';
-import {weekPath} from '@/routes';
+import {useNowMinutes} from '@/lib/use-now-minutes';
+import {dayPath} from '@/routes';
 import styles from './week-grid.module.scss';
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+/** Gaps shorter than this are not worth offering as a slot to book into. */
+const MIN_BOOKABLE_FREE_MINUTES = 30;
+/** Two per column: enough to see where the room is, not enough to become noise. */
+const MAX_FREE_CHIPS = 2;
+
+/** One column's contents, meetings and bookable gaps in a single ordering. */
+type Slot =
+  | {kind: 'event'; startMinutes: number; event: CalendarEvent}
+  | {kind: 'free'; startMinutes: number; period: FreePeriod};
+
 type WeekGridProps = {
-  weekStart: DateKey;
+  title: string;
   dateKeys: DateKey[];
-  eventsByDate: Map<DateKey, CalendarEvent[]>;
+  eventsByDate: Record<DateKey, CalendarEvent[]>;
   workingHours: WorkingHours;
   today: DateKey;
-  title: string;
+  timeZone: string;
+  /** Wall-clock minutes at render time, so today stops offering slots gone by. */
+  initialMinutes: number;
+  /** The chip whose details are currently open. */
+  selectedEventId: string | null;
+  onSelectEvent: (eventId: string) => void;
+  onAddMeeting: (date: DateKey, startMinutes?: number, endMinutes?: number) => void;
+  actions?: React.ReactNode;
 };
 
 /**
- * The week at a glance. Deliberately a summary rather than an hour grid: the
- * question it answers is "which days have room in them", not "what is happening
- * at 14:15 on Thursday" — that is the Today screen's job.
+ * The week at a glance, and now the place you act on it.
+ *
+ * Still deliberately a summary rather than an hour grid: the question it
+ * answers is "which days have room in them", not "what is happening at 14:15
+ * on Thursday" — that is the Day screen's job, one click away through the
+ * column heading. Because there is no hour grid, the equivalent of clicking an
+ * empty slot is clicking the day's clear stretches, which the availability
+ * calculation already knows about.
  */
 export const WeekGrid = ({
-  weekStart,
+  title,
   dateKeys,
   eventsByDate,
   workingHours,
   today,
-  title,
-}: WeekGridProps) => (
-  <Panel
-    title={title}
-    flush
-    actions={
-      <nav className={styles.Nav} aria-label="Change week">
-        <Link className={styles.NavLink} href={`${weekPath()}?week=${addDays(weekStart, -7)}`}>
-          <ChevronLeft size={13} aria-hidden="true" />
-          Previous
-        </Link>
-        <Link className={styles.NavLink} href={weekPath()}>
-          This week
-        </Link>
-        <Link className={styles.NavLink} href={`${weekPath()}?week=${addDays(weekStart, 7)}`}>
-          Next
-          <ChevronRight size={13} aria-hidden="true" />
-        </Link>
-      </nav>
-    }
-  >
-    <div className={styles.Grid}>
-      {dateKeys.map((key, index) => {
-        const events = eventsByDate.get(key) ?? [];
-        const timed = events.filter(event => !event.allDay);
-        const allDay = events.filter(event => event.allDay);
-        const summary = buildDaySummary(events, workingHours);
-        const isToday = key === today;
+  timeZone,
+  initialMinutes,
+  selectedEventId,
+  onSelectEvent,
+  onAddMeeting,
+  actions,
+}: WeekGridProps) => {
+  const now = useNowMinutes(timeZone, initialMinutes);
 
-        return (
-          <div
-            key={key}
-            className={clsx(styles.Day, isWeekend(key) && styles.Weekend, isToday && styles.Today)}
-          >
-            <div className={styles.DayHead}>
-              <span className={styles.DayName}>
-                {WEEKDAYS[index]}
-                {isToday && <span className={styles.TodayMarker}> · today</span>}
-              </span>
-              <span className={styles.DayNumber}>{fromDateKey(key).getUTCDate()}</span>
-            </div>
+  return (
+    <Panel title={title} flush actions={actions}>
+      <div className={styles.Grid}>
+        {dateKeys.map((key, index) => {
+          const events = eventsByDate[key] ?? [];
+          const timed = events.filter(event => !event.allDay);
+          const allDay = events.filter(event => event.allDay);
+          const summary = buildDaySummary(events, workingHours);
+          const isToday = key === today;
+          const past = key < today;
 
-            <div className={styles.Events}>
-              {allDay.map(event => (
-                <p key={event.id} className={styles.AllDay}>
-                  {event.title}
-                </p>
-              ))}
+          // Only offer slots you could actually book: weekdays, still to come,
+          // long enough to put something real in, and — on today — not already
+          // behind you.
+          const freePeriods =
+            past || isWeekend(key)
+              ? []
+              : [...summary.freePeriods]
+                  .filter(period => period.durationMinutes >= MIN_BOOKABLE_FREE_MINUTES)
+                  .filter(period => !isToday || period.endMinutes > now)
+                  .sort((a, b) => b.durationMinutes - a.durationMinutes)
+                  .slice(0, MAX_FREE_CHIPS);
 
-              {timed.length === 0 && allDay.length === 0 ? (
-                <p className={styles.Quiet}>Clear</p>
-              ) : (
-                timed.map(event => (
-                  <article
-                    key={event.id}
-                    className={clsx(styles.Event, event.source === 'family' && styles.Family)}
-                    style={
-                      event.role
-                        ? ({'--role-colour': event.role.colour} as React.CSSProperties)
-                        : undefined
-                    }
-                  >
-                    <span className={styles.EventTime}>{formatTime(event.startMinutes)}</span>
-                    <span className={styles.EventTitle}>{event.title}</span>
-                  </article>
-                ))
+          // Meetings and gaps interleaved, so the column reads down the day in
+          // order rather than listing everything booked and then everything free.
+          const slots: Slot[] = [
+            ...timed.map((event): Slot => ({
+              kind: 'event',
+              startMinutes: event.startMinutes,
+              event,
+            })),
+            ...freePeriods.map((period): Slot => ({
+              kind: 'free',
+              startMinutes: period.startMinutes,
+              period,
+            })),
+          ].sort((a, b) => a.startMinutes - b.startMinutes);
+
+          return (
+            <div
+              key={key}
+              className={clsx(
+                styles.Day,
+                isWeekend(key) && styles.Weekend,
+                past && styles.Past,
+                isToday && styles.Today
               )}
-            </div>
+            >
+              <div className={styles.DayHead}>
+                <Link className={styles.DayLink} href={dayPath(key)}>
+                  <span className={styles.DayName}>
+                    {WEEKDAYS[index]}
+                    {isToday && <span className={styles.TodayMarker}> · today</span>}
+                  </span>
+                  <span className={styles.DayNumber}>{fromDateKey(key).getUTCDate()}</span>
+                  <span className="sr-only">{`Open ${formatLongDate(key)}`}</span>
+                </Link>
 
-            <p className={styles.DayFoot}>
-              <TimeText className={styles.FootValue}>
-                {formatDuration(summary.totalFreeMinutes)}
-              </TimeText>{' '}
-              free
-            </p>
-          </div>
-        );
-      })}
-    </div>
-  </Panel>
-);
+                <button
+                  type="button"
+                  className={styles.Add}
+                  onClick={() => onAddMeeting(key)}
+                  title={`Add a meeting on ${formatLongDate(key)}`}
+                >
+                  <Plus size={13} aria-hidden="true" />
+                  <span className="sr-only">{`Add a meeting on ${formatLongDate(key)}`}</span>
+                </button>
+              </div>
+
+              <div className={styles.Events}>
+                {allDay.map(event => (
+                  <button
+                    key={event.id}
+                    type="button"
+                    className={clsx(styles.AllDay, selectedEventId === event.id && styles.Selected)}
+                    onClick={() => onSelectEvent(event.id)}
+                    aria-pressed={selectedEventId === event.id}
+                  >
+                    <span className={styles.AllDayDot} aria-hidden="true" />
+                    <span className={styles.AllDayText}>{event.title}</span>
+                    <span className="sr-only"> — all day</span>
+                  </button>
+                ))}
+
+                {slots.length === 0 && allDay.length === 0 && <p className={styles.Quiet}>Clear</p>}
+
+                {slots.map(slot =>
+                  slot.kind === 'event' ? (
+                    <button
+                      key={slot.event.id}
+                      type="button"
+                      className={clsx(
+                        styles.Event,
+                        slot.event.source === 'family' && styles.Family,
+                        selectedEventId === slot.event.id && styles.Selected
+                      )}
+                      style={
+                        slot.event.role
+                          ? ({'--role-colour': slot.event.role.colour} as React.CSSProperties)
+                          : undefined
+                      }
+                      onClick={() => onSelectEvent(slot.event.id)}
+                      aria-pressed={selectedEventId === slot.event.id}
+                    >
+                      <span className={styles.EventTime}>
+                        {formatTime(slot.event.startMinutes)}
+                      </span>
+                      <span className={styles.EventTitle}>{slot.event.title}</span>
+                    </button>
+                  ) : (
+                    <button
+                      key={`free-${slot.startMinutes}`}
+                      type="button"
+                      className={styles.Free}
+                      onClick={() =>
+                        onAddMeeting(key, slot.period.startMinutes, slot.period.endMinutes)
+                      }
+                    >
+                      <Plus size={11} className={styles.FreeIcon} aria-hidden="true" />
+                      <span className={styles.FreeTime}>
+                        {formatTime(slot.period.startMinutes)}
+                      </span>
+                      <span>{`· ${formatDuration(slot.period.durationMinutes)} clear`}</span>
+                      <span className="sr-only">{` — add a meeting on ${formatLongDate(key)}`}</span>
+                    </button>
+                  )
+                )}
+              </div>
+
+              <p className={styles.DayFoot}>
+                <TimeText className={styles.FootValue}>
+                  {formatDuration(summary.totalFreeMinutes)}
+                </TimeText>{' '}
+                free
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </Panel>
+  );
+};

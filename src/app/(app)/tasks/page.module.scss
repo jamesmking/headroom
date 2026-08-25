@@ -45,3 +45,8 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.PlanLink {
+  color: c.$accent;
+  white-space: nowrap;
+}

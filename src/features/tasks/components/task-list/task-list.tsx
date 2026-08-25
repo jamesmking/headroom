@@ -23,6 +23,8 @@ type TaskListProps = {
   /** Omit to hide the add control entirely. */
   addLabel?: string;
   addDefaults?: {status?: TaskStatus; dueDate?: DateKey};
+  /** Pre-selects the role last used, so adding several in a row is quicker. */
+  defaultRoleId?: string | null;
   /** New tasks created here also join the plan for `planDate`. */
   addToPlanOnCreate?: boolean;
   showPlanControl?: boolean;
@@ -44,6 +46,7 @@ export const TaskList = ({
   emptyHint,
   addLabel,
   addDefaults,
+  defaultRoleId,
   addToPlanOnCreate = false,
   showPlanControl = true,
   footer,
@@ -85,7 +88,7 @@ export const TaskList = ({
         <TaskForm
           key="create"
           roles={roles}
-          defaults={addDefaults}
+          defaults={{...addDefaults, roleId: defaultRoleId ?? undefined}}
           planDate={addToPlanOnCreate ? planDate : undefined}
           onDone={close}
         />

@@ -70,11 +70,17 @@ export const DayTimeline = ({
     <div>
       {allDay.length > 0 && (
         <div className={styles.AllDay}>
+          <p className={styles.AllDayLabel}>
+            {allDay.length === 1 ? 'All day' : `All day · ${allDay.length}`}
+          </p>
           {allDay.map(event => (
-            <span key={event.id} className={styles.AllDayEvent}>
-              <RoleBadge role={null} hollow fallbackLabel="All day" />
-              {event.title}
-            </span>
+            <div key={event.id}>
+              <p className={styles.AllDayEvent}>
+                <span className={styles.AllDayDot} aria-hidden="true" />
+                {event.title}
+              </p>
+              {event.notes && <p className={styles.AllDayNote}>{event.notes}</p>}
+            </div>
           ))}
         </div>
       )}

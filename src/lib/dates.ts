@@ -149,3 +149,50 @@ export const describeDueDate = (due: DateKey, today: DateKey): string => {
   if (delta <= 6) return `Due ${WEEKDAY_LABELS[fromDateKey(due).getUTCDay()]}`;
   return `Due ${formatShortDate(due)}`;
 };
+
+/**
+ * Relative name for a day, used as the eyebrow above the full date.
+ *
+ * Stays vague deliberately: 'Tuesday' is only unambiguous within the week
+ * ahead, so anything further out falls back to a dated label.
+ */
+export const describeDay = (key: DateKey, today: DateKey): string => {
+  const delta = daysBetween(today, key);
+  if (delta === 0) return 'Today';
+  if (delta === 1) return 'Tomorrow';
+  if (delta === -1) return 'Yesterday';
+  if (delta >= 2 && delta <= 6) return WEEKDAY_LABELS[dayOfWeek(key)];
+  if (delta === 7) return `Next ${WEEKDAY_LABELS[dayOfWeek(key)]}`;
+  return formatShortDate(key);
+};
+
+/**
+ * `describeDay` cased for use mid-sentence.
+ *
+ * Only the relative words lowercase: 'move it to tomorrow' reads correctly,
+ * 'move it to thursday' does not — a weekday is a proper noun either way.
+ */
+export const describeDayInSentence = (key: DateKey, today: DateKey): string => {
+  const label = describeDay(key, today);
+  return ['Today', 'Tomorrow', 'Yesterday'].includes(label) ? label.toLowerCase() : label;
+};
+
+/** 'This week' / 'Next week' / 'Last week' / 'Week of Mon 8 Sep'. */
+export const describeWeek = (weekStart: DateKey, today: DateKey): string => {
+  const delta = daysBetween(startOfWeek(today), weekStart);
+  if (delta === 0) return 'This week';
+  if (delta === 7) return 'Next week';
+  if (delta === -7) return 'Last week';
+  return `Week of ${formatShortDate(weekStart)}`;
+};
+
+/** 'Mon 24 – Sun 30 Aug' / 'Mon 29 Sep – Sun 5 Oct' — collapses a shared month. */
+export const formatDateRange = (from: DateKey, to: DateKey): string => {
+  const start = fromDateKey(from);
+  const end = fromDateKey(to);
+  const startLabel = `${WEEKDAY_LABELS[start.getUTCDay()].slice(0, 3)} ${start.getUTCDate()}`;
+  const sameMonth = start.getUTCMonth() === end.getUTCMonth();
+  return sameMonth
+    ? `${startLabel} – ${formatShortDate(to)}`
+    : `${formatShortDate(from)} – ${formatShortDate(to)}`;
+};

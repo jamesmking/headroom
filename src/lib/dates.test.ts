@@ -4,6 +4,9 @@
 import {
   addDays,
   dateKeyInZone,
+  describeDay,
+  describeWeek,
+  formatDateRange,
   daysBetween,
   describeDueDate,
   fromDateKey,
@@ -110,5 +113,55 @@ describe('describeDueDate', () => {
 
   it('falls back to a short date further out', () => {
     expect(describeDueDate('2026-09-15', today)).toBe('Due Tue 15 Sep');
+  });
+});
+
+describe('describeDay', () => {
+  // A Monday, matching the fixture used throughout this file.
+  const today = '2026-08-24';
+
+  it('names the days either side of today', () => {
+    expect(describeDay(today, today)).toBe('Today');
+    expect(describeDay('2026-08-25', today)).toBe('Tomorrow');
+    expect(describeDay('2026-08-23', today)).toBe('Yesterday');
+  });
+
+  it('names weekdays within the coming week', () => {
+    expect(describeDay('2026-08-26', today)).toBe('Wednesday');
+    expect(describeDay('2026-08-30', today)).toBe('Sunday');
+  });
+
+  it('qualifies the same weekday a week out', () => {
+    expect(describeDay('2026-08-31', today)).toBe('Next Monday');
+  });
+
+  it('falls back to a dated label once a weekday would be ambiguous', () => {
+    expect(describeDay('2026-09-15', today)).toBe('Tue 15 Sep');
+    // Two days back is a weekday name people would read as the coming one.
+    expect(describeDay('2026-08-22', today)).toBe('Sat 22 Aug');
+  });
+});
+
+describe('describeWeek', () => {
+  const today = '2026-08-26';
+
+  it('names the weeks either side of this one', () => {
+    expect(describeWeek('2026-08-24', today)).toBe('This week');
+    expect(describeWeek('2026-08-31', today)).toBe('Next week');
+    expect(describeWeek('2026-08-17', today)).toBe('Last week');
+  });
+
+  it('dates anything further out', () => {
+    expect(describeWeek('2026-09-14', today)).toBe('Week of Mon 14 Sep');
+  });
+});
+
+describe('formatDateRange', () => {
+  it('states the month once when both ends share it', () => {
+    expect(formatDateRange('2026-08-24', '2026-08-30')).toBe('Mon 24 – Sun 30 Aug');
+  });
+
+  it('states both months when the range crosses one', () => {
+    expect(formatDateRange('2026-09-28', '2026-10-04')).toBe('Mon 28 Sep – Sun 4 Oct');
   });
 });

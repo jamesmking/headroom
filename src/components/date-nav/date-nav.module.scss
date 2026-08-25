@@ -1,0 +1,133 @@
+@use '@/styles/helpers/focus' as f;
+@use '@/styles/helpers/typography' as ty;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+/// Hugs its controls rather than filling the row, so the picker popover can
+/// anchor to the right edge of the button that opened it.
+.Nav {
+  display: flex;
+  align-self: flex-start;
+  width: fit-content;
+  max-width: 100%;
+  align-items: center;
+  gap: s.$space-2;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+/// The arrows and the anchor, grouped so they read as one control.
+.Group {
+  display: flex;
+  align-items: center;
+  gap: s.$space-2;
+  flex-wrap: wrap;
+}
+
+.Link {
+  @include f.focusable(1px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid c.$line-strong;
+  border-radius: s.$radius;
+  background: c.$card;
+  color: c.$ink-700;
+  font-size: t.$text-xs;
+  font-weight: t.$weight-medium;
+  padding: 0.3125rem 0.625rem;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    background: c.$card-hover;
+    border-color: c.$ink-300;
+  }
+}
+
+/// The anchor link — 'Today' / 'This week'. Dimmed once you are already there,
+/// so the control still says where home is without inviting a pointless trip.
+.Current {
+  background: c.$paper-sunken;
+  color: c.$ink-500;
+  border-color: c.$line;
+
+  &:hover {
+    background: c.$paper-sunken;
+    border-color: c.$line;
+  }
+}
+
+.Spacer {
+  flex: 1 1 auto;
+}
+
+.Popover {
+  position: absolute;
+  top: calc(100% + #{s.$space-2});
+  right: 0;
+  z-index: 20;
+  min-width: 15rem;
+  background: c.$card;
+  border: 1px solid c.$line-strong;
+  border-radius: s.$radius;
+  box-shadow: 0 12px 28px rgba(19, 26, 33, 0.16);
+  padding: s.$space-3;
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-3;
+}
+
+.PopoverLabel {
+  @include ty.eyebrow;
+  display: block;
+}
+
+.Row {
+  display: flex;
+  gap: s.$space-2;
+  align-items: center;
+}
+
+.Input {
+  @include ty.temporal;
+  @include f.focusable(1px);
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px solid c.$line-strong;
+  border-radius: s.$radius-sm;
+  background: c.$card;
+  color: c.$ink-900;
+  font-size: t.$text-sm;
+  padding: 0.375rem 0.5rem;
+}
+
+.Shortcuts {
+  display: flex;
+  gap: s.$space-2;
+  flex-wrap: wrap;
+  border-top: 1px solid c.$line;
+  padding-top: s.$space-3;
+}
+
+.Shortcut {
+  @include f.focusable(1px);
+  background: none;
+  border: none;
+  padding: 0.125rem 0;
+  color: c.$accent;
+  font-size: t.$text-xs;
+  font-weight: t.$weight-medium;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+  .Popover {
+    right: auto;
+    left: 0;
+  }
+}

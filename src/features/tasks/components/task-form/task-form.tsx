@@ -11,6 +11,7 @@ import type {TaskRecord} from '@/features/tasks/queries/get-tasks';
 import {TASK_STATUSES} from '@/features/tasks/types';
 import {idleResult} from '@/lib/action-result';
 import type {DateKey} from '@/lib/dates';
+import {useDismiss} from '@/lib/use-dismiss';
 import styles from './task-form.module.scss';
 
 type TaskFormProps = {
@@ -26,6 +27,10 @@ type TaskFormProps = {
 export const TaskForm = ({roles, task, defaults, planDate, onDone}: TaskFormProps) => {
   const [result, formAction] = useActionState(saveTaskAction, idleResult);
   const titleRef = useRef<HTMLInputElement>(null);
+
+  // Escape closes the editor; clicking away deliberately does not, so a
+  // half-written task survives a stray click on the page behind it.
+  useDismiss(onDone);
 
   useEffect(() => {
     titleRef.current?.focus();
@@ -70,7 +75,13 @@ export const TaskForm = ({roles, task, defaults, planDate, onDone}: TaskFormProp
               id={id}
               name="roleId"
               className={fieldStyles.Select}
-              defaultValue={task?.roleId ?? defaults?.roleId ?? ''}
+              defaultValue={
+                task?.roleId ??
+                (defaults?.roleId && roles.some(role => role.id === defaults.roleId)
+                  ? defaults.roleId
+                  : '') ??
+                ''
+              }
               aria-describedby={describedBy}
             >
               <option value="">No role</option>

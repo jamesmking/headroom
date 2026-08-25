@@ -349,7 +349,9 @@ src/
   app/
     (app)/                  authenticated screens
       page.tsx              Today — the default screen
-      week/                 Week
+      day/[date]/           Any other date, e.g. /day/2026-09-01
+      week/                 This week
+      week/[date]/          The week containing a date
       tasks/                Backlog / To do / Done
       settings/             Roles, working day, family calendar, account
     signin/                 Sign-in
@@ -372,7 +374,18 @@ src/
   proxy.ts                  route protection (Next 16's middleware)
 ```
 
-Two conventions worth knowing:
+### Routing dates
+
+`/` is Today and `/week` is this week, so a bookmark of either always means "the day (or week) I am
+in" rather than the one it was bookmarked on. Every other date is addressable at `/day/<date>` and
+`/week/<date>`, and both dated routes redirect to the plain path when the date turns out to be the
+current one — so there is exactly one URL for today, and paging back from tomorrow lands on home.
+
+Today and any other day are the same component (`features/calendar/components/day-view`) given a
+different date; the same is true of the week. Only three things vary with the date: the band across
+the top (`NowNext` today, `DayShape` otherwise), whether the now-line is drawn, and the wording.
+
+Three conventions worth knowing:
 
 - **Single-click mutations take `FormData` directly and return nothing**
   (`*/actions/quick-actions.ts`). Multi-field forms that need validation feedback use
@@ -380,6 +393,9 @@ Two conventions worth knowing:
   means they can only ever happen because a button was pressed.
 - **Every query is scoped by `userId`**, and updates use `updateMany`/`deleteMany` with a `userId`
   in the `where` clause, so one user's id can never be used to reach another's row.
+- **Client Components receive route templates, not functions.** A function cannot cross the server
+  boundary, so anything building a URL from a date the user has not chosen yet — the date picker —
+  is handed `dayPathTemplate` / `weekPathTemplate` and fills in the placeholder itself.
 
 ## Scripts
 
@@ -402,6 +418,10 @@ Two conventions worth knowing:
 Desktop-first but responsive. Semantic HTML throughout, a skip link, a single high-contrast focus
 treatment on every interactive element, colour never used as the only signal, and text contrast
 checked against WCAG AA. All controls are reachable and operable by keyboard; there are no modals.
+
+Escape closes anything that opened in place. Inline editors deliberately do **not** close on a click
+outside — losing a half-written meeting to a stray click would cost far more than reaching for
+Cancel — while the date picker, which holds nothing, does.
 
 ## Deliberately not included
 

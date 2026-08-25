@@ -12,12 +12,21 @@ import {RECURRENCE_OPTIONS} from '@/features/meetings/recurrence';
 import {idleResult} from '@/lib/action-result';
 import type {DateKey} from '@/lib/dates';
 import {formatTime} from '@/lib/time';
+import {useDismiss} from '@/lib/use-dismiss';
 import styles from './meeting-form.module.scss';
 
+/**
+ * A part-filled new meeting. Every field is optional because the draft is
+ * assembled from wherever the user clicked: a gap in a day carries a time, a
+ * duplicated meeting carries almost everything.
+ */
 export type MeetingDraft = {
   date: DateKey;
   startMinutes?: number;
   endMinutes?: number;
+  title?: string;
+  roleId?: string | null;
+  notes?: string | null;
 };
 
 type MeetingFormProps = {
@@ -28,12 +37,32 @@ type MeetingFormProps = {
   draft?: MeetingDraft;
   /** The day being edited, so one occurrence of a series can be cancelled. */
   occurrenceDate?: DateKey;
+  /** The role to pre-select when the draft does not name one. */
+  defaultRoleId?: string | null;
+  /** Overrides the heading, e.g. 'Duplicate meeting'. */
+  legend?: string;
+  /** Suppresses the heading where the surrounding panel already carries it. */
+  hideLegend?: boolean;
   onDone: () => void;
 };
 
-export const MeetingForm = ({roles, meeting, draft, occurrenceDate, onDone}: MeetingFormProps) => {
+export const MeetingForm = ({
+  roles,
+  meeting,
+  draft,
+  occurrenceDate,
+  defaultRoleId,
+  legend,
+  hideLegend = false,
+  onDone,
+}: MeetingFormProps) => {
   const [result, formAction] = useActionState(saveMeetingAction, idleResult);
   const titleRef = useRef<HTMLInputElement>(null);
+
+  // Escape closes the editor. Deliberately no close-on-click-outside: losing a
+  // half-written meeting because you clicked the page would be far worse than
+  // the cost of reaching for Cancel.
+  useDismiss(onDone);
 
   // Move focus into the form when it opens so keyboard users land in the right
   // place without hunting.
@@ -50,9 +79,17 @@ export const MeetingForm = ({roles, meeting, draft, occurrenceDate, onDone}: Mee
   const startTime = formatTime(meeting?.startMinutes ?? draft?.startMinutes ?? 9 * 60);
   const endTime = formatTime(meeting?.endMinutes ?? draft?.endMinutes ?? 9 * 60 + 30);
 
+  // A remembered role is only ever a suggestion, and only a valid one: an id
+  // left over from an archived or deleted role falls back to no role.
+  const suggestedRoleId =
+    defaultRoleId && roles.some(role => role.id === defaultRoleId) ? defaultRoleId : '';
+  const selectedRoleId = meeting?.roleId ?? draft?.roleId ?? (meeting ? '' : suggestedRoleId) ?? '';
+
   return (
     <form action={formAction} className={styles.Form}>
-      <p className={styles.Legend}>{meeting ? 'Edit meeting' : 'New meeting'}</p>
+      {!hideLegend && (
+        <p className={styles.Legend}>{legend ?? (meeting ? 'Edit meeting' : 'New meeting')}</p>
+      )}
 
       {meeting && <input type="hidden" name="id" value={meeting.id} />}
       {/* Named distinctly so it cannot shadow the meeting's own date field. */}
@@ -68,7 +105,7 @@ export const MeetingForm = ({roles, meeting, draft, occurrenceDate, onDone}: Mee
               id={id}
               name="title"
               className={fieldStyles.Input}
-              defaultValue={meeting?.title ?? ''}
+              defaultValue={meeting?.title ?? draft?.title ?? ''}
               placeholder="Team A stand-up"
               maxLength={140}
               required
@@ -99,7 +136,7 @@ export const MeetingForm = ({roles, meeting, draft, occurrenceDate, onDone}: Mee
               id={id}
               name="roleId"
               className={fieldStyles.Select}
-              defaultValue={meeting?.roleId ?? ''}
+              defaultValue={selectedRoleId}
               aria-describedby={describedBy}
             >
               <option value="">No role</option>
@@ -187,7 +224,7 @@ export const MeetingForm = ({roles, meeting, draft, occurrenceDate, onDone}: Mee
               id={id}
               name="notes"
               className={fieldStyles.Textarea}
-              defaultValue={meeting?.notes ?? ''}
+              defaultValue={meeting?.notes ?? draft?.notes ?? ''}
               rows={2}
               maxLength={2000}
               aria-describedby={describedBy}

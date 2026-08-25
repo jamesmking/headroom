@@ -1,0 +1,7 @@
+@use '@/styles/variables/spacing' as s;
+
+.Board {
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-4;
+}

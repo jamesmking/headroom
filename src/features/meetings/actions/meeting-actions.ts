@@ -3,6 +3,7 @@
 import {revalidatePath} from 'next/cache';
 import {z} from 'zod';
 import {requireUserId} from '@/features/auth/queries/get-current-user';
+import {rememberRole} from '@/features/roles/last-used-role';
 import {type ActionResult, errorResult, fromZodError, successResult} from '@/lib/action-result';
 import {fromDateKey, isDateKey} from '@/lib/dates';
 import {prisma} from '@/lib/prisma';
@@ -108,6 +109,7 @@ export const saveMeetingAction = async (
     return errorResult('The meeting could not be saved. Try again.');
   }
 
+  await rememberRole(roleId);
   revalidatePath('/', 'layout');
   return successResult(data.id ? 'Meeting updated.' : 'Meeting added.');
 };

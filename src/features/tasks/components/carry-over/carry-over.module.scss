@@ -1,0 +1,25 @@
+@use '@/styles/helpers/focus' as f;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Button {
+  @include f.focusable(1px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid c.$line-strong;
+  border-radius: s.$radius;
+  background: c.$card;
+  color: c.$ink-700;
+  font-size: t.$text-xs;
+  font-weight: t.$weight-medium;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    background: c.$card-hover;
+    border-color: c.$ink-300;
+  }
+}

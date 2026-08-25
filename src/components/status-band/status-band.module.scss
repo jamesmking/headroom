@@ -4,7 +4,11 @@
 @use '@/styles/variables/spacing' as s;
 @use '@/styles/variables/typography' as t;
 
-.Status {
+/// The band across the top of a day: one large figure on the left, one
+/// supporting block on the right. Today fills it with what is happening now;
+/// any other day fills it with the shape of that day. Sharing the layout is
+/// what stops the two reading as different screens.
+.Band {
   @include surf.card;
   padding: s.$space-5;
   display: grid;
@@ -13,7 +17,7 @@
   align-items: center;
 }
 
-.Headline {
+.Leading {
   min-width: 0;
 }
 
@@ -23,7 +27,7 @@
   margin-bottom: s.$space-2;
 }
 
-/// The single largest thing on the screen: how much room you have right now.
+/// The single largest thing on the screen: how much room the day holds.
 .Figure {
   @include ty.temporal;
   font-size: t.$text-2xl;
@@ -34,7 +38,7 @@
   display: block;
 }
 
-.InMeeting .Figure {
+.Alert .Figure {
   color: c.$now;
 }
 
@@ -49,21 +53,21 @@
   font-weight: t.$weight-medium;
 }
 
-.Next {
+.Trailing {
   border-left: 1px solid c.$line;
   padding-left: s.$space-5;
   min-width: 13rem;
   max-width: 20rem;
 }
 
-.NextTitle {
+.Title {
   font-size: t.$text-base;
   font-weight: t.$weight-semibold;
   color: c.$ink-900;
   margin: s.$space-1 0 0.375rem;
 }
 
-.NextMeta {
+.Meta {
   display: flex;
   align-items: center;
   gap: s.$space-3;
@@ -72,23 +76,23 @@
   color: c.$ink-600;
 }
 
-.Countdown {
+.Accent {
   @include ty.temporal;
   font-weight: t.$weight-medium;
   color: c.$ink-900;
 }
 
-.Done {
+.Quiet {
   font-size: t.$text-sm;
   color: c.$ink-600;
 }
 
 @media (max-width: 900px) {
-  .Status {
+  .Band {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .Next {
+  .Trailing {
     border-left: none;
     border-top: 1px solid c.$line;
     padding-left: 0;

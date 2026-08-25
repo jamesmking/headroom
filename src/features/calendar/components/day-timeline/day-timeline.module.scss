@@ -274,21 +274,41 @@
   color: c.$ink-500;
 }
 
+/// All-day events shape a day more than most meetings in it do — an inset day
+/// or someone away is the headline, not a footnote — so they lead the
+/// timeline as a banner rather than sitting in it as the smallest chip.
 .AllDay {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: s.$space-2;
   padding: s.$space-3 s.$space-4;
   border-bottom: 1px solid c.$line;
+  background: c.$paper-sunken;
+}
+
+.AllDayLabel {
+  @include ty.eyebrow;
 }
 
 .AllDayEvent {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: s.$space-2;
+  font-size: t.$text-base;
+  font-weight: t.$weight-medium;
+  color: c.$ink-900;
+}
+
+.AllDayDot {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  border: 1.5px solid c.$family;
+}
+
+.AllDayNote {
   font-size: t.$text-xs;
-  color: c.$ink-700;
-  background: c.$paper-sunken;
-  border-radius: s.$radius-sm;
-  padding: 0.25rem 0.5rem;
+  color: c.$ink-600;
+  padding-left: 1rem;
 }

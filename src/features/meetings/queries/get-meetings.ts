@@ -90,23 +90,63 @@ export type MeetingRecord = {
   recurrenceEndDate: DateKey | null;
 };
 
+type MeetingRow = {
+  id: string;
+  title: string;
+  date: Date;
+  startMinutes: number;
+  endMinutes: number;
+  notes: string | null;
+  roleId: string | null;
+  recurrence: MeetingRecord['recurrence'];
+  recurrenceEndDate: Date | null;
+};
+
+const toRecord = (meeting: MeetingRow): MeetingRecord => ({
+  id: meeting.id,
+  title: meeting.title,
+  date: toDateKey(meeting.date),
+  startMinutes: meeting.startMinutes,
+  endMinutes: meeting.endMinutes,
+  notes: meeting.notes,
+  roleId: meeting.roleId,
+  recurrence: meeting.recurrence,
+  recurrenceEndDate: meeting.recurrenceEndDate ? toDateKey(meeting.recurrenceEndDate) : null,
+});
+
 /** A single meeting for editing. Returns null when it is not the user's. */
 export const getMeeting = async (
   userId: string,
   meetingId: string
 ): Promise<MeetingRecord | null> => {
   const meeting = await prisma.meeting.findFirst({where: {id: meetingId, userId}});
-  if (!meeting) return null;
-
-  return {
-    id: meeting.id,
-    title: meeting.title,
-    date: toDateKey(meeting.date),
-    startMinutes: meeting.startMinutes,
-    endMinutes: meeting.endMinutes,
-    notes: meeting.notes,
-    roleId: meeting.roleId,
-    recurrence: meeting.recurrence,
-    recurrenceEndDate: meeting.recurrenceEndDate ? toDateKey(meeting.recurrenceEndDate) : null,
-  };
+  return meeting ? toRecord(meeting) : null;
 };
+
+/**
+ * The editable records behind a set of calendar events, in one query.
+ *
+ * A week can surface dozens of occurrences of a handful of meetings, so the
+ * ids are de-duplicated first: the cost is one round trip regardless of how
+ * many days are on screen.
+ */
+export const getMeetingsByIds = async (
+  userId: string,
+  meetingIds: string[]
+): Promise<MeetingRecord[]> => {
+  const ids = [...new Set(meetingIds)];
+  if (ids.length === 0) return [];
+
+  const meetings = await prisma.meeting.findMany({where: {id: {in: ids}, userId}});
+  return meetings.map(toRecord);
+};
+
+/** The editable records for whichever events in a list came from meetings. */
+export const getMeetingsForEvents = async (
+  userId: string,
+  events: {meetingId: string | null}[]
+): Promise<MeetingRecord[]> =>
+  getMeetingsByIds(
+    userId,
+    events.map(event => event.meetingId).filter((id): id is string => id !== null)
+  );
