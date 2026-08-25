@@ -1,16 +1,17 @@
 'use client';
 
 import clsx from 'clsx';
-import {Archive, Pencil, Plus, RotateCcw} from 'lucide-react';
-import {useActionState, useCallback, useEffect, useState} from 'react';
+import {Archive, ChevronDown, ChevronUp, Pencil, Plus, RotateCcw} from 'lucide-react';
+import {useActionState, useCallback, useEffect, useRef, useState} from 'react';
 import {Button} from '@/components/button';
 import {EmptyState} from '@/components/empty-state';
 import {Field, fieldStyles} from '@/components/field';
 import {FormMessage} from '@/components/form-message';
 import {Panel} from '@/components/panel';
-import {deleteEmptyRole, toggleRoleActive} from '@/features/roles/actions/quick-actions';
+import {deleteEmptyRole, moveRole, toggleRoleActive} from '@/features/roles/actions/quick-actions';
 import {saveRoleAction} from '@/features/roles/actions/role-actions';
 import type {RoleView} from '@/features/roles/queries/get-roles';
+import {type Direction, canMove} from '@/features/roles/reorder';
 import {idleResult} from '@/lib/action-result';
 import styles from './role-manager.module.scss';
 
@@ -20,6 +21,33 @@ const SUGGESTED_COLOURS = ['#3373b0', '#2f9e6f', '#d9822b', '#8e6bbf', '#b03024'
 export const RoleManager = ({roles}: {roles: RoleView[]}) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  // A ref rather than state: this records an intention for the next render and
+  // must not itself cause one.
+  const pendingFocus = useRef<{id: string; direction: Direction} | null>(null);
+
+  /**
+   * Move the keyboard focus with the role that just moved, rather than leaving
+   * it on whatever row has taken that position. Without this, pressing "move
+   * up" twice would move two different roles.
+   */
+  useEffect(() => {
+    const pending = pendingFocus.current;
+    if (!pending) return;
+    pendingFocus.current = null;
+
+    const select = (direction: Direction) =>
+      document.querySelector<HTMLButtonElement>(
+        `[data-role-move="${pending.id}"][data-direction="${direction}"]`
+      );
+
+    // At the end of the list that button is disabled, so fall back to the
+    // other one and keep focus on the role the user was moving.
+    const wanted = select(pending.direction);
+    const target =
+      wanted && !wanted.disabled ? wanted : select(pending.direction === 'up' ? 'down' : 'up');
+
+    target?.focus();
+  }, [roles]);
 
   const close = useCallback(() => {
     setAdding(false);
@@ -64,17 +92,53 @@ export const RoleManager = ({roles}: {roles: RoleView[]}) => {
           hint="Add one for each team you work across, then give each a colour."
         />
       ) : (
-        <div className={styles.Manager}>
-          {[...active, ...archived].map(role => (
-            <RoleRow key={role.id} role={role} onEdit={setEditingId} />
-          ))}
-        </div>
+        <>
+          <p className={styles.Hint}>
+            This order is used everywhere roles are listed — the role filter on Tasks and the role
+            menus on meetings and tasks.
+          </p>
+          <div className={styles.Manager}>
+            {active.map((role, index) => (
+              <RoleRow
+                key={role.id}
+                role={role}
+                index={index}
+                groupSize={active.length}
+                onEdit={setEditingId}
+                onMove={pending => (pendingFocus.current = pending)}
+              />
+            ))}
+            {archived.map((role, index) => (
+              <RoleRow
+                key={role.id}
+                role={role}
+                index={index}
+                groupSize={archived.length}
+                onEdit={setEditingId}
+                onMove={pending => (pendingFocus.current = pending)}
+              />
+            ))}
+          </div>
+        </>
       )}
     </Panel>
   );
 };
 
-const RoleRow = ({role, onEdit}: {role: RoleView; onEdit: (id: string) => void}) => {
+const RoleRow = ({
+  role,
+  index,
+  groupSize,
+  onEdit,
+  onMove,
+}: {
+  role: RoleView;
+  /** Position within its own group, so moves match what is on screen. */
+  index: number;
+  groupSize: number;
+  onEdit: (id: string) => void;
+  onMove: (pending: {id: string; direction: Direction}) => void;
+}) => {
   const historyCount = role.meetingCount + role.taskCount;
 
   return (
@@ -82,6 +146,36 @@ const RoleRow = ({role, onEdit}: {role: RoleView; onEdit: (id: string) => void})
       className={clsx(styles.Row, !role.active && styles.Archived)}
       style={{'--role-colour': role.colour} as React.CSSProperties}
     >
+      <form action={moveRole} className={styles.Reorder}>
+        <input type="hidden" name="id" value={role.id} />
+        <button
+          type="submit"
+          name="direction"
+          value="up"
+          data-role-move={role.id}
+          data-direction="up"
+          className={styles.Move}
+          disabled={!canMove(index, groupSize, 'up')}
+          onClick={() => onMove({id: role.id, direction: 'up'})}
+        >
+          <ChevronUp size={12} aria-hidden="true" />
+          <span className="sr-only">{`Move ${role.name} up`}</span>
+        </button>
+        <button
+          type="submit"
+          name="direction"
+          value="down"
+          data-role-move={role.id}
+          data-direction="down"
+          className={styles.Move}
+          disabled={!canMove(index, groupSize, 'down')}
+          onClick={() => onMove({id: role.id, direction: 'down'})}
+        >
+          <ChevronDown size={12} aria-hidden="true" />
+          <span className="sr-only">{`Move ${role.name} down`}</span>
+        </button>
+      </form>
+
       <span className={styles.Swatch} aria-hidden="true" />
 
       <div className={styles.Info}>

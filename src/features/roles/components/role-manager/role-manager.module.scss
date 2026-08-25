@@ -10,7 +10,7 @@
 
 .Row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
   gap: s.$space-3;
   align-items: center;
   padding: s.$space-3 s.$space-4;
@@ -68,6 +68,12 @@
   }
 }
 
+.Hint {
+  font-size: t.$text-xs;
+  color: c.$ink-500;
+  padding: s.$space-3 s.$space-4 0;
+}
+
 .Badge {
   display: inline-block;
   font-size: 0.625rem;
@@ -85,6 +91,40 @@
   display: flex;
   gap: s.$space-2;
   align-items: center;
+}
+
+/// Move controls sit at the start of the row, next to the colour swatch, so
+/// the order of the list is adjusted where the order is read.
+.Reorder {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.Move {
+  @include f.focusable(1px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1rem;
+  padding: 0;
+  border: 1px solid c.$line-strong;
+  border-radius: s.$radius-sm;
+  background: c.$card;
+  color: c.$ink-600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: c.$paper-sunken;
+    color: c.$ink-900;
+    border-color: c.$ink-300;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
 }
 
 .Form {
