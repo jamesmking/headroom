@@ -1,0 +1,9 @@
+@use '@/styles/helpers/buttons' as b;
+
+.Primary {
+  @include b.button(primary);
+}
+
+.Secondary {
+  @include b.button(secondary);
+}

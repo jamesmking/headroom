@@ -4,7 +4,8 @@ import {useActionState, useEffect, useRef} from 'react';
 import {Button} from '@/components/button';
 import {Field, fieldStyles} from '@/components/field';
 import {FormMessage} from '@/components/form-message';
-import type {RoleSummary} from '@/features/calendar/types';
+import type {RoleOption} from '@/features/calendar/types';
+import {RoleRequired} from '@/features/roles/components/role-required';
 import {saveMeetingAction} from '@/features/meetings/actions/meeting-actions';
 import {deleteMeeting, skipMeetingOccurrence} from '@/features/meetings/actions/quick-actions';
 import type {MeetingRecord} from '@/features/meetings/queries/get-meetings';
@@ -30,7 +31,7 @@ export type MeetingDraft = {
 };
 
 type MeetingFormProps = {
-  roles: RoleSummary[];
+  roles: RoleOption[];
   /** Present when editing an existing meeting. */
   meeting?: MeetingRecord | null;
   /** Present when creating, optionally pre-filled from a gap in the day. */
@@ -79,11 +80,25 @@ export const MeetingForm = ({
   const startTime = formatTime(meeting?.startMinutes ?? draft?.startMinutes ?? 9 * 60);
   const endTime = formatTime(meeting?.endMinutes ?? draft?.endMinutes ?? 9 * 60 + 30);
 
+  const currentRoleId = meeting?.roleId ?? draft?.roleId ?? null;
+
+  // Archived roles are offered only when one is already the current value, so
+  // editing an old meeting never silently reassigns it and nothing new can be
+  // filed under a role that has been put away.
+  const options = roles.filter(role => role.active || role.id === currentRoleId);
+
   // A remembered role is only ever a suggestion, and only a valid one: an id
-  // left over from an archived or deleted role falls back to no role.
-  const suggestedRoleId =
-    defaultRoleId && roles.some(role => role.id === defaultRoleId) ? defaultRoleId : '';
-  const selectedRoleId = meeting?.roleId ?? draft?.roleId ?? (meeting ? '' : suggestedRoleId) ?? '';
+  // left over from an archived or deleted role falls through to no selection.
+  const suggested =
+    defaultRoleId && options.some(role => role.id === defaultRoleId && role.active)
+      ? defaultRoleId
+      : options.length === 1
+        ? options[0].id
+        : '';
+  const selectedRoleId = currentRoleId ?? suggested;
+
+  // All hooks above run unconditionally; only the render branches.
+  if (options.length === 0) return <RoleRequired noun="meeting" />;
 
   return (
     <form action={formAction} className={styles.Form}>
@@ -130,19 +145,23 @@ export const MeetingForm = ({
           )}
         </Field>
 
-        <Field label="Role" optional error={errors.roleId}>
-          {({id, describedBy}) => (
+        <Field label="Role" error={errors.roleId}>
+          {({id, describedBy, invalid}) => (
             <select
               id={id}
               name="roleId"
               className={fieldStyles.Select}
               defaultValue={selectedRoleId}
+              required
               aria-describedby={describedBy}
+              aria-invalid={invalid}
             >
-              <option value="">No role</option>
-              {roles.map(role => (
+              <option value="" disabled>
+                Choose a role…
+              </option>
+              {options.map(role => (
                 <option key={role.id} value={role.id}>
-                  {role.name}
+                  {role.active ? role.name : `${role.name} (archived)`}
                 </option>
               ))}
             </select>

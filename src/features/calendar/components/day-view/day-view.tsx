@@ -8,7 +8,7 @@ import {LiveClock} from '@/features/calendar/components/live-clock';
 import {NowNext} from '@/features/calendar/components/now-next';
 import {getCalendarData} from '@/features/calendar/queries/get-calendar';
 import {getMeetingsForEvents} from '@/features/meetings/queries/get-meetings';
-import {getActiveRoles} from '@/features/roles/queries/get-roles';
+import {getRoleOptions} from '@/features/roles/queries/get-roles';
 import {getLastUsedRoleId} from '@/features/roles/last-used-role';
 import {getSettings} from '@/features/settings/queries/get-settings';
 import {CarryOver} from '@/features/tasks/components/carry-over';
@@ -48,7 +48,7 @@ export const DayView = async ({date}: {date: DateKey}) => {
 
   const [calendar, roles, lastRoleId, planned, dueOnDate, overdue] = await Promise.all([
     getCalendarData(user.id, [date], settings.timeZone),
-    getActiveRoles(user.id),
+    getRoleOptions(user.id),
     getLastUsedRoleId(),
     getPlannedTasks(user.id, date),
     getTasksDueOn(user.id, date),
@@ -101,12 +101,7 @@ export const DayView = async ({date}: {date: DateKey}) => {
           initialMinutes={initialMinutes}
         />
       ) : (
-        <DayShape
-          date={date}
-          today={today}
-          events={calendar.events}
-          workingHours={workingHours}
-        />
+        <DayShape date={date} today={today} events={calendar.events} workingHours={workingHours} />
       )}
 
       {calendar.family.message && <Notice>{calendar.family.message}</Notice>}

@@ -1,7 +1,7 @@
 import type {Metadata} from 'next';
 import Link from 'next/link';
 import {requireUser} from '@/features/auth/queries/get-current-user';
-import {getActiveRoles} from '@/features/roles/queries/get-roles';
+import {getRoleOptions} from '@/features/roles/queries/get-roles';
 import {getSettings} from '@/features/settings/queries/get-settings';
 import {RoleFilter} from '@/features/tasks/components/role-filter';
 import {TaskList} from '@/features/tasks/components/task-list';
@@ -25,11 +25,13 @@ const TasksPage = async ({
   const today = todayKey(settings.timeZone);
 
   const [roles, lastRoleId, {role, plan}] = await Promise.all([
-    getActiveRoles(user.id),
+    getRoleOptions(user.id),
     getLastUsedRoleId(),
     searchParams,
   ]);
 
+  // Filtering only ever offers roles still in use.
+  const activeRoles = roles.filter(entry => entry.active);
   // Ignore a role id that is not the user's, rather than showing nothing.
   const selectedRole = role && roles.some(entry => entry.id === role) ? role : null;
 
@@ -57,14 +59,13 @@ const TasksPage = async ({
       <header className={styles.Masthead}>
         <div>
           <span className={styles.Eyebrow}>Tasks</span>
-            <h1 className={styles.Heading}>Backlog</h1>
+          <h1 className={styles.Heading}>Backlog</h1>
         </div>
       </header>
 
       {planningAhead ? (
         <p className={styles.Lede}>
-          The <strong>+</strong> control is adding to{' '}
-          <strong>{formatLongDate(planDate)}</strong>.{' '}
+          The <strong>+</strong> control is adding to <strong>{formatLongDate(planDate)}</strong>.{' '}
           <Link className={styles.PlanLink} href={dayPath(planDate)}>
             Back to {describeDayInSentence(planDate, today)} →
           </Link>
@@ -76,7 +77,7 @@ const TasksPage = async ({
         </p>
       )}
 
-      <RoleFilter roles={roles} selected={selectedRole} hrefFor={hrefFor} />
+      <RoleFilter roles={activeRoles} selected={selectedRole} hrefFor={hrefFor} />
 
       <div className={styles.Columns}>
         <TaskList

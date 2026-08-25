@@ -95,11 +95,7 @@ export const NowNext = ({events, workingHours, timeZone, initialMinutes}: NowNex
               <p className={band.Title}>{next.title}</p>
               <div className={band.Meta}>
                 <TimeText>{formatTimeRange(next.startMinutes, next.endMinutes)}</TimeText>
-                <RoleBadge
-                  role={next.role}
-                  hollow={next.source === 'family'}
-                  fallbackLabel={next.source === 'family' ? 'Family' : 'No role'}
-                />
+                <RoleBadge role={next.role} hollow={next.source === 'family'} />
               </div>
               <p className={band.Detail}>
                 Starts <span className={band.Accent}>{formatCountdown(minutesUntilNext ?? 0)}</span>

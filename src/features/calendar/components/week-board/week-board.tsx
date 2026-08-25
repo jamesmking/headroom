@@ -5,7 +5,7 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Button} from '@/components/button';
 import {Panel} from '@/components/panel';
 import {WeekGrid} from '@/features/calendar/components/week-grid';
-import type {CalendarEvent, RoleSummary, WorkingHours} from '@/features/calendar/types';
+import type {CalendarEvent, RoleOption, WorkingHours} from '@/features/calendar/types';
 import {MeetingDetails} from '@/features/meetings/components/meeting-details';
 import {MeetingForm, type MeetingDraft} from '@/features/meetings/components/meeting-form';
 import type {MeetingRecord} from '@/features/meetings/queries/get-meetings';
@@ -24,7 +24,7 @@ type WeekBoardProps = {
   dateKeys: DateKey[];
   eventsByDate: Record<DateKey, CalendarEvent[]>;
   meetings: MeetingRecord[];
-  roles: RoleSummary[];
+  roles: RoleOption[];
   defaultRoleId: string | null;
   workingHours: WorkingHours;
   today: DateKey;
@@ -76,7 +76,8 @@ export const WeekBoard = ({
     [meetings]
   );
 
-  const selectedEvent = context?.mode === 'details' ? (eventsById.get(context.eventId) ?? null) : null;
+  const selectedEvent =
+    context?.mode === 'details' ? (eventsById.get(context.eventId) ?? null) : null;
   const selectedMeeting = selectedEvent?.meetingId
     ? (meetingsById.get(selectedEvent.meetingId) ?? null)
     : null;

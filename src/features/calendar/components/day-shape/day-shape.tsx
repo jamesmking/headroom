@@ -64,11 +64,7 @@ export const DayShape = ({date, today, events, workingHours}: DayShapeProps) => 
             <p className={band.Title}>{first.title}</p>
             <div className={band.Meta}>
               <TimeText>{formatTimeRange(first.startMinutes, first.endMinutes)}</TimeText>
-              <RoleBadge
-                role={first.role}
-                hollow={first.source === 'family'}
-                fallbackLabel={first.source === 'family' ? 'Family' : 'No role'}
-              />
+              <RoleBadge role={first.role} hollow={first.source === 'family'} />
             </div>
             {longest && (
               <p className={band.Detail}>

@@ -1,6 +1,6 @@
 import 'server-only';
 
-import type {RoleSummary} from '@/features/calendar/types';
+import type {RoleOption, RoleSummary} from '@/features/calendar/types';
 import {prisma} from '@/lib/prisma';
 
 export type RoleView = RoleSummary & {
@@ -21,6 +21,20 @@ export const getActiveRoles = async (userId: string): Promise<RoleSummary[]> => 
   });
   return roles;
 };
+
+/**
+ * Roles for a picker: active ones first, archived ones after.
+ *
+ * Forms need the archived ones so that editing a meeting filed under a role
+ * you have since archived does not silently reassign it. They are only ever
+ * offered as the current value, never as a choice for something new.
+ */
+export const getRoleOptions = async (userId: string): Promise<RoleOption[]> =>
+  prisma.role.findMany({
+    where: {userId},
+    orderBy: [{active: 'desc'}, {sortOrder: 'asc'}, {name: 'asc'}],
+    select: {id: true, name: true, shortName: true, colour: true, active: true},
+  });
 
 /** Every role including archived ones, for the settings screen. */
 export const getAllRoles = async (userId: string): Promise<RoleView[]> => {

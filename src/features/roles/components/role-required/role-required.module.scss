@@ -1,0 +1,21 @@
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+@use '@/styles/variables/typography' as t;
+
+.Prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: s.$space-3;
+  padding: s.$space-4;
+  border-bottom: 1px solid c.$line;
+  background: c.$paper-sunken;
+  font-size: t.$text-sm;
+  color: c.$ink-600;
+}
+
+.Headline {
+  font-size: t.$text-base;
+  font-weight: t.$weight-semibold;
+  color: c.$ink-900;
+}

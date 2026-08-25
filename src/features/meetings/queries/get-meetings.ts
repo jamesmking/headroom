@@ -85,7 +85,7 @@ export type MeetingRecord = {
   startMinutes: number;
   endMinutes: number;
   notes: string | null;
-  roleId: string | null;
+  roleId: string;
   recurrence: 'NONE' | 'DAILY' | 'WEEKDAYS' | 'WEEKLY' | 'FORTNIGHTLY';
   recurrenceEndDate: DateKey | null;
 };
@@ -97,7 +97,7 @@ type MeetingRow = {
   startMinutes: number;
   endMinutes: number;
   notes: string | null;
-  roleId: string | null;
+  roleId: string;
   recurrence: MeetingRecord['recurrence'];
   recurrenceEndDate: Date | null;
 };

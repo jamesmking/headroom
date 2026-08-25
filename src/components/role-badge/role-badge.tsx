@@ -3,27 +3,20 @@ import type {RoleSummary} from '@/features/calendar/types';
 import styles from './role-badge.module.scss';
 
 type RoleBadgeProps = {
-  role: RoleSummary | null;
-  /** Rendered when there is no role, e.g. 'Family' or 'No role'. */
-  fallbackLabel?: string;
-  /** Use a hollow marker, for sources that are not one of the user's roles. */
+  role: RoleSummary;
+  /** Use a hollow marker for roles that are not the user's own, i.e. Family. */
   hollow?: boolean;
   /** Show the full role name rather than the short name. */
   long?: boolean;
 };
 
-export const RoleBadge = ({
-  role,
-  fallbackLabel = 'No role',
-  hollow = false,
-  long = false,
-}: RoleBadgeProps) => (
-  <span className={clsx(styles.Badge, !role && styles.Unassigned)}>
+export const RoleBadge = ({role, hollow = false, long = false}: RoleBadgeProps) => (
+  <span className={styles.Badge}>
     <span
       className={clsx(styles.Dot, hollow && styles.Hollow)}
-      style={role ? ({'--role-colour': role.colour} as React.CSSProperties) : undefined}
+      style={{'--role-colour': role.colour} as React.CSSProperties}
       aria-hidden="true"
     />
-    {role ? (long ? role.name : role.shortName) : fallbackLabel}
+    {long ? role.name : role.shortName}
   </span>
 );

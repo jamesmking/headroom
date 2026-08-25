@@ -196,11 +196,7 @@ const EventBlock = ({
       <TimeText className={styles.Range}>
         {formatTimeRange(event.startMinutes, event.endMinutes)}
       </TimeText>
-      <RoleBadge
-        role={event.role}
-        hollow={event.source === 'family'}
-        fallbackLabel={event.source === 'family' ? 'Family' : 'No role'}
-      />
+      <RoleBadge role={event.role} hollow={event.source === 'family'} />
       {event.recurring && (
         <span className={styles.Tag}>
           <Repeat className={styles.TagIcon} aria-hidden="true" />

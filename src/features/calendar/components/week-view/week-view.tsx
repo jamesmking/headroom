@@ -6,7 +6,7 @@ import {buildDaySummary} from '@/features/availability/availability';
 import {WeekBoard} from '@/features/calendar/components/week-board';
 import {getCalendarData, groupEventsByDate} from '@/features/calendar/queries/get-calendar';
 import {getMeetingsForEvents} from '@/features/meetings/queries/get-meetings';
-import {getActiveRoles} from '@/features/roles/queries/get-roles';
+import {getRoleOptions} from '@/features/roles/queries/get-roles';
 import {getLastUsedRoleId} from '@/features/roles/last-used-role';
 import {getSettings} from '@/features/settings/queries/get-settings';
 import {
@@ -43,7 +43,7 @@ export const WeekView = async ({anchor}: {anchor: DateKey}) => {
 
   const [calendar, roles, lastRoleId] = await Promise.all([
     getCalendarData(user.id, dateKeys, settings.timeZone),
-    getActiveRoles(user.id),
+    getRoleOptions(user.id),
     getLastUsedRoleId(),
   ]);
 

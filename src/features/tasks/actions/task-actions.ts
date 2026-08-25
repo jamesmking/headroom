@@ -32,7 +32,7 @@ const taskSchema = z.object({
     .trim()
     .min(1, 'Give the task a title.')
     .max(200, 'Keep the title under 200 characters.'),
-  roleId: z.string().trim().optional(),
+  roleId: z.string().trim().min(1, 'Choose a role.'),
   jiraUrl: z.union([jiraUrlSchema, z.literal('')]).optional(),
   dueDate: z
     .union([z.string().trim().refine(isDateKey, 'Choose a valid date.'), z.literal('')])
@@ -45,8 +45,8 @@ const taskSchema = z.object({
     .optional(),
 });
 
-const resolveRoleId = async (userId: string, roleId?: string): Promise<string | null> => {
-  if (!roleId) return null;
+/** See the note on the same helper in the meeting actions. */
+const resolveRoleId = async (userId: string, roleId: string): Promise<string | null> => {
   const role = await prisma.role.findFirst({where: {id: roleId, userId}, select: {id: true}});
   return role?.id ?? null;
 };
@@ -60,7 +60,7 @@ export const saveTaskAction = async (
   const parsed = taskSchema.safeParse({
     id: formData.get('id') || undefined,
     title: formData.get('title') ?? '',
-    roleId: formData.get('roleId') || undefined,
+    roleId: formData.get('roleId') ?? '',
     jiraUrl: formData.get('jiraUrl') ?? '',
     dueDate: formData.get('dueDate') ?? '',
     status: formData.get('status') ?? 'BACKLOG',
@@ -72,6 +72,7 @@ export const saveTaskAction = async (
 
   const data = parsed.data;
   const roleId = await resolveRoleId(userId, data.roleId);
+  if (!roleId) return errorResult('Choose a role.', {roleId: 'Choose a role.'});
 
   const values = {
     title: data.title,

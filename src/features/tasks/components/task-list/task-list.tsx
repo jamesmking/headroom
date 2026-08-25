@@ -5,7 +5,7 @@ import {useCallback, useState} from 'react';
 import {Button} from '@/components/button';
 import {EmptyState} from '@/components/empty-state';
 import {Panel} from '@/components/panel';
-import type {RoleSummary} from '@/features/calendar/types';
+import type {RoleOption} from '@/features/calendar/types';
 import {TaskForm} from '@/features/tasks/components/task-form';
 import {TaskRow} from '@/features/tasks/components/task-row';
 import {type TaskStatus, type TaskView, toTaskRecord} from '@/features/tasks/types';
@@ -15,7 +15,7 @@ import styles from './task-list.module.scss';
 type TaskListProps = {
   title: string;
   tasks: TaskView[];
-  roles: RoleSummary[];
+  roles: RoleOption[];
   planDate: DateKey;
   today: DateKey;
   emptyMessage: string;

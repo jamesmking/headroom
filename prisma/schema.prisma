@@ -133,7 +133,10 @@ enum Recurrence {
 model Meeting {
   id           String     @id @default(cuid())
   userId       String
-  roleId       String?
+  /// Required. Every meeting belongs to exactly one role — that is the whole
+  /// point of the application. Read-only family calendar events are the only
+  /// exception, and they are never stored here.
+  roleId       String
   title        String
   /// The date of the first (or only) occurrence
   date         DateTime   @db.Date
@@ -149,8 +152,10 @@ model Meeting {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role Role? @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Restrict, not SetNull: a role with meetings against it cannot be deleted,
+  /// which is already what `deleteEmptyRole` enforces. Archive it instead.
+  role Role @relation(fields: [roleId], references: [id], onDelete: Restrict)
 
   @@index([userId, date])
 }
@@ -164,7 +169,8 @@ enum TaskStatus {
 model Task {
   id        String     @id @default(cuid())
   userId    String
-  roleId    String?
+  /// Required, for the same reason as Meeting.roleId.
+  roleId    String
   title     String
   jiraUrl   String?    @db.Text
   dueDate   DateTime?  @db.Date
@@ -177,7 +183,7 @@ model Task {
   completedAt DateTime?
 
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role       Role?       @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  role       Role        @relation(fields: [roleId], references: [id], onDelete: Restrict)
   dailyTasks DailyTask[]
 
   @@index([userId, status])

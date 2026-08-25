@@ -22,13 +22,8 @@ export const getLastUsedRoleId = async (): Promise<string | null> => {
 };
 
 /** Called from the meeting and task actions once a save succeeds. */
-export const rememberRole = async (roleId: string | null): Promise<void> => {
+export const rememberRole = async (roleId: string): Promise<void> => {
   const store = await cookies();
-
-  if (!roleId) {
-    store.delete(COOKIE);
-    return;
-  }
 
   store.set(COOKIE, roleId, {
     httpOnly: true,

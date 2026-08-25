@@ -4,7 +4,8 @@ import {useActionState, useEffect, useRef} from 'react';
 import {Button} from '@/components/button';
 import {Field, fieldStyles} from '@/components/field';
 import {FormMessage} from '@/components/form-message';
-import type {RoleSummary} from '@/features/calendar/types';
+import type {RoleOption} from '@/features/calendar/types';
+import {RoleRequired} from '@/features/roles/components/role-required';
 import {deleteTask} from '@/features/tasks/actions/quick-actions';
 import {saveTaskAction} from '@/features/tasks/actions/task-actions';
 import type {TaskRecord} from '@/features/tasks/queries/get-tasks';
@@ -15,7 +16,7 @@ import {useDismiss} from '@/lib/use-dismiss';
 import styles from './task-form.module.scss';
 
 type TaskFormProps = {
-  roles: RoleSummary[];
+  roles: RoleOption[];
   task?: TaskRecord | null;
   /** Defaults for a new task. */
   defaults?: {status?: 'BACKLOG' | 'TODO' | 'DONE'; dueDate?: DateKey; roleId?: string};
@@ -41,6 +42,20 @@ export const TaskForm = ({roles, task, defaults, planDate, onDone}: TaskFormProp
   }, [result, onDone]);
 
   const errors = result.fieldErrors ?? {};
+
+  const currentRoleId = task?.roleId ?? null;
+  // See the note on the same filter in the meeting form.
+  const options = roles.filter(role => role.active || role.id === currentRoleId);
+  const suggested =
+    defaults?.roleId && options.some(role => role.id === defaults.roleId && role.active)
+      ? defaults.roleId
+      : options.length === 1
+        ? options[0].id
+        : '';
+  const selectedRoleId = currentRoleId ?? suggested;
+
+  // All hooks above run unconditionally; only the render branches.
+  if (options.length === 0) return <RoleRequired noun="task" />;
 
   return (
     <form action={formAction} className={styles.Form}>
@@ -69,25 +84,23 @@ export const TaskForm = ({roles, task, defaults, planDate, onDone}: TaskFormProp
           )}
         </Field>
 
-        <Field label="Role" optional error={errors.roleId}>
-          {({id, describedBy}) => (
+        <Field label="Role" error={errors.roleId}>
+          {({id, describedBy, invalid}) => (
             <select
               id={id}
               name="roleId"
               className={fieldStyles.Select}
-              defaultValue={
-                task?.roleId ??
-                (defaults?.roleId && roles.some(role => role.id === defaults.roleId)
-                  ? defaults.roleId
-                  : '') ??
-                ''
-              }
+              defaultValue={selectedRoleId}
+              required
               aria-describedby={describedBy}
+              aria-invalid={invalid}
             >
-              <option value="">No role</option>
-              {roles.map(role => (
+              <option value="" disabled>
+                Choose a role…
+              </option>
+              {options.map(role => (
                 <option key={role.id} value={role.id}>
-                  {role.name}
+                  {role.active ? role.name : `${role.name} (archived)`}
                 </option>
               ))}
             </select>

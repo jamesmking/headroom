@@ -9,6 +9,15 @@ export type RoleSummary = {
 };
 
 /**
+ * A role as offered in a picker.
+ *
+ * Archived roles are carried alongside active ones so that editing something
+ * filed under a role you have since archived does not silently move it. The
+ * forms offer an archived role only when it is the current value.
+ */
+export type RoleOption = RoleSummary & {active: boolean};
+
+/**
  * A single thing occupying time on a given day.
  *
  * Both manually entered meetings and read-only family calendar events are
@@ -27,7 +36,11 @@ export type CalendarEvent = {
   endMinutes: number;
   allDay: boolean;
   notes: string | null;
-  role: RoleSummary | null;
+  /**
+   * Never null: every meeting must have a role, and family calendar events
+   * carry the synthetic `FAMILY_ROLE` so the UI has one shape to render.
+   */
+  role: RoleSummary;
   /** True when this event is one occurrence of a recurring meeting. */
   recurring: boolean;
   /** Family calendar events cannot be edited inside the application. */

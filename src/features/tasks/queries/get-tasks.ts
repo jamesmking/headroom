@@ -14,7 +14,7 @@ type TaskRow = {
   status: TaskStatus;
   notes: string | null;
   completedAt: Date | null;
-  role: {id: string; name: string; shortName: string; colour: string} | null;
+  role: {id: string; name: string; shortName: string; colour: string};
   dailyTasks?: {id: string}[];
 };
 
@@ -113,7 +113,7 @@ export type TaskRecord = {
   dueDate: DateKey | null;
   status: TaskStatus;
   notes: string | null;
-  roleId: string | null;
+  roleId: string;
 };
 
 export const getTask = async (userId: string, taskId: string): Promise<TaskRecord | null> => {

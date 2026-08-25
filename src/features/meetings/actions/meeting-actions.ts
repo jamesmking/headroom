@@ -35,7 +35,7 @@ const meetingSchema = z
     date: dateKey,
     startTime: timeField('Enter a start time.'),
     endTime: timeField('Enter an end time.'),
-    roleId: z.string().trim().optional(),
+    roleId: z.string().trim().min(1, 'Choose a role.'),
     notes: z.string().trim().max(2000, 'Keep notes under 2000 characters.').optional(),
     recurrence: z.enum(['NONE', 'DAILY', 'WEEKDAYS', 'WEEKLY', 'FORTNIGHTLY']),
     recurrenceEndDate: z.union([dateKey, z.literal('')]).optional(),
@@ -56,15 +56,19 @@ const readMeetingForm = (formData: FormData) => ({
   date: formData.get('date') ?? '',
   startTime: formData.get('startTime') ?? '',
   endTime: formData.get('endTime') ?? '',
-  roleId: formData.get('roleId') || undefined,
+  roleId: formData.get('roleId') ?? '',
   notes: formData.get('notes') || undefined,
   recurrence: formData.get('recurrence') ?? 'NONE',
   recurrenceEndDate: formData.get('recurrenceEndDate') ?? '',
 });
 
-/** Confirm a role belongs to the signed-in user before attaching it. */
-const resolveRoleId = async (userId: string, roleId?: string): Promise<string | null> => {
-  if (!roleId) return null;
+/**
+ * Confirm a role belongs to the signed-in user before attaching it.
+ *
+ * Archived roles still resolve: editing a meeting filed under a role you have
+ * since archived must not fail, and must not silently reassign it.
+ */
+const resolveRoleId = async (userId: string, roleId: string): Promise<string | null> => {
   const role = await prisma.role.findFirst({where: {id: roleId, userId}, select: {id: true}});
   return role?.id ?? null;
 };
@@ -80,6 +84,7 @@ export const saveMeetingAction = async (
 
   const data = parsed.data;
   const roleId = await resolveRoleId(userId, data.roleId);
+  if (!roleId) return errorResult('Choose a role.', {roleId: 'Choose a role.'});
 
   const values = {
     title: data.title,

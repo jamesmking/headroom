@@ -24,7 +24,6 @@ export const fillDate = (template: string, date: DateKey): string =>
 export const dayPath = (date: DateKey) => fillDate(dayPathTemplate, date);
 export const weekPath = (date?: DateKey) => (date ? fillDate(weekPathTemplate, date) : '/week');
 /** An explicit plan date makes the backlog add to that day rather than today. */
-export const tasksPath = (planDate?: DateKey) =>
-  planDate ? `/tasks?plan=${planDate}` : '/tasks';
+export const tasksPath = (planDate?: DateKey) => (planDate ? `/tasks?plan=${planDate}` : '/tasks');
 export const settingsPath = () => '/settings';
 export const signInPath = () => '/signin';

@@ -135,18 +135,10 @@ export const DateNav = ({
             <button type="button" className={styles.Shortcut} onClick={() => go(today)}>
               Today
             </button>
-            <button
-              type="button"
-              className={styles.Shortcut}
-              onClick={() => go(addDays(today, 1))}
-            >
+            <button type="button" className={styles.Shortcut} onClick={() => go(addDays(today, 1))}>
               Tomorrow
             </button>
-            <button
-              type="button"
-              className={styles.Shortcut}
-              onClick={() => go(addDays(today, 7))}
-            >
+            <button type="button" className={styles.Shortcut} onClick={() => go(addDays(today, 7))}>
               This time next week
             </button>
           </div>

@@ -7,7 +7,7 @@ import {Panel} from '@/components/panel';
 import {TimeText} from '@/components/time-text';
 import {buildDaySummary} from '@/features/availability/availability';
 import {DayTimeline} from '@/features/calendar/components/day-timeline';
-import type {CalendarEvent, RoleSummary, WorkingHours} from '@/features/calendar/types';
+import type {CalendarEvent, RoleOption, WorkingHours} from '@/features/calendar/types';
 import {MeetingForm, type MeetingDraft} from '@/features/meetings/components/meeting-form';
 import type {MeetingRecord} from '@/features/meetings/queries/get-meetings';
 import type {DateKey} from '@/lib/dates';
@@ -23,7 +23,7 @@ type DayBoardProps = {
   isToday: boolean;
   events: CalendarEvent[];
   meetings: MeetingRecord[];
-  roles: RoleSummary[];
+  roles: RoleOption[];
   defaultRoleId: string | null;
   workingHours: WorkingHours;
   timeZone: string;

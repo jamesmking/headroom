@@ -291,9 +291,28 @@ User ──┬── UserSettings   working hours, timezone, family iCal feed
 today are different things**, so choosing what to do today never means inventing a deadline.
 Selecting a task adds a `DailyTask` row for that date; `dueDate` stays untouched and optional.
 
-Roles are archived, never deleted, when they have history attached. Meetings and tasks keep pointing
-at the archived role, so past records keep their name and colour. The Delete control only appears on
-a role that nothing references.
+### Every meeting and task has a role
+
+`Meeting.roleId` and `Task.roleId` are **required**, enforced at three levels: `NOT NULL` in
+Postgres, a required field in the Zod schema behind each Server Action, and an ownership check that
+rejects a role id belonging to somebody else. Making the form field required is not on its own
+enough — the constraint has to hold when the form is bypassed.
+
+Imported family calendar events are the one exception, and they need no exception in the schema:
+they are built in memory from the iCal feed on every request and never stored, so they carry the
+synthetic `FAMILY_ROLE` (`features/family-calendar/family-role.ts`) rather than a database row. It
+can therefore never appear in a role picker, be renamed, archived or deleted.
+
+An account with no active roles cannot create anything. Rather than disabling every add control, the
+meeting and task forms render a "create a role first" prompt in place of the fields, so every entry
+point — the panel button, a gap in the day, a slot in the week — explains itself identically.
+
+Roles are archived, never deleted, when they have history attached. The foreign keys are
+`onDelete: Restrict`, which matches what the UI already enforced: the Delete control only appears on
+a role that nothing references. Meetings and tasks keep pointing at the archived role, so past
+records keep their name and colour, and the role picker offers an archived role only when it is
+already the current value — editing an old meeting never silently reassigns it, and nothing new can
+be filed under a role that has been put away.
 
 Roles are ordered by hand from Settings, and that order is used everywhere they are listed — the
 role filter on Tasks, and the role menus on meetings and tasks. Move up / move down controls are
@@ -364,7 +383,8 @@ src/
     calendar/               shared event types, day/week composition
     family-calendar/        iCal fetching, caching and parsing
     meetings/               meeting queries, actions, recurrence, form
-    roles/                  role queries, actions, ordering, management UI
+    roles/                  role queries, actions, ordering, management UI,
+                            last-used-role memory, the create-a-role prompt
     settings/               settings queries and actions
     tasks/                  task queries, actions, list and form
   lib/                      dates, times, Prisma client, env, action results

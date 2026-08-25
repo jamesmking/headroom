@@ -18,7 +18,7 @@ const event = (
   endMinutes,
   allDay: false,
   notes: null,
-  role: null,
+  role: {id: 'role-a', name: 'Team A', shortName: 'TA', colour: '#1f5f9e'},
   recurring: false,
   readOnly: false,
   ...overrides,

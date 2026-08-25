@@ -19,7 +19,7 @@ export type TaskView = {
   dueDate: DateKey | null;
   status: TaskStatus;
   notes: string | null;
-  role: RoleSummary | null;
+  role: RoleSummary;
   completedAt: Date | null;
   /** True when the task is on the given day's plan. */
   onTodaysPlan: boolean;
@@ -33,5 +33,5 @@ export const toTaskRecord = (task: TaskView) => ({
   dueDate: task.dueDate,
   status: task.status,
   notes: task.notes,
-  roleId: task.role?.id ?? null,
+  roleId: task.role.id,
 });

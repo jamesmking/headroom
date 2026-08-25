@@ -1,5 +1,6 @@
 import ical, {type CalendarResponse, type VEvent} from 'node-ical';
 import type {CalendarEvent} from '@/features/calendar/types';
+import {FAMILY_ROLE} from '@/features/family-calendar/family-role';
 import {
   type DateKey,
   addDays,
@@ -101,7 +102,7 @@ const toCalendarEvents = (
               endMinutes: MINUTES_IN_DAY,
               allDay: true,
               notes,
-              role: null,
+              role: FAMILY_ROLE,
               recurring: instance.isRecurring,
               readOnly: true,
             });
@@ -132,7 +133,7 @@ const toCalendarEvents = (
         endMinutes: Math.max(endMinutes, startMinutes + 5),
         allDay: false,
         notes,
-        role: null,
+        role: FAMILY_ROLE,
         recurring: instance.isRecurring,
         readOnly: true,
       });

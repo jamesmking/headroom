@@ -1,6 +1,7 @@
 /**
  * @jest-environment node
  */
+import {FAMILY_ROLE} from './family-role';
 import {parseIcsToEvents} from './parse-ics';
 
 const calendar = (...events: string[]) =>
@@ -59,12 +60,21 @@ describe('parseIcsToEvents', () => {
     expect(event.allDay).toBe(false);
   });
 
-  it('marks family events read-only and without a role', () => {
+  it('marks family events read-only and files them under the Family role', () => {
     const [event] = parseIcsToEvents(calendar(timedEvent), WEEK, 'Europe/London');
     expect(event.source).toBe('family');
     expect(event.readOnly).toBe(true);
-    expect(event.role).toBeNull();
     expect(event.meetingId).toBeNull();
+    // Imported events are the one exception to roles being chosen by hand, so
+    // they carry the synthetic role rather than none at all.
+    expect(event.role).toEqual(FAMILY_ROLE);
+  });
+
+  it('never lets the Family role collide with a real, stored role id', () => {
+    // Role ids are cuids; a short literal cannot be produced by the generator,
+    // so this id can never be submitted as one of the user's own roles.
+    expect(FAMILY_ROLE.id).toBe('family');
+    expect(FAMILY_ROLE.id).not.toMatch(/^c[a-z0-9]{20,}$/);
   });
 
   it('includes the location in the notes', () => {

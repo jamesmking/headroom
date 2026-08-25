@@ -60,12 +60,7 @@ export const MeetingDetails = ({
       </div>
 
       <div className={styles.Meta}>
-        <RoleBadge
-          role={event.role}
-          long
-          hollow={event.source === 'family'}
-          fallbackLabel={event.source === 'family' ? 'Family calendar' : 'No role'}
-        />
+        <RoleBadge role={event.role} long hollow={event.source === 'family'} />
         {showDayLink ? (
           <Link href={dayPath(event.date)}>{formatLongDate(event.date)}</Link>
         ) : (
