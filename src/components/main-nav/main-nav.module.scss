@@ -39,3 +39,35 @@
   width: 1rem;
   height: 1rem;
 }
+
+/// On a phone the four sections become an even row of stacked icon-and-label
+/// targets rather than a strip that scrolls sideways. Primary navigation
+/// should never be something you have to go looking for, and each target
+/// clears the 44px minimum comfortably.
+@media (max-width: 480px) {
+  .Nav {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .Link {
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.375rem 0.25rem;
+    min-height: 2.875rem;
+    justify-content: center;
+    font-size: t.$text-xs;
+  }
+
+  .Icon {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+}
+
+@media (pointer: coarse) {
+  .Link {
+    min-height: 2.75rem;
+  }
+}

@@ -1,8 +1,10 @@
 @use '@/styles/helpers/focus' as f;
+@use '@/styles/helpers/utilities' as u;
 @use '@/styles/helpers/typography' as ty;
 @use '@/styles/variables/colours' as c;
 @use '@/styles/variables/spacing' as s;
 @use '@/styles/variables/typography' as t;
+@use '@/styles/helpers/buttons' as b;
 
 /// Hugs its controls rather than filling the row, so the picker popover can
 /// anchor to the right edge of the button that opened it.
@@ -129,5 +131,48 @@
   .Popover {
     right: auto;
     left: 0;
+  }
+}
+
+/// On a phone the arrows drop their words and become square targets: the date
+/// they move between is already the heading directly above, so repeating
+/// "Previous day" costs a third of the row to say nothing new. The accessible
+/// names stay on the links themselves.
+@media (max-width: 560px) {
+  .Nav {
+    width: 100%;
+    gap: s.$space-1;
+  }
+
+  .Group {
+    flex: 1 1 auto;
+    gap: s.$space-1;
+  }
+
+  .LinkText {
+    @include u.visually-hidden;
+  }
+
+  .Link {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    justify-content: center;
+    padding: 0.375rem 0.5rem;
+  }
+
+  /// The anchor's label is not wrapped in .LinkText, so it keeps its word —
+  /// it is the one control whose destination an arrow could not imply.
+
+  .Popover {
+    left: 0;
+    right: 0;
+    min-width: 0;
+  }
+}
+
+@media (pointer: coarse) {
+  .Link,
+  .Shortcut {
+    min-height: b.$touch-target;
   }
 }

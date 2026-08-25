@@ -3,6 +3,7 @@
 @use '@/styles/variables/colours' as c;
 @use '@/styles/variables/spacing' as s;
 @use '@/styles/variables/typography' as t;
+@use '@/styles/helpers/buttons' as b;
 
 .Grid {
   display: grid;
@@ -341,21 +342,151 @@
   font-weight: t.$weight-medium;
 }
 
+/// Below full width the columns simply get narrower. No minimum, and so no
+/// horizontal scroller: a scroll container here inflated the document's own
+/// scroll area, letting the whole page slide sideways even though the grid
+/// itself clipped correctly. Seven flexible columns hold together down to
+/// tablet width, and below that the agenda takes over.
 @media (max-width: 1180px) {
-  /// Seven columns that scroll beats a folded two-column block: the shape of
-  /// the week is the whole point of this screen.
-  .Grid {
-    overflow-x: auto;
-    grid-template-columns: repeat(7, minmax(9.5rem, 1fr));
+  .Day {
+    min-height: 15rem;
+  }
+
+  .DayHead {
+    padding: s.$space-2;
+  }
+
+  .Events {
+    padding: s.$space-1;
+  }
+
+  .Event,
+  .Free,
+  .AllDay {
+    padding: 0.3125rem 0.375rem;
   }
 }
 
-@media (max-width: 620px) {
+// --- Agenda -------------------------------------------------------------------
+
+/// On a phone seven columns stop being a week at a glance: you can see two of
+/// them, and finding out whether Friday is busy means scrolling sideways. The
+/// same markup becomes a vertical agenda instead — one natural scroll, every
+/// day reachable, the same chips and the same click handlers. No second
+/// component, and nothing to keep in sync.
+@media (max-width: 900px) {
   .Grid {
-    grid-template-columns: repeat(7, minmax(8.5rem, 1fr));
+    grid-template-columns: minmax(0, 1fr);
+    overflow-x: visible;
+    border-top: none;
   }
 
   .Day {
-    min-height: 14rem;
+    min-height: 0;
+    border-right: none;
+    border-bottom: 1px solid c.$line;
+  }
+
+  .Day:last-child {
+    border-bottom: none;
+  }
+
+  .DayHead {
+    align-items: center;
+    padding: s.$space-2 s.$space-3;
+    border-bottom: none;
+    background: c.$paper-sunken;
+  }
+
+  .Weekend .DayHead,
+  .Today .DayHead {
+    background: transparent;
+  }
+
+  .DayLink {
+    display: flex;
+    align-items: baseline;
+    gap: s.$space-2;
+    flex: 1 1 auto;
+    padding: s.$space-1 0;
+  }
+
+  /// Hover is not a reliable input at this width, whatever the media query
+  /// reports, so the add control is simply always there.
+  .Add {
+    opacity: 1;
+  }
+
+  .DayName,
+  .DayNumber {
+    display: inline;
+  }
+
+  .DayNumber {
+    font-size: t.$text-base;
+  }
+
+  .Events {
+    padding: s.$space-2 s.$space-3;
+    gap: s.$space-2;
+  }
+
+  .Event,
+  .AllDay,
+  .Free {
+    padding: s.$space-2 s.$space-3;
+  }
+
+  .EventTitle {
+    font-size: t.$text-sm;
+  }
+
+  .EventTime {
+    font-size: t.$text-xs;
+  }
+
+  .DayFoot {
+    border-top: none;
+    padding: 0 s.$space-3 s.$space-3;
+  }
+
+  /// A day with nothing in it collapses to a single line, so an empty week
+  /// stays one short scroll rather than seven near-identical blocks.
+  .Day:has(.Quiet) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .Day:has(.Quiet) .DayHead {
+    background: transparent;
+    grid-column: 1;
+  }
+
+  .Day:has(.Quiet) .Events {
+    display: none;
+  }
+
+  .Day:has(.Quiet) .DayFoot {
+    grid-column: 2;
+    padding: 0 s.$space-3;
+    white-space: nowrap;
+  }
+}
+
+@media (pointer: coarse) {
+  .Add {
+    width: b.$touch-target;
+    height: b.$touch-target;
+  }
+
+  .Event,
+  .AllDay,
+  .Free {
+    min-height: b.$touch-target;
+  }
+
+  .DayLink {
+    min-height: b.$touch-target;
   }
 }

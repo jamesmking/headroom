@@ -31,3 +31,15 @@
   color: c.$ink-900;
   font-weight: t.$weight-medium;
 }
+
+@media (max-width: 560px) {
+  /// Wrapped onto two lines, the desktop gap between the totals reads as a
+  /// gap between sections rather than between two related figures.
+  .Totals {
+    gap: 0.25rem s.$space-4;
+  }
+
+  .Heading {
+    font-size: t.$text-md;
+  }
+}

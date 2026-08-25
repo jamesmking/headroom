@@ -71,9 +71,9 @@ export const DateNav = ({
   return (
     <div className={styles.Nav} ref={containerRef}>
       <nav className={styles.Group} aria-label={label}>
-        <Link className={styles.Link} href={previousHref}>
+        <Link className={styles.Link} href={previousHref} aria-label={previousLabel}>
           <ChevronLeft size={13} aria-hidden="true" />
-          {previousLabel}
+          <span className={styles.LinkText}>{previousLabel}</span>
         </Link>
 
         <Link
@@ -84,8 +84,8 @@ export const DateNav = ({
           {anchorLabel}
         </Link>
 
-        <Link className={styles.Link} href={nextHref}>
-          {nextLabel}
+        <Link className={styles.Link} href={nextHref} aria-label={nextLabel}>
+          <span className={styles.LinkText}>{nextLabel}</span>
           <ChevronRight size={13} aria-hidden="true" />
         </Link>
       </nav>
@@ -95,6 +95,7 @@ export const DateNav = ({
         className={styles.Link}
         aria-expanded={open}
         aria-haspopup="dialog"
+        aria-label="Jump to a date"
         onClick={() => {
           setOpen(current => !current);
           // Land the caret in the picker so it is usable without a second click.
@@ -102,7 +103,7 @@ export const DateNav = ({
         }}
       >
         <CalendarDays size={13} aria-hidden="true" />
-        Jump to…
+        <span className={styles.LinkText}>Jump to…</span>
       </button>
 
       {open && (

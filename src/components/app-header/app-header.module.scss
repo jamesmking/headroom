@@ -71,7 +71,16 @@
   }
 }
 
-@media (max-width: 767px) {
+/// The account block is the first thing to go. Its name and email are
+/// confirmation, not navigation, and at 768px — iPad portrait — keeping them
+/// pushed the whole header 52px past the viewport.
+@media (max-width: 900px) {
+  .Inner {
+    gap: s.$space-4;
+  }
+}
+
+@media (max-width: 620px) {
   .Inner {
     flex-wrap: wrap;
     gap: s.$space-3;
@@ -81,6 +90,5 @@
   .Nav {
     order: 3;
     flex-basis: 100%;
-    overflow-x: auto;
   }
 }

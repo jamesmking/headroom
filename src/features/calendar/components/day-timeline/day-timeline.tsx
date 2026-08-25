@@ -117,6 +117,11 @@ export const DayTimeline = ({
               {entry.kind === 'free' && (
                 <div className={styles.Free}>
                   <div className={styles.FreeTop}>
+                    {/* The rail is dropped on narrow screens, so the gap has
+                        to state its own start time there. */}
+                    <TimeText className={styles.FreeStart}>
+                      {formatTime(entry.startMinutes)}
+                    </TimeText>
                     <span className={styles.FreeLabel}>
                       {formatDuration(entry.durationMinutes)} clear
                     </span>

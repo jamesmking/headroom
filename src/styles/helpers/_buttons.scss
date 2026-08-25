@@ -3,6 +3,17 @@
 @use '../variables/typography' as t;
 @use 'focus' as f;
 
+/// The minimum comfortable size for a control operated by a fingertip.
+/// Applied on coarse pointers only, so a mouse-driven UI keeps its density.
+$touch-target: 2.75rem;
+
+@mixin touch-target($size: $touch-target) {
+  @media (pointer: coarse) {
+    min-height: $size;
+    min-width: $size;
+  }
+}
+
 /// $variant: primary | secondary | ghost | danger
 @mixin button($variant: primary) {
   @include f.focusable();
@@ -19,6 +30,10 @@
   padding: s.$space-2 s.$space-4;
   min-height: 2.25rem;
   cursor: pointer;
+
+  @media (pointer: coarse) {
+    min-height: $touch-target;
+  }
   text-decoration: none;
   white-space: nowrap;
   transition:

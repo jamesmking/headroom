@@ -461,6 +461,38 @@ Three conventions worth knowing:
 | `npm run db:seed`    | Load demo data                              |
 | `npm run db:studio`  | Prisma Studio                               |
 
+## Responsive and touch
+
+Three layout modes, chosen so each width gets the shape that suits it rather than a shrunken version
+of the one above.
+
+| Width      | Week                                 | Day                                       |
+| ---------- | ------------------------------------ | ----------------------------------------- |
+| ≥ 1181px   | Seven columns                        | Timeline beside the task lists            |
+| 901–1180px | Seven narrower columns               | Single column below 1100px                |
+| ≤ 900px    | **Agenda** — days stacked vertically | —                                         |
+| ≤ 560px    | Agenda                               | Time rail dropped, overlap groups restack |
+
+**The week becomes an agenda below 900px.** Seven columns on a phone stop being a week at a glance:
+you can see two of them, and finding out whether Friday is busy means scrolling sideways. The agenda
+is the same markup, the same chips and the same click handlers restyled by CSS alone — no second
+component and nothing to keep in sync. Days with nothing in them collapse to a single line, so an
+empty week stays one short scroll.
+
+There is deliberately **no horizontal scroller anywhere**. An `overflow-x: auto` grid clipped its
+own content correctly but still inflated the document's scroll area, letting the whole page slide
+sideways. Seven flexible columns with no minimum width avoid the problem entirely.
+
+**The time rail is dropped below 560px.** It costs 68px — a fifth of a 320px screen — to repeat a
+time every block already prints. Gap rows print their own start time instead. That reclaimed width
+is what makes overlapping meetings legible on a phone, where a group restacks into full-width blocks
+inside its bounding box rather than sitting side by side.
+
+**Touch targets are 44px on coarse pointers only** (`@media (pointer: coarse)`), so a mouse-driven
+UI keeps its density. `helpers/_buttons.scss` holds the shared `$touch-target` value. Nothing
+essential depends on hover: the controls that fade in on a pointer are always visible on touch, and
+in the agenda they are always visible regardless of what the media query reports.
+
 ## Accessibility
 
 Desktop-first but responsive. Semantic HTML throughout, a skip link, a single high-contrast focus

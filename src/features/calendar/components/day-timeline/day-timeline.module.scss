@@ -3,6 +3,7 @@
 @use '@/styles/variables/colours' as c;
 @use '@/styles/variables/spacing' as s;
 @use '@/styles/variables/typography' as t;
+@use '@/styles/helpers/buttons' as b;
 
 .Timeline {
   display: flex;
@@ -425,6 +426,14 @@
   min-width: 0;
 }
 
+/// Hidden while the rail is showing the same thing.
+.FreeStart {
+  display: none;
+  font-size: t.$text-xs;
+  color: c.$ink-600;
+  flex: none;
+}
+
 /// An optional meeting sitting inside free time. It is drawn in the gap rather
 /// than as its own row, because it is not taking the time — it is asking for it.
 .FreeOptional {
@@ -460,4 +469,59 @@
   font-weight: t.$weight-medium;
   flex: 1 1 auto;
   min-width: 0;
+}
+
+@media (pointer: coarse) {
+  .InlineAction,
+  .FreeAdd,
+  .FreeOptional {
+    min-height: b.$touch-target;
+  }
+}
+
+// --- Narrow screens -----------------------------------------------------------
+
+/// The time rail costs 68px — a fifth of a 320px screen — to repeat something
+/// every block already prints. Below tablet width it goes, and the gap rows
+/// print their own start time instead. That reclaimed width is what makes
+/// overlapping meetings legible on a phone.
+@media (max-width: 560px) {
+  .Row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    padding: 0 s.$space-3;
+  }
+
+  .Rail {
+    display: none;
+  }
+
+  .FreeStart {
+    display: inline;
+  }
+
+  .FreeTop {
+    flex-wrap: wrap;
+    row-gap: 0.25rem;
+  }
+
+  .NowLine {
+    left: s.$space-3;
+    right: s.$space-3;
+  }
+
+  /// Side by side stops working long before this width, so a group restacks
+  /// and leans on its header and each block's own times instead. The bounding
+  /// box is what makes that possible without a second implementation.
+  .ClusterGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ClusterSlot {
+    grid-column: 1;
+  }
+
+  .Compact .Title {
+    font-size: t.$text-base;
+  }
 }
