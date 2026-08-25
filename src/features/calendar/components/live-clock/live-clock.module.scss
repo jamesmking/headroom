@@ -10,3 +10,11 @@
   letter-spacing: -0.02em;
   line-height: 1;
 }
+
+/// Sized to sit level with the date on a phone without adding to the header's
+/// height — see the note in day-view.module.scss.
+@media (max-width: 560px) {
+  .Clock {
+    font-size: t.$text-lg;
+  }
+}

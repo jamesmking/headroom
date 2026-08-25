@@ -77,9 +77,15 @@
 @media (max-width: 560px) {
   /// Keep the date and the clock on one line rather than letting the clock
   /// drop to its own right-aligned row, which read as a stray number.
+  ///
+  /// The clock also has to stay shorter than the date block beside it.
+  /// Otherwise Today's header is taller than every other day's, and paging
+  /// through dates makes the whole page jump — so the "Now" label goes (it is
+  /// redundant next to a live clock) and the figure shrinks. The date block
+  /// then sets the height on every day, including Today.
   .Masthead {
     flex-wrap: nowrap;
-    align-items: baseline;
+    align-items: flex-end;
     gap: s.$space-3;
   }
 
@@ -89,6 +95,10 @@
 
   .ClockBlock {
     flex: none;
+  }
+
+  .ClockBlock .Eyebrow {
+    display: none;
   }
 
   .Carry {
