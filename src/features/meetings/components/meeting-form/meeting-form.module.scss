@@ -1,3 +1,4 @@
+@use '@/styles/helpers/buttons' as b;
 @use '@/styles/variables/colours' as c;
 @use '@/styles/variables/spacing' as s;
 @use '@/styles/variables/typography' as t;
@@ -88,4 +89,16 @@
 .CheckHint {
   font-size: t.$text-xs;
   color: c.$ink-600;
+}
+
+@media (pointer: coarse) {
+  /// The whole row is the target, not just the 18px box.
+  .Check {
+    min-height: b.$touch-target;
+  }
+
+  .Checkbox {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
 }

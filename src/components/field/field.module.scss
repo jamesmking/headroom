@@ -3,6 +3,7 @@
 @use '@/styles/variables/colours' as c;
 @use '@/styles/variables/spacing' as s;
 @use '@/styles/variables/typography' as t;
+@use '@/styles/helpers/buttons' as b;
 
 .Field {
   display: flex;
@@ -41,6 +42,11 @@
   border-radius: s.$radius;
   padding: 0.4375rem s.$space-3;
   min-height: 2.25rem;
+
+  // A field is a target too: a 36px input is fiddly with a fingertip.
+  @media (pointer: coarse) {
+    min-height: b.$touch-target;
+  }
   font-size: t.$text-sm;
   color: c.$ink-900;
   transition: border-color 0.12s ease;
