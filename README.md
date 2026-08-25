@@ -190,18 +190,28 @@ https://headroom.cloud/api/auth/callback/google
 
 **4. Attach the domain.** Add `headroom.cloud` under **Settings → Domains** and point DNS at Vercel.
 
-**5. Apply migrations.** These are run deliberately rather than on every deploy, so a preview build
-can never alter production data:
+**5. Apply migrations.** Production deployments apply them automatically, so this is needed only for
+the first deployment, or to adopt a database that predates the migration history:
 
 ```bash
 DATABASE_URL="<neon-pooled>" DIRECT_URL="<neon-unpooled>" npm run db:deploy
 ```
 
-Run that once before the first deployment, and again whenever `prisma/schema.prisma` changes.
+**6. Deploy.** Push to `main`; Vercel builds from the connected GitHub repository. Vercel runs the
+`vercel-build` script in preference to `build`, so the build command is `./vercel-build.sh`. That
+script always runs `prisma generate` — Vercel restores a cached `node_modules`, so the `postinstall`
+hook cannot be relied on to produce a client matching the schema — and then runs
+`prisma migrate deploy` **only when `VERCEL_ENV` is `production`**. A preview build points at
+whatever `DATABASE_URL` it is given, often the production one, so migrating from a preview would let
+an unmerged branch reshape live data.
 
-**6. Deploy.** Push to `main`; Vercel builds from the connected GitHub repository. The build command
-is the default `npm run build`, which runs `prisma generate` first so the client always matches the
-schema — Vercel restores a cached `node_modules`, so the `postinstall` hook cannot be relied on.
+Two things follow from applying migrations during a build. A rolled-back deployment does not roll
+back its migrations, so keep them additive and deploy destructive changes on their own. And if an
+explicit **Build Command** is set under _Settings → Build and Deployment_, it overrides the
+`vercel-build` script — leave that setting on the default.
+
+The container path is unchanged. It builds with `npm run build` and applies migrations at container
+start from `docker-entrypoint.sh`.
 
 #### Two things to know about preview deployments
 
