@@ -38,7 +38,14 @@ export const devLoginProvider = () =>
 
       const existing = await prisma.user.findUnique({where: {email}});
       if (existing) {
-        return {id: existing.id, email: existing.email, name: existing.name};
+        // Includes the picture, so this route renders the same avatar Google
+        // would rather than always falling back to initials.
+        return {
+          id: existing.id,
+          email: existing.email,
+          name: existing.name,
+          image: existing.image,
+        };
       }
 
       const created = await prisma.user.create({

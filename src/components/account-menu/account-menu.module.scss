@@ -29,6 +29,7 @@
 }
 
 .Avatar {
+  position: relative;
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
@@ -42,10 +43,17 @@
   flex: 0 0 auto;
 }
 
-.Image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+/// The photo, painted over the initials. A URL that fails to load paints
+/// nothing, so the initials underneath show through on their own.
+.Avatar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--avatar-image, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .SignOut {
