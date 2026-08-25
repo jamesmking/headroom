@@ -493,6 +493,37 @@ UI keeps its density. `helpers/_buttons.scss` holds the shared `$touch-target` v
 essential depends on hover: the controls that fade in on a pointer are always visible on touch, and
 in the agenda they are always visible regardless of what the media query reports.
 
+## Feeling fast
+
+The application runs on serverless functions and a database that both sleep when idle, so a cold
+request costs a second or two whatever the code does. Most of the work here is therefore about the
+wait being _legible_ rather than shorter.
+
+**Every mutation acknowledges the press.** `Button` is pending-aware by default for submits rather
+than opt-in — waiting with no feedback is what makes an application feel broken rather than busy, so
+it has to be switched off deliberately instead of remembered every time. The bespoke controls use
+`FormButton`, which exists as a separate component because `useFormStatus` reads the form it is
+rendered _inside_: a component that renders both the `<form>` and its button sees no form at all.
+Only the pressed button shows a spinner, while every control in the form locks, so a second action
+cannot be fired into a request already in flight.
+
+**Every route has a loading boundary.** The obvious benefit is that a navigation no longer freezes
+the page you are leaving. The less obvious one matters more: Next only prefetches a dynamic route as
+far as its nearest loading boundary, so with no boundary at all `<Link>` prefetching does nothing
+and every navigation pays for a cold round trip.
+
+**The two most-pressed controls do not wait at all.** Task status and the plan toggle use
+`useOptimistic`: they move immediately and reconcile when the server answers, including on failure,
+which shows up as the row springing back rather than as a silent lie. This is the one place the
+application depends on JavaScript to reflect a change — the form still posts a real server action
+either way.
+
+**Fewer round trips per render.** `getSettings` and `getCurrentUser` are wrapped in React's `cache`,
+because a Day render asks for settings three times over — the route needs the timezone, the view
+needs the working hours, the calendar needs the feed URL. The meeting query now returns the editable
+records alongside the events rather than making the page fetch them again from rows it had already
+loaded. Together that took a Day render from nine database queries to seven.
+
 ## Accessibility
 
 Desktop-first but responsive. Semantic HTML throughout, a skip link, a single high-contrast focus

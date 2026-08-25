@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import {Archive, ChevronDown, ChevronUp, Pencil, Plus, RotateCcw} from 'lucide-react';
 import {useActionState, useCallback, useEffect, useRef, useState} from 'react';
 import {Button} from '@/components/button';
+import {FormButton} from '@/components/form-button';
 import {EmptyState} from '@/components/empty-state';
 import {Field, fieldStyles} from '@/components/field';
 import {FormMessage} from '@/components/form-message';
@@ -148,8 +149,7 @@ const RoleRow = ({
     >
       <form action={moveRole} className={styles.Reorder}>
         <input type="hidden" name="id" value={role.id} />
-        <button
-          type="submit"
+        <FormButton
           name="direction"
           value="up"
           data-role-move={role.id}
@@ -160,9 +160,8 @@ const RoleRow = ({
         >
           <ChevronUp size={12} aria-hidden="true" />
           <span className="sr-only">{`Move ${role.name} up`}</span>
-        </button>
-        <button
-          type="submit"
+        </FormButton>
+        <FormButton
           name="direction"
           value="down"
           data-role-move={role.id}
@@ -173,7 +172,7 @@ const RoleRow = ({
         >
           <ChevronDown size={12} aria-hidden="true" />
           <span className="sr-only">{`Move ${role.name} down`}</span>
-        </button>
+        </FormButton>
       </form>
 
       <span className={styles.Swatch} aria-hidden="true" />
@@ -318,9 +317,7 @@ const RoleForm = ({
       </div>
 
       <div className={styles.Footer}>
-        <Button type="submit" pendingAware>
-          {role ? 'Save role' : 'Add role'}
-        </Button>
+        <Button type="submit">{role ? 'Save role' : 'Add role'}</Button>
         <Button type="button" variant="ghost" onClick={onDone}>
           Cancel
         </Button>

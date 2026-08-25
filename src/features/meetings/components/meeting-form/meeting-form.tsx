@@ -273,9 +273,7 @@ export const MeetingForm = ({
       </div>
 
       <div className={styles.Footer}>
-        <Button type="submit" pendingAware>
-          {meeting ? 'Save meeting' : 'Add meeting'}
-        </Button>
+        <Button type="submit">{meeting ? 'Save meeting' : 'Add meeting'}</Button>
         <Button type="button" variant="ghost" onClick={onDone}>
           Cancel
         </Button>

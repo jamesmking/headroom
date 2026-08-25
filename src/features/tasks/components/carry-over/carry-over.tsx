@@ -1,6 +1,7 @@
 'use client';
 
 import {CornerDownRight} from 'lucide-react';
+import {FormButton} from '@/components/form-button';
 import {carryUnfinishedWork} from '@/features/tasks/actions/quick-actions';
 import type {DateKey} from '@/lib/dates';
 import styles from './carry-over.module.scss';
@@ -24,9 +25,9 @@ export const CarryOver = ({from, to, count, toLabel}: CarryOverProps) => (
   <form action={carryUnfinishedWork}>
     <input type="hidden" name="from" value={from} />
     <input type="hidden" name="to" value={to} />
-    <button type="submit" className={styles.Button}>
+    <FormButton className={styles.Button}>
       <CornerDownRight size={12} aria-hidden="true" />
       {`Move ${count} unfinished to ${toLabel}`}
-    </button>
+    </FormButton>
   </form>
 );

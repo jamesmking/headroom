@@ -1,3 +1,4 @@
+import {FormButton} from '@/components/form-button';
 import type {Metadata} from 'next';
 import {redirect} from 'next/navigation';
 import {DevSignIn} from '@/features/auth/components/dev-sign-in';
@@ -67,8 +68,9 @@ const SignInPage = async ({searchParams}: {searchParams: Promise<{error?: string
           </div>
         )}
 
+        {/* The redirect to Google is a slow hop; acknowledge the press. */}
         <form action={signInWithGoogleAction}>
-          <button type="submit" className={styles.Submit}>
+          <FormButton className={styles.Submit}>
             <svg className={styles.Icon} viewBox="0 0 18 18" aria-hidden="true">
               <path
                 fill="#fff"
@@ -91,7 +93,7 @@ const SignInPage = async ({searchParams}: {searchParams: Promise<{error?: string
               />
             </svg>
             Sign in with Google
-          </button>
+          </FormButton>
         </form>
 
         <p className={styles.Note}>

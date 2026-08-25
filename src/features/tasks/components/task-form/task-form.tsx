@@ -176,9 +176,7 @@ export const TaskForm = ({roles, task, defaults, planDate, onDone}: TaskFormProp
       </div>
 
       <div className={styles.Footer}>
-        <Button type="submit" pendingAware>
-          {task ? 'Save task' : 'Add task'}
-        </Button>
+        <Button type="submit">{task ? 'Save task' : 'Add task'}</Button>
         <Button type="button" variant="ghost" onClick={onDone}>
           Cancel
         </Button>

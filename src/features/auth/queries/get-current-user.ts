@@ -1,6 +1,7 @@
 import 'server-only';
 
 import {redirect} from 'next/navigation';
+import {cache} from 'react';
 import {auth} from '@/auth';
 import {signInPath} from '@/routes';
 
@@ -11,7 +12,8 @@ export type CurrentUser = {
   image: string | null;
 };
 
-export const getCurrentUser = async (): Promise<CurrentUser | null> => {
+/** Memoised per request: the layout, the route and the view all ask for it. */
+export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const session = await auth();
   if (!session?.user?.id) return null;
   return {
@@ -20,7 +22,7 @@ export const getCurrentUser = async (): Promise<CurrentUser | null> => {
     email: session.user.email ?? null,
     image: session.user.image ?? null,
   };
-};
+});
 
 /**
  * Every Server Component and Server Action that touches user data starts here.

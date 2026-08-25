@@ -1,5 +1,6 @@
 import 'server-only';
 
+import {cache} from 'react';
 import {prisma} from '@/lib/prisma';
 
 export type UserSettingsView = {
@@ -32,8 +33,15 @@ const hostOf = (url: string | null): string | null => {
   }
 };
 
-/** Settings for display. Never includes the iCal URL. */
-export const getSettings = async (userId: string): Promise<UserSettingsView> => {
+/**
+ * Settings for display. Never includes the iCal URL.
+ *
+ * Memoised for the lifetime of one request. A Day render asks for settings
+ * three times over — the route needs the timezone to work out which day it is,
+ * the view needs the working hours, and the calendar needs the feed URL — and
+ * without this each one is a separate round trip to the database.
+ */
+export const getSettings = cache(async (userId: string): Promise<UserSettingsView> => {
   const settings = await prisma.userSettings.findUnique({where: {userId}});
 
   return {
@@ -44,17 +52,17 @@ export const getSettings = async (userId: string): Promise<UserSettingsView> => 
     hasIcalUrl: Boolean(settings?.icalUrl),
     icalHost: hostOf(settings?.icalUrl ?? null),
   };
-};
+});
 
 /**
  * Server-only accessor for the iCal feed URL. Used exclusively by the family
  * calendar fetcher; the value must never cross into a client payload.
  */
-export const getIcalUrl = async (userId: string): Promise<string | null> => {
+export const getIcalUrl = cache(async (userId: string): Promise<string | null> => {
   const settings = await prisma.userSettings.findUnique({
     where: {userId},
     select: {icalUrl: true, icalEnabled: true},
   });
   if (!settings?.icalEnabled) return null;
   return settings.icalUrl ?? null;
-};
+});

@@ -81,9 +81,7 @@ export const WorkingDayForm = ({
       </div>
 
       <div className={styles.Footer}>
-        <Button type="submit" pendingAware>
-          Save working day
-        </Button>
+        <Button type="submit">Save working day</Button>
       </div>
     </form>
   );

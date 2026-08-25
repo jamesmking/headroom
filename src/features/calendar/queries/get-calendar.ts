@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type {CalendarEvent} from '@/features/calendar/types';
+import type {MeetingRecord} from '@/features/meetings/queries/get-meetings';
 import {getFamilyCalendar, type FamilyCalendarStatus} from '@/features/family-calendar/ical';
 import {getMeetingEventsForDates} from '@/features/meetings/queries/get-meetings';
 import {getIcalUrl} from '@/features/settings/queries/get-settings';
@@ -9,6 +10,11 @@ import type {DateKey} from '@/lib/dates';
 export type CalendarData = {
   /** Work meetings and family events combined, sorted chronologically. */
   events: CalendarEvent[];
+  /**
+   * The editable records behind those events, so opening the editor needs no
+   * second round trip. Family events have none and are absent here.
+   */
+  meetings: MeetingRecord[];
   family: {
     status: FamilyCalendarStatus;
     message: string | null;
@@ -29,12 +35,12 @@ export const getCalendarData = async (
   dateKeys: DateKey[],
   timeZone: string
 ): Promise<CalendarData> => {
-  const [meetingEvents, family] = await Promise.all([
+  const [meetings, family] = await Promise.all([
     getMeetingEventsForDates(userId, dateKeys),
     getIcalUrl(userId).then(icalUrl => getFamilyCalendar({icalUrl, dateKeys, timeZone})),
   ]);
 
-  const events = [...meetingEvents, ...family.events].sort(
+  const events = [...meetings.events, ...family.events].sort(
     (a, b) =>
       a.date.localeCompare(b.date) ||
       Number(b.allDay) - Number(a.allDay) ||
@@ -44,6 +50,7 @@ export const getCalendarData = async (
 
   return {
     events,
+    meetings: meetings.meetings,
     family: {
       status: family.status,
       message: family.message,

@@ -7,7 +7,6 @@ import {DayShape} from '@/features/calendar/components/day-shape';
 import {LiveClock} from '@/features/calendar/components/live-clock';
 import {NowNext} from '@/features/calendar/components/now-next';
 import {getCalendarData} from '@/features/calendar/queries/get-calendar';
-import {getMeetingsForEvents} from '@/features/meetings/queries/get-meetings';
 import {getRoleOptions} from '@/features/roles/queries/get-roles';
 import {getLastUsedRoleId} from '@/features/roles/last-used-role';
 import {getSettings} from '@/features/settings/queries/get-settings';
@@ -56,8 +55,6 @@ export const DayView = async ({date}: {date: DateKey}) => {
     // what will be overdue by next Tuesday is noise, not planning.
     date <= today ? getOverdueTasks(user.id, date) : Promise.resolve([]),
   ]);
-
-  const meetings = await getMeetingsForEvents(user.id, calendar.events);
 
   // A task already on the plan does not need repeating in the due list.
   const plannedIds = new Set(planned.map(task => task.id));
@@ -112,7 +109,7 @@ export const DayView = async ({date}: {date: DateKey}) => {
           date={date}
           isToday={isToday}
           events={calendar.events}
-          meetings={meetings}
+          meetings={calendar.meetings}
           roles={roles}
           defaultRoleId={lastRoleId}
           workingHours={workingHours}

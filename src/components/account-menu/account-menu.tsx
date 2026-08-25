@@ -1,7 +1,7 @@
-import {LogOut} from 'lucide-react';
 import {signOutAction} from '@/features/auth/actions/sign-out-action';
 import {avatarBackground} from '@/features/auth/avatar-url';
 import type {CurrentUser} from '@/features/auth/queries/get-current-user';
+import {SignOutButton} from './sign-out-button';
 import styles from './account-menu.module.scss';
 
 const initials = (user: CurrentUser): string => {
@@ -41,10 +41,7 @@ export const AccountMenu = ({user}: {user: CurrentUser}) => {
       </span>
 
       <form action={signOutAction}>
-        <button type="submit" className={styles.SignOut}>
-          <LogOut className={styles.Icon} aria-hidden="true" />
-          <span>Sign out</span>
-        </button>
+        <SignOutButton />
       </form>
     </div>
   );

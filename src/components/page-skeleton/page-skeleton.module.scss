@@ -1,0 +1,110 @@
+@use '@/styles/helpers/surfaces' as surf;
+@use '@/styles/variables/colours' as c;
+@use '@/styles/variables/spacing' as s;
+
+.Page {
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-4;
+}
+
+/// A quiet pulse rather than a travelling shimmer: it reads as "loading"
+/// without drawing the eye to the placeholder instead of the content that
+/// replaces it. Suppressed entirely under prefers-reduced-motion by the
+/// global rule in app.scss.
+.Bar {
+  background: c.$line;
+  border-radius: s.$radius-sm;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.Masthead {
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-2;
+}
+
+.Band {
+  @include surf.card;
+  height: 7.5rem;
+}
+
+.Nav {
+  display: flex;
+  gap: s.$space-2;
+}
+
+.Columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: s.$space-4;
+  align-items: start;
+}
+
+.Side {
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-4;
+}
+
+.Panel {
+  @include surf.panel;
+  padding: s.$space-4;
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-3;
+}
+
+.Week {
+  @include surf.panel;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  min-height: 18rem;
+}
+
+.WeekDay {
+  border-right: 1px solid c.$line;
+  padding: s.$space-3;
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-2;
+
+  &:last-child {
+    border-right: none;
+  }
+}
+
+.Board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: s.$space-4;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .Columns,
+  .Board {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .Week {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .WeekDay {
+    border-right: none;
+    border-bottom: 1px solid c.$line;
+  }
+}

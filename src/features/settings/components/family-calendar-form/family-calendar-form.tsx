@@ -76,9 +76,7 @@ export const FamilyCalendarForm = ({hasIcalUrl, icalHost, enabled}: FamilyCalend
       </label>
 
       <div className={styles.Footer}>
-        <Button type="submit" pendingAware>
-          Save calendar
-        </Button>
+        <Button type="submit">Save calendar</Button>
         <span className={styles.Spacer} />
         {hasIcalUrl && (
           <Button type="submit" variant="danger" formAction={removeFamilyCalendar}>

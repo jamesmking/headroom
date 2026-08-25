@@ -5,7 +5,6 @@ import {requireUser} from '@/features/auth/queries/get-current-user';
 import {buildDaySummary} from '@/features/availability/availability';
 import {WeekBoard} from '@/features/calendar/components/week-board';
 import {getCalendarData, groupEventsByDate} from '@/features/calendar/queries/get-calendar';
-import {getMeetingsForEvents} from '@/features/meetings/queries/get-meetings';
 import {getRoleOptions} from '@/features/roles/queries/get-roles';
 import {getLastUsedRoleId} from '@/features/roles/last-used-role';
 import {getSettings} from '@/features/settings/queries/get-settings';
@@ -48,7 +47,6 @@ export const WeekView = async ({anchor}: {anchor: DateKey}) => {
   ]);
 
   const eventsByDate = groupEventsByDate(calendar.events, dateKeys);
-  const meetings = await getMeetingsForEvents(user.id, calendar.events);
 
   // Weekdays only: a free Saturday is not capacity you are planning to use.
   // Days already gone are excluded too — time that has passed is not capacity
@@ -105,7 +103,7 @@ export const WeekView = async ({anchor}: {anchor: DateKey}) => {
         title={describeWeek(weekStart, today)}
         dateKeys={dateKeys}
         eventsByDate={Object.fromEntries(eventsByDate)}
-        meetings={meetings}
+        meetings={calendar.meetings}
         roles={roles}
         defaultRoleId={lastRoleId}
         workingHours={workingHours}
