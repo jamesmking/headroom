@@ -49,3 +49,43 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/// The optional toggle. A checkbox rather than a select, because there are two
+/// states and naming them in a dropdown would imply a priority scale exists.
+.Check {
+  display: flex;
+  align-items: flex-start;
+  gap: s.$space-3;
+  padding: s.$space-3;
+  border: 1px solid c.$line;
+  border-radius: s.$radius;
+  background: c.$paper;
+}
+
+.Checkbox {
+  flex: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.125rem;
+  accent-color: c.$accent;
+  cursor: pointer;
+}
+
+.CheckLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.CheckTitle {
+  font-size: t.$text-sm;
+  font-weight: t.$weight-medium;
+  color: c.$ink-900;
+}
+
+.CheckHint {
+  font-size: t.$text-xs;
+  color: c.$ink-600;
+}

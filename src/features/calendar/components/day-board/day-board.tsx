@@ -1,6 +1,6 @@
 'use client';
 
-import {Plus} from 'lucide-react';
+import {Plus, TriangleAlert} from 'lucide-react';
 import {useCallback, useState} from 'react';
 import {Button} from '@/components/button';
 import {Panel} from '@/components/panel';
@@ -160,6 +160,21 @@ export const DayBoard = ({
               )}
             </TimeText>
           </span>
+          {summary.totalOptionalMinutes > 0 && (
+            <span>
+              Optional{' '}
+              <TimeText className={styles.SummaryValue}>
+                {formatDuration(summary.totalOptionalMinutes)}
+              </TimeText>{' '}
+              of it
+            </span>
+          )}
+          {summary.clashCount > 0 && (
+            <span className={styles.Clash}>
+              <TriangleAlert size={13} aria-hidden="true" />
+              {summary.clashCount === 1 ? '1 clash' : `${summary.clashCount} clashes`}
+            </span>
+          )}
         </div>
       )}
     </Panel>

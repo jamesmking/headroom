@@ -143,6 +143,10 @@ model Meeting {
   startMinutes Int
   endMinutes   Int
   notes        String?    @db.Text
+  /// Optional meetings are ones you would join if you were free. They are
+  /// shown in full but never reduce reported availability — see the note in
+  /// features/availability/availability.ts.
+  optional     Boolean    @default(false)
   recurrence   Recurrence @default(NONE)
   /// Inclusive last date a recurring meeting may occur on. Null = no end.
   recurrenceEndDate DateTime? @db.Date

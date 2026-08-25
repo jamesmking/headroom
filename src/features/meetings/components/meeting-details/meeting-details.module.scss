@@ -86,3 +86,15 @@
   flex: none;
   color: c.$ink-500;
 }
+
+.Optional {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: t.$text-xs;
+  font-weight: t.$weight-medium;
+  color: c.$ink-600;
+  border: 1px dashed c.$line-strong;
+  border-radius: s.$radius-sm;
+  padding: 0.0625rem 0.375rem;
+}

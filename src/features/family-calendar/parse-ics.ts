@@ -104,6 +104,8 @@ const toCalendarEvents = (
               notes,
               role: FAMILY_ROLE,
               recurring: instance.isRecurring,
+              // Imported events cannot be marked optional; they are commitments.
+              optional: false,
               readOnly: true,
             });
           }
@@ -135,6 +137,7 @@ const toCalendarEvents = (
         notes,
         role: FAMILY_ROLE,
         recurring: instance.isRecurring,
+        optional: false,
         readOnly: true,
       });
     }

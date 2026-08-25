@@ -82,6 +82,18 @@
   color: c.$ink-900;
 }
 
+/// Inline icon inside a detail line, nudged onto the text baseline.
+.WarnIcon {
+  vertical-align: -0.15em;
+  margin-right: 0.25rem;
+  color: c.$ink-500;
+}
+
+.Alert .WarnIcon,
+.Detail .WarnIcon {
+  color: inherit;
+}
+
 .Quiet {
   font-size: t.$text-sm;
   color: c.$ink-600;

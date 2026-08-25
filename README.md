@@ -324,6 +324,34 @@ within their own groups.
 
 Every table carries a `userId`, so this is already a multi-user schema being used by one person.
 
+## Overlapping and optional meetings
+
+Working across several teams means being booked twice at once, so overlaps are **legitimate data**,
+not an error to resolve.
+
+**Overlaps are grouped, never stacked.** `groupOverlapping` collects events into contiguous runs and
+`placeInColumns` assigns each a column, so a group is drawn side by side. Rendering 10:00–11:00 and
+10:30–11:30 as consecutive rows would read as back-to-back meetings, which is the opposite of the
+truth. Blocks inside a group size to their own content rather than to their share of the span: a
+proportional height looks right in a sketch and fails on a real screen, where a thirty-minute block
+in one of four columns is shorter than the text it has to hold.
+
+**Only a collision between commitments is a clash.** `clash` is true when two or more _committed_
+events genuinely overlap — checked with a sweep, because a group can chain (A overlaps B, B overlaps
+C, A and C never meet). A required meeting overlapping an optional one is expected and stays quiet.
+
+**Optional meetings never reduce availability.** `Meeting.optional` marks something you would join
+if you were free, so counting it as busy would report the opposite of the truth. Free time is
+calculated from committed events only; family calendar events are always committed, because a school
+pickup genuinely blocks you. An optional meeting is never hidden — it is drawn _inside_ the free
+time it competes for, and `totalOptionalMinutes` reports how much of the free figure has something
+asking for it. `findNextUp` follows the same rule: "next meeting" is the next committed one, with an
+earlier optional meeting shown beneath it rather than instead of it.
+
+The distinction is carried by texture, not colour — dashed edges, a flatter surface and an
+"Optional" tag — so the role colour stays free to mean what it always means. Role and attendance are
+two different pieces of information.
+
 ## How availability is calculated
 
 `src/features/availability/availability.ts` is pure, dependency-free and covered by unit tests.

@@ -37,6 +37,8 @@ const meetingSchema = z
     endTime: timeField('Enter an end time.'),
     roleId: z.string().trim().min(1, 'Choose a role.'),
     notes: z.string().trim().max(2000, 'Keep notes under 2000 characters.').optional(),
+    // An unchecked checkbox posts nothing at all, so absence means false.
+    optional: z.union([z.literal('true'), z.literal('')]).optional(),
     recurrence: z.enum(['NONE', 'DAILY', 'WEEKDAYS', 'WEEKLY', 'FORTNIGHTLY']),
     recurrenceEndDate: z.union([dateKey, z.literal('')]).optional(),
   })
@@ -58,6 +60,7 @@ const readMeetingForm = (formData: FormData) => ({
   endTime: formData.get('endTime') ?? '',
   roleId: formData.get('roleId') ?? '',
   notes: formData.get('notes') || undefined,
+  optional: formData.get('optional') === 'true' ? ('true' as const) : ('' as const),
   recurrence: formData.get('recurrence') ?? 'NONE',
   recurrenceEndDate: formData.get('recurrenceEndDate') ?? '',
 });
@@ -92,6 +95,7 @@ export const saveMeetingAction = async (
     startMinutes: data.startTime,
     endMinutes: data.endTime,
     notes: data.notes ?? null,
+    optional: data.optional === 'true',
     roleId,
     recurrence: data.recurrence,
     recurrenceEndDate:

@@ -1,5 +1,6 @@
 'use client';
 
+import {CircleDashed, TriangleAlert} from 'lucide-react';
 import {StatusBand, bandStyles as band} from '@/components/status-band';
 import {RoleBadge} from '@/components/role-badge';
 import {TimeText} from '@/components/time-text';
@@ -24,8 +25,17 @@ type NowNextProps = {
  */
 export const NowNext = ({events, workingHours, timeZone, initialMinutes}: NowNextProps) => {
   const now = useNowMinutes(timeZone, initialMinutes);
-  const {next, minutesUntilNext, current, minutesUntilCurrentEnds, freeRightNowMinutes} =
-    findNextUp(events, now, workingHours);
+  const {
+    next,
+    minutesUntilNext,
+    nextOptional,
+    minutesUntilNextOptional,
+    current,
+    minutesUntilCurrentEnds,
+    alsoNow,
+    currentOptional,
+    freeRightNowMinutes,
+  } = findNextUp(events, now, workingHours);
 
   const beforeWork = now < workingHours.startMinutes;
   const afterWork = now >= workingHours.endMinutes;
@@ -45,10 +55,20 @@ export const NowNext = ({events, workingHours, timeZone, initialMinutes}: NowNex
               <span className={band.Strong}>{current.title}</span> until{' '}
               <TimeText>{formatTime(current.endMinutes)}</TimeText>
             </p>
+            {/* Two calendars can both book you; this is the only place that
+                knows about it, so it is the only place that can say so. */}
+            {alsoNow.length > 0 && (
+              <p className={band.Detail}>
+                <TriangleAlert size={13} aria-hidden="true" className={band.WarnIcon} />
+                Also now: {alsoNow.map(event => event.title).join(', ')}
+              </p>
+            )}
           </>
         ) : freeRightNowMinutes !== null ? (
           <>
-            <span className={band.Label}>Free right now</span>
+            <span className={band.Label}>
+              {currentOptional ? 'Free — optional meeting on' : 'Free right now'}
+            </span>
             <TimeText className={band.Figure}>{formatDuration(freeRightNowMinutes)}</TimeText>
             <p className={band.Detail}>
               {next ? (
@@ -60,6 +80,21 @@ export const NowNext = ({events, workingHours, timeZone, initialMinutes}: NowNex
                   Nothing else booked before{' '}
                   <TimeText>{formatTime(workingHours.endMinutes)}</TimeText>
                 </>
+              )}
+              {currentOptional ? (
+                <>
+                  {' · '}
+                  <span className={band.Strong}>{currentOptional.title}</span> is on until{' '}
+                  <TimeText>{formatTime(currentOptional.endMinutes)}</TimeText> if you want it
+                </>
+              ) : (
+                nextOptional && (
+                  <>
+                    {' · optional '}
+                    <span className={band.Strong}>{nextOptional.title}</span> at{' '}
+                    <TimeText>{formatTime(nextOptional.startMinutes)}</TimeText>
+                  </>
+                )
               )}
             </p>
           </>
@@ -103,6 +138,16 @@ export const NowNext = ({events, workingHours, timeZone, initialMinutes}: NowNex
             </>
           ) : (
             <p className={band.Quiet}>Nothing else in the diary today.</p>
+          )}
+
+          {/* Shown beneath, never instead: an optional meeting must not be
+              mistaken for the thing that actually constrains the day. */}
+          {nextOptional && (
+            <p className={band.Detail}>
+              <CircleDashed size={13} aria-hidden="true" className={band.WarnIcon} />
+              Optional: {nextOptional.title}{' '}
+              <span className={band.Accent}>{formatCountdown(minutesUntilNextOptional ?? 0)}</span>
+            </p>
           )}
         </>
       }

@@ -43,6 +43,14 @@ export type CalendarEvent = {
   role: RoleSummary;
   /** True when this event is one occurrence of a recurring meeting. */
   recurring: boolean;
+  /**
+   * An event you would join if you were free.
+   *
+   * Optional events are shown in full but never reduce reported availability:
+   * the whole point of marking one is that the time is still yours. Family
+   * calendar events are never optional — a school pickup genuinely blocks you.
+   */
+  optional: boolean;
   /** Family calendar events cannot be edited inside the application. */
   readOnly: boolean;
 };

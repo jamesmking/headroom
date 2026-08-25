@@ -37,3 +37,13 @@
   color: c.$ink-900;
   font-weight: t.$weight-medium;
 }
+
+/// Awareness, not alarm: a clash is legitimate and often deliberate, so it is
+/// stated in the day's own summary line rather than raised as an error.
+.Clash {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: c.$warning;
+  font-weight: t.$weight-medium;
+}

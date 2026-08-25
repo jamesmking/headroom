@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import {Copy, Lock, Pencil, Trash2} from 'lucide-react';
+import {CircleDashed, Copy, Lock, Pencil, Trash2} from 'lucide-react';
 import Link from 'next/link';
 import {Button} from '@/components/button';
 import {RoleBadge} from '@/components/role-badge';
@@ -61,6 +61,12 @@ export const MeetingDetails = ({
 
       <div className={styles.Meta}>
         <RoleBadge role={event.role} long hollow={event.source === 'family'} />
+        {event.optional && (
+          <span className={styles.Optional}>
+            <CircleDashed size={12} aria-hidden="true" />
+            Optional
+          </span>
+        )}
         {showDayLink ? (
           <Link href={dayPath(event.date)}>{formatLongDate(event.date)}</Link>
         ) : (
@@ -69,6 +75,14 @@ export const MeetingDetails = ({
       </div>
 
       <dl className={styles.Facts}>
+        {event.optional && (
+          <>
+            <dt className={styles.Term}>Attendance</dt>
+            <dd className={styles.Value}>
+              Optional — shown in full, but it never counts against your available time.
+            </dd>
+          </>
+        )}
         {meeting && meeting.recurrence !== 'NONE' && (
           <>
             <dt className={styles.Term}>Repeats</dt>

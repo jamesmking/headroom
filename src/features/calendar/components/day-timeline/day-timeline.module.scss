@@ -312,3 +312,152 @@
   color: c.$ink-600;
   padding-left: 1rem;
 }
+
+// --- Overlapping events ------------------------------------------------------
+
+/// A group of events that collide, drawn side by side. Bounded rather than
+/// absolutely positioned on a canvas, so the proportional-height clamps above
+/// still apply and the whole thing can restack on a narrow screen.
+.Cluster {
+  display: flex;
+  flex-direction: column;
+  gap: s.$space-1;
+  margin: 0.25rem 0;
+  padding: s.$space-2;
+  border: 1px solid c.$line-strong;
+  border-radius: s.$radius;
+  background: c.$paper-sunken;
+  min-width: 0;
+  height: 100%;
+}
+
+/// Only a collision between things you are actually expected at is a problem.
+/// A required meeting overlapping an optional one is expected, and stays quiet.
+.ClusterClash {
+  border-color: c.$warning;
+  background: c.$warning-wash;
+}
+
+.ClusterHead {
+  display: flex;
+  align-items: center;
+  gap: s.$space-2;
+  font-size: 0.6875rem;
+  color: c.$ink-600;
+  flex: none;
+}
+
+.ClusterIcon {
+  color: c.$warning;
+  flex: none;
+}
+
+.ClusterWord {
+  @include ty.eyebrow;
+  color: inherit;
+}
+
+.ClusterClash .ClusterWord {
+  color: c.$warning;
+}
+
+.ClusterRange {
+  color: c.$ink-500;
+}
+
+.ClusterGrid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--cluster-columns, 2), minmax(0, 1fr));
+  gap: s.$space-2;
+  flex: 1 1 auto;
+  align-items: stretch;
+}
+
+/// Blocks sit at the top of their column and grow to fit their content. A
+/// proportional height looks right in a sketch and fails on a real screen: a
+/// thirty-minute block in one of four columns is shorter than the text it has
+/// to hold, and the role marker ends up outside the box.
+.ClusterSlot {
+  grid-column: var(--cluster-column, 1);
+  align-self: start;
+  min-width: 0;
+}
+
+.Compact {
+  padding: s.$space-2;
+  margin: 0;
+  gap: 0.125rem;
+  height: 100%;
+
+  .Title {
+    font-size: t.$text-sm;
+  }
+}
+
+// --- Optional events ---------------------------------------------------------
+
+/// Optional meetings are distinguished by texture, not colour: dashed edges
+/// and a flatter surface. The role marker keeps its own colour, because role
+/// and attendance are two different pieces of information.
+.Optional {
+  border-style: dashed;
+  border-left-style: dashed;
+  background: c.$paper;
+}
+
+.OptionalTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: t.$weight-medium;
+  color: c.$ink-600;
+  border: 1px dashed c.$line-strong;
+  border-radius: s.$radius-sm;
+  padding: 0 0.3125rem;
+}
+
+.FreeTop {
+  display: flex;
+  align-items: flex-start;
+  gap: s.$space-3;
+  min-width: 0;
+}
+
+/// An optional meeting sitting inside free time. It is drawn in the gap rather
+/// than as its own row, because it is not taking the time — it is asking for it.
+.FreeOptional {
+  @include f.focusable(1px);
+  display: flex;
+  align-items: center;
+  gap: s.$space-2;
+  width: 100%;
+  text-align: left;
+  margin-top: 0.375rem;
+  padding: 0.3125rem s.$space-2;
+  border: 1px dashed c.$line-strong;
+  border-left: 3px dashed var(--role-colour, #{c.$ink-300});
+  border-radius: s.$radius-sm;
+  background: c.$card;
+  font-size: t.$text-xs;
+  color: c.$ink-600;
+  cursor: pointer;
+  min-width: 0;
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &:hover:not(:disabled) {
+    background: c.$card-hover;
+  }
+}
+
+.FreeOptionalTitle {
+  @include ty.truncate;
+  color: c.$ink-900;
+  font-weight: t.$weight-medium;
+  flex: 1 1 auto;
+  min-width: 0;
+}

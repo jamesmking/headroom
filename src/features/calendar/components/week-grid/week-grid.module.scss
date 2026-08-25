@@ -280,6 +280,67 @@
   font-weight: t.$weight-medium;
 }
 
+// --- Overlaps ----------------------------------------------------------------
+
+/// A column is far too narrow for side-by-side, so overlapping chips are
+/// bracketed together instead: stacked, but explicitly marked as simultaneous
+/// rather than sequential. Works at any number of members.
+.Cluster {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.3125rem;
+  border: 1px solid c.$line-strong;
+  border-left-width: 3px;
+  border-radius: s.$radius-sm;
+  background: c.$paper-sunken;
+  min-width: 0;
+}
+
+.ClusterClash {
+  border-color: c.$warning;
+  background: c.$warning-wash;
+}
+
+.ClusterHead {
+  @include ty.eyebrow;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.625rem;
+}
+
+.ClusterClash .ClusterHead {
+  color: c.$warning;
+}
+
+.ClusterIcon {
+  flex: none;
+}
+
+/// Optional meetings are told apart by texture, never by colour alone: the
+/// role marker keeps its own colour because role and attendance are different
+/// pieces of information.
+.Optional {
+  border-style: dashed;
+  border-left-style: dashed;
+  background: c.$paper;
+}
+
+.OptionalIcon {
+  margin-left: 0.25rem;
+  vertical-align: -0.1em;
+}
+
+.FootClash {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  margin-left: 0.5rem;
+  color: c.$warning;
+  font-weight: t.$weight-medium;
+}
+
 @media (max-width: 1180px) {
   /// Seven columns that scroll beats a folded two-column block: the shape of
   /// the week is the whole point of this screen.

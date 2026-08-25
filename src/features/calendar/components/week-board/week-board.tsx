@@ -182,6 +182,7 @@ export const WeekBoard = ({
                       title: selectedMeeting.title,
                       roleId: selectedMeeting.roleId,
                       notes: selectedMeeting.notes,
+                      optional: selectedMeeting.optional,
                     },
                   })
                 }

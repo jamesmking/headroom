@@ -1,3 +1,4 @@
+import {TriangleAlert} from 'lucide-react';
 import {StatusBand, bandStyles as band} from '@/components/status-band';
 import {RoleBadge} from '@/components/role-badge';
 import {TimeText} from '@/components/time-text';
@@ -23,7 +24,8 @@ type DayShapeProps = {
 export const DayShape = ({date, today, events, workingHours}: DayShapeProps) => {
   const summary = buildDaySummary(events, workingHours);
   const timed = events.filter(event => !event.allDay);
-  const first = timed[0] ?? null;
+  // The first thing you are actually expected at sets when the day really starts.
+  const first = timed.find(event => !event.optional) ?? timed[0] ?? null;
   const past = date < today;
 
   const longest = summary.freePeriods.reduce<(typeof summary.freePeriods)[number] | null>(
@@ -47,6 +49,13 @@ export const DayShape = ({date, today, events, workingHours}: DayShapeProps) => 
                   {formatDuration(summary.totalBusyMinutes)}
                 </TimeText>{' '}
                 booked out of a <TimeText>{formatDuration(workingMinutes)}</TimeText> working day.
+                {summary.totalOptionalMinutes > 0 && (
+                  <>
+                    {' '}
+                    <TimeText>{formatDuration(summary.totalOptionalMinutes)}</TimeText> of the rest
+                    has an optional meeting in it.
+                  </>
+                )}
               </>
             ) : (
               <>
@@ -71,6 +80,14 @@ export const DayShape = ({date, today, events, workingHours}: DayShapeProps) => 
                 Longest clear stretch{' '}
                 <span className={band.Accent}>{formatDuration(longest.durationMinutes)}</span> from{' '}
                 <TimeText>{formatTime(longest.startMinutes)}</TimeText>
+              </p>
+            )}
+            {summary.clashCount > 0 && (
+              <p className={band.Detail}>
+                <TriangleAlert size={13} aria-hidden="true" className={band.WarnIcon} />
+                {summary.clashCount === 1
+                  ? '1 clash on this day'
+                  : `${summary.clashCount} clashes on this day`}
               </p>
             )}
           </>

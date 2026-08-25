@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import {Lock, NotebookPen, Pencil, Plus, Repeat} from 'lucide-react';
+import {CircleDashed, Lock, NotebookPen, Pencil, Plus, Repeat, TriangleAlert} from 'lucide-react';
 import {RoleBadge} from '@/components/role-badge';
 import {TimeText} from '@/components/time-text';
 import {buildDaySummary, type TimelineEntry} from '@/features/availability/availability';
@@ -25,9 +25,13 @@ const MAX_FREE_HEIGHT = 150;
 const heightFor = (entry: TimelineEntry): number => {
   const duration = entry.endMinutes - entry.startMinutes;
   const raw = duration * PIXELS_PER_MINUTE;
-  return entry.kind === 'event'
-    ? Math.min(MAX_EVENT_HEIGHT, Math.max(MIN_EVENT_HEIGHT, raw))
-    : Math.min(MAX_FREE_HEIGHT, Math.max(MIN_FREE_HEIGHT, raw));
+  if (entry.kind === 'free') {
+    return Math.min(MAX_FREE_HEIGHT, Math.max(MIN_FREE_HEIGHT, raw));
+  }
+  // A cluster has to hold its members side by side, so it needs at least the
+  // height of one block plus the offset of the last column's start.
+  const minimum = entry.kind === 'cluster' ? MIN_EVENT_HEIGHT * 1.6 : MIN_EVENT_HEIGHT;
+  return Math.min(MAX_EVENT_HEIGHT * 1.4, Math.max(minimum, raw));
 };
 
 type DayTimelineProps = {
@@ -98,29 +102,55 @@ export const DayTimeline = ({
               className={styles.Row}
               style={{'--row-height': `${heightFor(entry)}px`} as React.CSSProperties}
             >
-              <span className={clsx(styles.Rail, entry.kind === 'event' && styles.RailStrong)}>
+              <span className={clsx(styles.Rail, entry.kind !== 'free' && styles.RailStrong)}>
                 {formatTime(entry.startMinutes)}
               </span>
 
-              {entry.kind === 'event' ? (
+              {entry.kind === 'event' && (
                 <EventBlock event={entry.event} current={containsNow} onEdit={onEditMeeting} />
-              ) : (
+              )}
+
+              {entry.kind === 'cluster' && (
+                <ClusterBlock entry={entry} now={showNow ? now : null} onEdit={onEditMeeting} />
+              )}
+
+              {entry.kind === 'free' && (
                 <div className={styles.Free}>
-                  <span className={styles.FreeLabel}>
-                    {formatDuration(entry.durationMinutes)} clear
-                  </span>
-                  <span className={styles.Rule} aria-hidden="true" />
-                  {onAddMeetingAt && (
+                  <div className={styles.FreeTop}>
+                    <span className={styles.FreeLabel}>
+                      {formatDuration(entry.durationMinutes)} clear
+                    </span>
+                    <span className={styles.Rule} aria-hidden="true" />
+                    {onAddMeetingAt && (
+                      <button
+                        type="button"
+                        className={styles.FreeAdd}
+                        onClick={() => onAddMeetingAt(entry.startMinutes, entry.endMinutes)}
+                      >
+                        <Plus size={12} aria-hidden="true" />
+                        Add meeting
+                        <span className="sr-only">{` at ${formatTime(entry.startMinutes)}`}</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Optional meetings do not take the time, but they are
+                      competing for it, so they are shown inside it. */}
+                  {entry.optionalEvents.map(event => (
                     <button
+                      key={event.id}
                       type="button"
-                      className={styles.FreeAdd}
-                      onClick={() => onAddMeetingAt(entry.startMinutes, entry.endMinutes)}
+                      className={styles.FreeOptional}
+                      onClick={() => event.meetingId && onEditMeeting?.(event.meetingId)}
+                      disabled={!event.meetingId || !onEditMeeting}
+                      style={{'--role-colour': event.role.colour} as React.CSSProperties}
                     >
-                      <Plus size={12} aria-hidden="true" />
-                      Add meeting
-                      <span className="sr-only">{` at ${formatTime(entry.startMinutes)}`}</span>
+                      <CircleDashed size={12} aria-hidden="true" className={styles.TagIcon} />
+                      <TimeText>{formatTimeRange(event.startMinutes, event.endMinutes)}</TimeText>
+                      <span className={styles.FreeOptionalTitle}>{event.title}</span>
+                      <span className={styles.OptionalTag}>Optional</span>
                     </button>
-                  )}
+                  ))}
                 </div>
               )}
 
@@ -158,19 +188,86 @@ export const DayTimeline = ({
   );
 };
 
+/**
+ * Two or more events that collide, drawn side by side.
+ *
+ * Columns come from the availability calculation. Each block sizes to its own
+ * content rather than to its share of the group's span: at four columns on a
+ * real screen a thirty-minute block is shorter than the text inside it, and
+ * proportional heights meant titles and role markers spilling out of the box.
+ * The overlap is carried by the columns and the header's merged range, and
+ * each block states its own times.
+ */
+const ClusterBlock = ({
+  entry,
+  now,
+  onEdit,
+}: {
+  entry: Extract<TimelineEntry, {kind: 'cluster'}>;
+  now: number | null;
+  onEdit?: (meetingId: string) => void;
+}) => {
+  return (
+    <div className={clsx(styles.Cluster, entry.clash && styles.ClusterClash)}>
+      <p className={styles.ClusterHead}>
+        {entry.clash ? (
+          <>
+            <TriangleAlert size={12} aria-hidden="true" className={styles.ClusterIcon} />
+            <span className={styles.ClusterWord}>Clash</span>
+          </>
+        ) : (
+          <span className={styles.ClusterWord}>Overlapping</span>
+        )}
+        <TimeText className={styles.ClusterRange}>
+          {formatTimeRange(entry.startMinutes, entry.endMinutes)}
+        </TimeText>
+      </p>
+
+      <div
+        className={styles.ClusterGrid}
+        style={{'--cluster-columns': entry.columns} as React.CSSProperties}
+      >
+        {entry.events.map(placed => (
+          <div
+            key={placed.event.id}
+            className={styles.ClusterSlot}
+            style={{'--cluster-column': placed.column + 1} as React.CSSProperties}
+          >
+            <EventBlock
+              event={placed.event}
+              current={
+                now !== null && now >= placed.event.startMinutes && now < placed.event.endMinutes
+              }
+              onEdit={onEdit}
+              compact
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const EventBlock = ({
   event,
   current,
   onEdit,
+  compact = false,
 }: {
   event: CalendarEvent;
   current: boolean;
   onEdit?: (meetingId: string) => void;
+  /** Inside a cluster, where horizontal room is shared. */
+  compact?: boolean;
 }) => (
   <article
     className={clsx(
       styles.Event,
       event.source === 'family' && styles.Family,
+      // Optional meetings recede: dashed edges and a flatter surface, never
+      // colour alone, and never at the cost of the role marker.
+      event.optional && styles.Optional,
+      compact && styles.Compact,
       current && styles.Current
     )}
     style={event.role ? ({'--role-colour': event.role.colour} as React.CSSProperties) : undefined}
@@ -197,7 +294,13 @@ const EventBlock = ({
         {formatTimeRange(event.startMinutes, event.endMinutes)}
       </TimeText>
       <RoleBadge role={event.role} hollow={event.source === 'family'} />
-      {event.recurring && (
+      {event.optional && (
+        <span className={styles.OptionalTag}>
+          <CircleDashed className={styles.TagIcon} aria-hidden="true" />
+          Optional
+        </span>
+      )}
+      {event.recurring && !compact && (
         <span className={styles.Tag}>
           <Repeat className={styles.TagIcon} aria-hidden="true" />
           Repeats
@@ -209,7 +312,7 @@ const EventBlock = ({
           Read-only
         </span>
       )}
-      {event.notes && event.source === 'meeting' && (
+      {event.notes && event.source === 'meeting' && !compact && (
         <span className={styles.Tag}>
           <NotebookPen className={styles.TagIcon} aria-hidden="true" />
           Notes

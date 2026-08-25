@@ -67,6 +67,7 @@ export const getMeetingEventsForDates = async (
         notes: meeting.notes,
         role: meeting.role,
         recurring: meeting.recurrence !== 'NONE',
+        optional: meeting.optional,
         readOnly: false,
       });
     }
@@ -86,6 +87,7 @@ export type MeetingRecord = {
   endMinutes: number;
   notes: string | null;
   roleId: string;
+  optional: boolean;
   recurrence: 'NONE' | 'DAILY' | 'WEEKDAYS' | 'WEEKLY' | 'FORTNIGHTLY';
   recurrenceEndDate: DateKey | null;
 };
@@ -98,6 +100,7 @@ type MeetingRow = {
   endMinutes: number;
   notes: string | null;
   roleId: string;
+  optional: boolean;
   recurrence: MeetingRecord['recurrence'];
   recurrenceEndDate: Date | null;
 };
@@ -110,6 +113,7 @@ const toRecord = (meeting: MeetingRow): MeetingRecord => ({
   endMinutes: meeting.endMinutes,
   notes: meeting.notes,
   roleId: meeting.roleId,
+  optional: meeting.optional,
   recurrence: meeting.recurrence,
   recurrenceEndDate: meeting.recurrenceEndDate ? toDateKey(meeting.recurrenceEndDate) : null,
 });

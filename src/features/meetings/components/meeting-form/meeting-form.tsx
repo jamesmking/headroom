@@ -28,6 +28,7 @@ export type MeetingDraft = {
   title?: string;
   roleId?: string | null;
   notes?: string | null;
+  optional?: boolean;
 };
 
 type MeetingFormProps = {
@@ -236,6 +237,24 @@ export const MeetingForm = ({
             />
           )}
         </Field>
+
+        <div className={`${styles.Check} ${styles.Full}`}>
+          <input
+            id="meeting-optional"
+            type="checkbox"
+            name="optional"
+            value="true"
+            className={styles.Checkbox}
+            defaultChecked={meeting?.optional ?? draft?.optional ?? false}
+          />
+          <label htmlFor="meeting-optional" className={styles.CheckLabel}>
+            <span className={styles.CheckTitle}>Optional</span>
+            <span className={styles.CheckHint}>
+              You would join if you were free. Optional meetings are shown in full but never count
+              against your available time.
+            </span>
+          </label>
+        </div>
 
         <Field label="Notes" optional error={errors.notes} className={styles.Full}>
           {({id, describedBy, invalid}) => (
