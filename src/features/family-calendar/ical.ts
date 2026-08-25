@@ -37,8 +37,12 @@ type CacheEntry = {
 };
 
 /**
- * Process-local cache, keyed by feed URL. Each instance keeps its own copy,
- * which is fine: the data is per-user, read-only and cheap to re-fetch.
+ * Second-level, process-local cache keyed by feed URL.
+ *
+ * Its real job is to hold the last known-good copy so a feed that has gone
+ * down can still be served while marked stale. On a serverless host a cold
+ * instance starts empty, in which case a broken feed degrades to the inline
+ * "unavailable" notice instead — the rest of the page is unaffected either way.
  */
 const cache = new Map<string, CacheEntry>();
 
@@ -59,9 +63,11 @@ const fetchFeed = async (url: URL): Promise<CalendarResponse> => {
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     redirect: 'follow',
     headers: {Accept: 'text/calendar, text/plain;q=0.9, */*;q=0.5'},
-    // The module-level cache is the caching layer; skip Next's data cache so
-    // the TTL is controlled in one place.
-    cache: 'no-store',
+    // Use the framework data cache as the first layer. On a single long-lived
+    // server this behaves like the in-process cache below; on a serverless
+    // host, where every instance starts cold, it is what stops each render
+    // hitting the calendar provider.
+    next: {revalidate: env.familyIcalCacheSeconds},
   });
 
   if (!response.ok) {

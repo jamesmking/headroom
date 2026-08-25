@@ -19,7 +19,7 @@ an iCal feed.
 - [Getting started](#getting-started)
 - [Google OAuth setup](#google-oauth-setup)
 - [Environment variables](#environment-variables)
-- [Deploying to Headroom Cloud](#deploying-to-headroom-cloud)
+- [Deploying](#deploying)
 - [Data model](#data-model)
 - [How availability is calculated](#how-availability-is-calculated)
 - [How the family calendar works](#how-the-family-calendar-works)
@@ -127,31 +127,110 @@ already owned by a `userId`, so supporting more people needs no schema change.
 
 ## Environment variables
 
-| Variable                    | Required       | Purpose                                                        |
-| --------------------------- | -------------- | -------------------------------------------------------------- |
-| `DATABASE_URL`              | yes            | PostgreSQL connection string                                   |
-| `AUTH_SECRET`               | yes            | Signs session cookies. Generate with `npx auth secret`         |
-| `AUTH_GOOGLE_ID`            | yes            | Google OAuth client ID                                         |
-| `AUTH_GOOGLE_SECRET`        | yes            | Google OAuth client secret                                     |
-| `AUTH_URL`                  | in production  | Canonical URL, e.g. `https://headroom.cloud`                   |
-| `AUTH_TRUST_HOST`           | behind a proxy | Set to `true` when running behind a reverse proxy              |
-| `ALLOWED_EMAILS`            | yes            | Comma-separated allow-list. Empty means nobody may sign in     |
-| `FAMILY_ICAL_URL`           | no             | Seeds the family calendar on first sign-in                     |
-| `FAMILY_ICAL_CACHE_SECONDS` | no             | Feed cache lifetime, default `900`                             |
-| `RUN_MIGRATIONS`            | no             | Container only. `false` skips migrations at start-up           |
-| `HEADROOM_DEV_LOGIN`        | no             | Development only. Enables the sign-in shortcut described above |
+| Variable                    | Required       | Purpose                                                                         |
+| --------------------------- | -------------- | ------------------------------------------------------------------------------- |
+| `DATABASE_URL`              | yes            | PostgreSQL connection string. Use the pooled string if there is a pooler        |
+| `DIRECT_URL`                | yes            | Unpooled connection, used for migrations. Same as `DATABASE_URL` with no pooler |
+| `AUTH_SECRET`               | yes            | Signs session cookies. Generate with `npx auth secret`                          |
+| `AUTH_GOOGLE_ID`            | yes            | Google OAuth client ID                                                          |
+| `AUTH_GOOGLE_SECRET`        | yes            | Google OAuth client secret                                                      |
+| `AUTH_URL`                  | in production  | Canonical URL, e.g. `https://headroom.cloud`                                    |
+| `AUTH_TRUST_HOST`           | behind a proxy | Set to `true` when running behind a reverse proxy                               |
+| `ALLOWED_EMAILS`            | yes            | Comma-separated allow-list. Empty means nobody may sign in                      |
+| `FAMILY_ICAL_URL`           | no             | Seeds the family calendar on first sign-in                                      |
+| `FAMILY_ICAL_CACHE_SECONDS` | no             | Feed cache lifetime, default `900`                                              |
+| `RUN_MIGRATIONS`            | no             | Container only. `false` skips migrations at start-up                            |
+| `HEADROOM_DEV_LOGIN`        | no             | Development only. Enables the sign-in shortcut described above                  |
 
 No secret is ever exposed to the browser. Nothing is prefixed `NEXT_PUBLIC_`.
 
-## Deploying to Headroom Cloud
+## Deploying
 
-The application is packaged as a standard container. Build and run it anywhere:
+The application is a plain Next.js server. It runs on Vercel, and it runs as a container anywhere
+else — nothing in the code is tied to either.
+
+### Vercel
+
+The deployed setup is Vercel + Neon Postgres, serving `headroom.cloud`.
+
+**1. Provision the database.** In the Vercel dashboard, add **Neon** from the Marketplace and attach
+it to the project. Neon injects a pooled `DATABASE_URL` plus an unpooled `DATABASE_URL_UNPOOLED`
+(also exposed as `POSTGRES_URL_NON_POOLING`).
+
+**2. Set the environment variables.** In **Settings → Environment Variables**, scoped to
+**Production**:
+
+| Variable             | Value                                                                        |
+| -------------------- | ---------------------------------------------------------------------------- |
+| `DATABASE_URL`       | Neon's **pooled** string, with `?pgbouncer=true&connect_timeout=15` appended |
+| `DIRECT_URL`         | Neon's **unpooled** string (copy of `DATABASE_URL_UNPOOLED`)                 |
+| `AUTH_SECRET`        | `npx auth secret`, or `openssl rand -base64 32`                              |
+| `AUTH_GOOGLE_ID`     | Google OAuth client ID                                                       |
+| `AUTH_GOOGLE_SECRET` | Google OAuth client secret                                                   |
+| `AUTH_URL`           | `https://headroom.cloud`                                                     |
+| `AUTH_TRUST_HOST`    | `true`                                                                       |
+| `ALLOWED_EMAILS`     | Your address                                                                 |
+
+`DIRECT_URL` must be present even though migrations run from your machine: Prisma validates the
+whole datasource block during `prisma generate`, which runs in the Vercel build.
+
+`pgbouncer=true` matters. Every serverless instance opens its own connection, and it tells Prisma to
+stop using prepared statements, which a transaction-mode pooler cannot hold.
+
+Do **not** set `HEADROOM_DEV_LOGIN`. It is inert in a production build, but leaving it unset keeps
+the intent obvious.
+
+**3. Point Google at the domain.** In the
+[Google Cloud console](https://console.cloud.google.com/apis/credentials), add this authorised
+redirect URI to the OAuth client:
+
+```
+https://headroom.cloud/api/auth/callback/google
+```
+
+**4. Attach the domain.** Add `headroom.cloud` under **Settings → Domains** and point DNS at Vercel.
+
+**5. Apply migrations.** These are run deliberately rather than on every deploy, so a preview build
+can never alter production data:
+
+```bash
+DATABASE_URL="<neon-pooled>" DIRECT_URL="<neon-unpooled>" npm run db:deploy
+```
+
+Run that once before the first deployment, and again whenever `prisma/schema.prisma` changes.
+
+**6. Deploy.** Push to `main`; Vercel builds from the connected GitHub repository. The build command
+is the default `npm run build`, which runs `prisma generate` first so the client always matches the
+schema — Vercel restores a cached `node_modules`, so the `postinstall` hook cannot be relied on.
+
+#### Two things to know about preview deployments
+
+Preview builds get their own `*.vercel.app` URL, which is not a registered Google redirect URI, so
+**sign-in will not work on a preview** unless you add that exact URL to the OAuth client. This is a
+Google restriction rather than an application one.
+
+Previews share whatever database you point them at. Leave `DATABASE_URL` scoped to Production only,
+or give previews their own Neon branch, so a preview cannot write to real data.
+
+#### The family calendar on serverless
+
+The iCal feed is cached through the framework data cache, which on Vercel is shared across instances
+— so the calendar provider is polled roughly once per `FAMILY_ICAL_CACHE_SECONDS`, not once per
+render. The in-process cache underneath it holds the last known-good copy for serving stale data
+during an outage; a cold instance starts without one, in which case a broken feed degrades to the
+inline "unavailable" notice instead. Either way the rest of the page is unaffected.
+
+### As a container
+
+For Headroom Cloud, a VPS, or anything else that runs a container. The image builds a standalone
+Node server, which is skipped automatically on Vercel.
 
 ```bash
 docker build -t headroom:latest .
 
 docker run -p 3000:3000 \
   -e DATABASE_URL="postgresql://user:password@host:5432/headroom" \
+  -e DIRECT_URL="postgresql://user:password@host:5432/headroom" \
   -e AUTH_SECRET="..." \
   -e AUTH_GOOGLE_ID="..." \
   -e AUTH_GOOGLE_SECRET="..." \
@@ -172,18 +251,18 @@ The image:
 is down — restarting the container would not fix a database outage, and a failing check would turn a
 brief blip into a restart loop.
 
-### Migrations
+#### Migrations
 
 By default the entrypoint runs `prisma migrate deploy` before starting the server. If you run more
 than one replica, or prefer an explicit release step, set `RUN_MIGRATIONS=false` and run migrations
 once per deploy instead:
 
 ```bash
-docker run --rm -e DATABASE_URL="..." --entrypoint sh headroom:latest \
+docker run --rm -e DATABASE_URL="..." -e DIRECT_URL="..." --entrypoint sh headroom:latest \
   -c "./migrator/node_modules/.bin/prisma migrate deploy --schema ./prisma/schema.prisma"
 ```
 
-### Behind a reverse proxy
+#### Behind a reverse proxy
 
 Set `AUTH_URL` to the public URL and `AUTH_TRUST_HOST=true`, and forward `X-Forwarded-Proto` and
 `X-Forwarded-Host` so callback URLs are built correctly.
@@ -205,6 +284,14 @@ Selecting a task adds a `DailyTask` row for that date; `dueDate` stays untouched
 Roles are archived, never deleted, when they have history attached. Meetings and tasks keep pointing
 at the archived role, so past records keep their name and colour. The Delete control only appears on
 a role that nothing references.
+
+Roles are ordered by hand from Settings, and that order is used everywhere they are listed — the
+role filter on Tasks, and the role menus on meetings and tasks. Move up / move down controls are
+used rather than drag-and-drop: with a handful of roles they are quicker, work without JavaScript,
+and are operable from the keyboard. Focus follows the role being moved, so pressing "move up" twice
+moves the same role twice. Every move renumbers `sortOrder` across the whole list, so gaps and
+duplicates cannot accumulate and the order is never ambiguous. Active and archived roles are ordered
+within their own groups.
 
 Every table carries a `userId`, so this is already a multi-user schema being used by one person.
 
@@ -265,7 +352,7 @@ src/
     calendar/               shared event types, day/week composition
     family-calendar/        iCal fetching, caching and parsing
     meetings/               meeting queries, actions, recurrence, form
-    roles/                  role queries, actions, management UI
+    roles/                  role queries, actions, ordering, management UI
     settings/               settings queries and actions
     tasks/                  task queries, actions, list and form
   lib/                      dates, times, Prisma client, env, action results
