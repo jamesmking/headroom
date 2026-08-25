@@ -10,9 +10,28 @@ import {signInPath} from '@/routes';
  * configuration in `src/auth.ts` extends this with the adapter and callbacks.
  */
 export const authConfig = {
-  // AUTH_GOOGLE_ID / AUTH_GOOGLE_SECRET are read from the environment by
-  // Auth.js automatically; credentials never reach the browser.
-  providers: [Google],
+  providers: [
+    // AUTH_GOOGLE_ID / AUTH_GOOGLE_SECRET are still read from the environment
+    // by Auth.js; passing options here does not disable that. Credentials never
+    // reach the browser.
+    Google({
+      /*
+       * Link a Google sign-in to an existing user with the same address.
+       *
+       * Any User row that exists before the first Google sign-in has no Account
+       * row against it — `npm run db:seed` and the dev-login provider both
+       * create one, and the README suggests reaching for them first. Without
+       * this flag Auth.js refuses that sign-in with OAuthAccountNotLinked
+       * instead of linking the two, which makes the documented setup order dead
+       * end at the last step.
+       *
+       * The "dangerous" in the name is aimed at providers that do not verify
+       * email ownership, where someone could claim an address they do not hold.
+       * Google verifies it, and `ALLOWED_EMAILS` still gates every sign-in.
+       */
+      allowDangerousEmailAccountLinking: true,
+    }),
+  ],
   pages: {
     signIn: signInPath(),
     error: signInPath(),

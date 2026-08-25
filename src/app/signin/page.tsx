@@ -12,6 +12,11 @@ export const metadata: Metadata = {title: 'Sign in'};
 /**
  * Auth.js appends `?error=` when a sign-in attempt fails. `AccessDenied` is the
  * code returned when the allow-list rejects an otherwise valid Google account.
+ *
+ * `Configuration` is not a specific diagnosis: Auth.js collapses every error it
+ * considers unsafe to show the browser into that one code, so an unreachable
+ * database arrives here looking identical to a broken OAuth client. The wording
+ * below must not name a cause the browser cannot actually know.
  */
 const ERROR_MESSAGES: Record<string, {title: string; detail: string}> = {
   AccessDenied: {
@@ -20,9 +25,9 @@ const ERROR_MESSAGES: Record<string, {title: string; detail: string}> = {
       'You signed in to Google successfully, but this email address is not on the allow-list for this installation.',
   },
   Configuration: {
-    title: 'Sign-in is not configured',
+    title: 'Sign-in could not be completed',
     detail:
-      'The Google OAuth credentials are missing or invalid. Check AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET.',
+      'The server hit an error it will not describe to the browser. An unreachable database is a more common cause than bad Google credentials. The specific error is in the server log.',
   },
   Verification: {
     title: 'That sign-in link has expired',
