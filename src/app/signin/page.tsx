@@ -10,15 +10,6 @@ import styles from './page.module.scss';
 
 export const metadata: Metadata = {title: 'Sign in'};
 
-/**
- * Auth.js appends `?error=` when a sign-in attempt fails. `AccessDenied` is the
- * code returned when the allow-list rejects an otherwise valid Google account.
- *
- * `Configuration` is not a specific diagnosis: Auth.js collapses every error it
- * considers unsafe to show the browser into that one code, so an unreachable
- * database arrives here looking identical to a broken OAuth client. The wording
- * below must not name a cause the browser cannot actually know.
- */
 const ERROR_MESSAGES: Record<string, {title: string; detail: string}> = {
   AccessDenied: {
     title: 'That account cannot be used',
@@ -57,6 +48,8 @@ const SignInPage = async ({searchParams}: {searchParams: Promise<{error?: string
           </span>
         </div>
 
+        <div className={styles.Rule} aria-hidden="true" />
+
         <p className={styles.Lede}>
           Your meetings, availability and tasks across every team, on one screen.
         </p>
@@ -69,7 +62,7 @@ const SignInPage = async ({searchParams}: {searchParams: Promise<{error?: string
         )}
 
         {/* The redirect to Google is a slow hop; acknowledge the press. */}
-        <form action={signInWithGoogleAction}>
+        <form action={signInWithGoogleAction} className={styles.Form}>
           <FormButton className={styles.Submit}>
             <svg className={styles.Icon} viewBox="0 0 18 18" aria-hidden="true">
               <path
@@ -95,11 +88,6 @@ const SignInPage = async ({searchParams}: {searchParams: Promise<{error?: string
             Sign in with Google
           </FormButton>
         </form>
-
-        <p className={styles.Note}>
-          Google is used for sign-in only. Headroom never reads your Google calendar, mail or files.
-        </p>
-
         {isDevLoginEnabled() && <DevSignIn />}
       </main>
     </div>

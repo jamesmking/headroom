@@ -1,55 +1,90 @@
 @use '@/styles/helpers/buttons' as b;
 @use '@/styles/helpers/surfaces' as surf;
-@use '@/styles/helpers/typography' as ty;
 @use '@/styles/variables/colours' as c;
 @use '@/styles/variables/spacing' as s;
 @use '@/styles/variables/typography' as t;
 
+/// The only dark surface in the application, and the only one anybody sees
+/// before signing in. The hatch is the same 135° / 4px / 9px geometry the
+/// timeline uses to mark time that is not yours, carried here in white so the
+/// field reads as the same material without borrowing the meaning.
 .Screen {
   flex: 1 1 auto;
   display: grid;
   place-items: center;
   padding: s.$space-6 s.$space-4;
-  background: c.$ink-900;
+  background-color: c.$ink-900;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.028) 0,
+    rgba(255, 255, 255, 0.028) 4px,
+    transparent 4px,
+    transparent 9px
+  );
 }
 
+/// The padding is a custom property so the rule below can bleed to the card's
+/// edges by negating it, and both stay correct when it changes at narrow
+/// widths.
 .Card {
   @include surf.card;
+  --card-pad: #{s.$space-7};
+
   width: 100%;
-  max-width: 26rem;
-  padding: s.$space-6;
-  display: flex;
-  flex-direction: column;
-  gap: s.$space-4;
+  max-width: 25rem;
+  padding: var(--card-pad);
 }
 
 .Brand {
   display: flex;
   align-items: baseline;
-  gap: 0.5rem;
+  // Tighter than a word space: the mark reads as one lockup, not two things.
+  gap: 0.375rem;
 }
 
+/// The wordmark is set in the mono face the rest of the application reserves
+/// for times and durations, because that is the product's voice — not a
+/// display face borrowed for the front door.
 .Wordmark {
   font-family: t.$font-mono;
-  font-size: t.$text-lg;
+  font-size: t.$text-xl;
   font-weight: t.$weight-semibold;
-  letter-spacing: -0.02em;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: c.$ink-900;
 }
 
 .Bracket {
   font-family: t.$font-mono;
-  font-size: t.$text-lg;
+  font-size: t.$text-xl;
   font-weight: t.$weight-semibold;
+  line-height: 1;
+  // The brackets sit around nothing, which is the joke and the product.
+  letter-spacing: -0.06em;
   color: c.$accent;
 }
 
+.Rule {
+  height: 1px;
+  margin: s.$space-5 calc(var(--card-pad) * -1);
+  background: c.$line;
+}
+
 .Lede {
-  color: c.$ink-600;
-  font-size: t.$text-sm;
+  margin: 0;
+  color: c.$ink-700;
+  font-size: t.$text-base;
+  line-height: t.$leading-normal;
+  text-wrap: balance;
+}
+
+.Form {
+  margin-top: s.$space-6;
 }
 
 .Submit {
   @include b.button(primary);
+  width: 100%;
   min-height: 2.75rem;
   font-size: t.$text-base;
 }
@@ -64,6 +99,7 @@
   background: c.$danger-wash;
   border-radius: s.$radius;
   padding: s.$space-3;
+  margin-top: s.$space-5;
   font-size: t.$text-sm;
   color: c.$danger-dark;
 }
@@ -74,13 +110,8 @@
   margin-bottom: 0.25rem;
 }
 
-.Note {
-  @include ty.eyebrow;
-  border-top: 1px solid c.$line;
-  padding-top: s.$space-3;
-  text-transform: none;
-  letter-spacing: 0;
-  font-family: t.$font-sans;
-  font-size: t.$text-xs;
-  color: c.$ink-500;
+@media (max-width: 30rem) {
+  .Card {
+    --card-pad: #{s.$space-6};
+  }
 }
