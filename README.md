@@ -138,7 +138,8 @@ already owned by a `userId`, so supporting more people needs no schema change.
 | `AUTH_TRUST_HOST`           | behind a proxy | Set to `true` when running behind a reverse proxy                               |
 | `ALLOWED_EMAILS`            | yes            | Comma-separated allow-list. Empty means nobody may sign in                      |
 | `FAMILY_ICAL_URL`           | no             | Seeds the family calendar on first sign-in                                      |
-| `FAMILY_ICAL_CACHE_SECONDS` | no             | Feed cache lifetime, default `900`                                              |
+| `FAMILY_SYNC_MAX_AGE_SECONDS` | no           | How stale the synced calendar may get before pages say so, default `93600` (26h) |
+| `CRON_SECRET`               | in production  | Shared secret for `/api/cron/*`. Without it those routes refuse everything      |
 | `RUN_MIGRATIONS`            | no             | Container only. `false` skips migrations at start-up                            |
 | `HEADROOM_DEV_LOGIN`        | no             | Development only. Enables the sign-in shortcut described above                  |
 
@@ -230,11 +231,24 @@ or give previews their own Neon branch, so a preview cannot write to real data.
 
 #### The family calendar on serverless
 
-The iCal feed is cached through the framework data cache, which on Vercel is shared across instances
-— so the calendar provider is polled roughly once per `FAMILY_ICAL_CACHE_SECONDS`, not once per
-render. The in-process cache underneath it holds the last known-good copy for serving stale data
-during an outage; a cold instance starts without one, in which case a broken feed degrades to the
-inline "unavailable" notice instead. Either way the rest of the page is unaffected.
+The feed is **never** read on the render path. `/api/cron/family-calendar` fetches, parses and
+expands it into the `FamilyEvent` table on a schedule, and pages read those rows.
+
+This replaced a caching arrangement that had quietly stopped working. The feed is 2 MB and holds
+3,749 events; the framework data cache silently refuses entries over 2 MB, so it never stored
+anything, and the in-process cache beneath it starts empty on every serverless instance. Every cold
+render was therefore paying a full fetch and parse — measured at 648 ms and 339 ms. Reading the
+synced rows instead costs 1–3 ms.
+
+Set `CRON_SECRET` in the project's environment variables. Vercel sends it as an
+`Authorization: Bearer` header, and the route refuses every request without it — including when the
+variable is missing, so a misconfigured deployment fails closed rather than exposing a job that
+makes outbound requests.
+
+**The schedule is once daily**, at 05:00 UTC, because that is the most a Vercel Hobby plan allows.
+On Pro, change `crons[0].schedule` in `vercel.json` to something like `0 * * * *`. Saving the
+calendar in Settings also syncs immediately, so a newly connected feed never waits for the
+schedule.
 
 ### As a container
 
@@ -393,13 +407,18 @@ long until it starts, and how much uninterrupted time you have before it.
 - The feed URL is stored per user and read **only** on the server. It is never included in any
   payload sent to the browser. Settings shows the feed's host so you can confirm what is configured,
   but never the path — which is where the secret in a private calendar URL lives.
-- The feed is fetched server-side with an 8 second timeout and a 5 MB ceiling, then parsed and
-  expanded into per-day events.
-- Results are cached in-process for `FAMILY_ICAL_CACHE_SECONDS` (default 15 minutes), so leaving the
-  Today screen open all day does not hammer the provider.
-- **Failure is contained.** The fetcher never throws. If the feed is slow, broken or offline, the
-  last good copy is served and marked stale; if there is no cached copy, the page renders an inline
-  warning and everything else — the timeline, availability, tasks — carries on working.
+- **The feed is read on a schedule, never on the render path.** `syncFamilyCalendar` fetches it
+  with an 8 second timeout and a 5 MB ceiling, expands every occurrence, and writes one row per
+  occurrence per day into `FamilyEvent`. Pages then do a single indexed read. The feed is 2 MB and
+  holds 3,749 events, of which a whole year contains about 150 — it is nearly all history — so
+  expanding once and storing the result is both cheaper and simpler than caching the raw feed.
+- The stored window runs 180 days back and 540 days forward from the day of the sync. A date
+  outside it reports "not read" rather than showing an empty day, because those are different
+  claims.
+- **Failure is contained.** The sync never throws. A feed that is slow, broken or offline leaves the
+  previous rows in place and records why, so the page serves the last good copy and says that it is
+  doing so. A refresh that has not run in `FAMILY_SYNC_MAX_AGE_SECONDS` is reported the same way —
+  that alarm is for a schedule that has stopped, not a normal gap between runs.
 - Family events are read-only. They are distinguished by a hatched texture and a hollow marker as
   well as by colour, so they are not identified by colour alone.
 - **They are information, not commitments.** A family event never reduces your reported

@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
   // Pooled connection, used by the application at runtime. Serverless hosts
   // open a connection per instance, so this should point at a pooler
   // (PgBouncer) when one is available.
@@ -33,6 +33,9 @@ model User {
   meetings   Meeting[]
   tasks      Task[]
   dailyTasks DailyTask[]
+
+  familyEvents FamilyEvent[]
+  familySync   FamilyCalendarSync?
 }
 
 model Account {
@@ -81,14 +84,14 @@ model VerificationToken {
 /// Per-user preferences. Sensitive values (icalUrl) are only ever read on the
 /// server and are never included in a payload sent to the browser.
 model UserSettings {
-  id                 String  @id @default(cuid())
-  userId             String  @unique
+  id                  String  @id @default(cuid())
+  userId              String  @unique
   /// Minutes from local midnight, e.g. 09:00 => 540
-  workdayStartMinutes Int    @default(540)
+  workdayStartMinutes Int     @default(540)
   /// Minutes from local midnight, e.g. 17:30 => 1050
-  workdayEndMinutes   Int    @default(1050)
+  workdayEndMinutes   Int     @default(1050)
   /// IANA timezone used to render iCal instants as local wall-clock times
-  timeZone            String @default("Europe/London")
+  timeZone            String  @default("Europe/London")
   icalUrl             String? @db.Text
   icalEnabled         Boolean @default(false)
 
@@ -131,29 +134,29 @@ enum Recurrence {
 /// rather than absolute instants. A 10:00 stand-up stays at 10:00 across DST
 /// boundaries, and availability becomes integer arithmetic.
 model Meeting {
-  id           String     @id @default(cuid())
-  userId       String
+  id                String     @id @default(cuid())
+  userId            String
   /// Required. Every meeting belongs to exactly one role — that is the whole
   /// point of the application. Read-only family calendar events are the only
   /// exception, and they are never stored here.
-  roleId       String
-  title        String
+  roleId            String
+  title             String
   /// The date of the first (or only) occurrence
-  date         DateTime   @db.Date
-  startMinutes Int
-  endMinutes   Int
-  notes        String?    @db.Text
+  date              DateTime   @db.Date
+  startMinutes      Int
+  endMinutes        Int
+  notes             String?    @db.Text
   /// Optional meetings are ones you would join if you were free. They are
   /// shown in full but never reduce reported availability — see the note in
   /// features/availability/availability.ts. Read here as a boolean because a
   /// meeting is only ever yours to attend or yours to skip; it is mapped to
   /// the wider `claim` in features/meetings/queries/get-meetings.ts.
-  optional     Boolean    @default(false)
-  recurrence   Recurrence @default(NONE)
+  optional          Boolean    @default(false)
+  recurrence        Recurrence @default(NONE)
   /// Inclusive last date a recurring meeting may occur on. Null = no end.
-  recurrenceEndDate DateTime? @db.Date
+  recurrenceEndDate DateTime?  @db.Date
   /// Occurrence dates that have been individually cancelled
-  skippedDates DateTime[] @db.Date
+  skippedDates      DateTime[] @db.Date
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -211,4 +214,67 @@ model DailyTask {
 
   @@unique([taskId, date])
   @@index([userId, date])
+}
+
+// ---------------------------------------------------------------------------
+// Family calendar
+//
+// The feed is fetched, parsed and expanded on a schedule rather than on the
+// render path. It is worth stating why, because the obvious reading of these
+// tables is that they duplicate something already available over HTTP.
+//
+// The measured feed is 2 MB and holds 3,749 VEVENTs, of which a whole year's
+// window contains about 150 — it is nearly all history. Fetching it cost
+// ~650ms and parsing it ~340ms on every cold render, because Next's data cache
+// silently refuses to store anything over 2 MB and the process-local cache
+// starts empty on every serverless instance. Expanding once into rows turns
+// all of that into a single indexed read.
+// ---------------------------------------------------------------------------
+
+/// One occurrence of a family calendar event, on one local day.
+///
+/// Recurring events are already expanded: a weekly swimming lesson is one row
+/// per week, not one row plus a rule. The rendering code should never have to
+/// know that iCal has recurrence in it.
+model FamilyEvent {
+  id     String @id @default(cuid())
+  userId String
+
+  /// The local day this occurrence falls on, in the user's timezone.
+  date         DateTime @db.Date
+  title        String
+  /// Minutes from local midnight. An all-day event spans the whole day.
+  startMinutes Int
+  endMinutes   Int
+  allDay       Boolean  @default(false)
+  notes        String?  @db.Text
+  /// True when this occurrence came from a recurrence rule.
+  recurring    Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Every read is "this user, these days".
+  @@index([userId, date])
+}
+
+/// The outcome of the last sync, and the window it covers.
+///
+/// Held separately from the events so that a failed refresh can keep serving
+/// the previous copy while saying so — the same contract the live fetcher had.
+model FamilyCalendarSync {
+  userId String @id
+
+  fetchedAt  DateTime
+  /// 'ok' when the last run succeeded, 'error' when it did not.
+  status     String
+  /// Populated only on failure, and shown to the user verbatim.
+  message    String?
+  eventCount Int      @default(0)
+
+  /// Inclusive bounds of the expansion. A date outside these has not been
+  /// synced, which is not the same as having no events on it.
+  windowStart DateTime @db.Date
+  windowEnd   DateTime @db.Date
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

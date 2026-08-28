@@ -41,7 +41,7 @@ export const WeekView = async ({anchor}: {anchor: DateKey}) => {
   };
 
   const [calendar, roles, lastRoleId] = await Promise.all([
-    getCalendarData(user.id, dateKeys, settings.timeZone),
+    getCalendarData(user.id, dateKeys),
     getRoleOptions(user.id),
     getLastUsedRoleId(),
   ]);

@@ -3,7 +3,8 @@
 import {revalidatePath} from 'next/cache';
 import {z} from 'zod';
 import {requireUserId} from '@/features/auth/queries/get-current-user';
-import {clearFamilyCalendarCache, testFamilyCalendar} from '@/features/family-calendar/ical';
+import {testFamilyCalendar} from '@/features/family-calendar/ical';
+import {syncFamilyCalendar} from '@/features/family-calendar/sync';
 import {type ActionResult, errorResult, fromZodError, successResult} from '@/lib/action-result';
 import {prisma} from '@/lib/prisma';
 import {parseTime} from '@/lib/time';
@@ -107,6 +108,7 @@ export const saveFamilyCalendarAction = async (
       update: {icalEnabled: false},
       create: {userId, icalEnabled: false},
     });
+    await syncFamilyCalendar(userId);
     revalidatePath('/', 'layout');
     return successResult('Family calendar is off.');
   }
@@ -117,12 +119,16 @@ export const saveFamilyCalendarAction = async (
       return errorResult('That calendar could not be read.', {icalUrl: check.message});
     }
 
-    clearFamilyCalendarCache(existing?.icalUrl);
     await prisma.userSettings.upsert({
       where: {userId},
       update: {icalUrl, icalEnabled: enabled},
       create: {userId, icalUrl, icalEnabled: enabled},
     });
+
+    // Populate immediately rather than leaving the calendar blank until the
+    // next scheduled refresh. The feed has just been read to validate it, so
+    // this is the one place a second read is worth paying for.
+    await syncFamilyCalendar(userId);
 
     revalidatePath('/', 'layout');
     return successResult(
@@ -132,6 +138,7 @@ export const saveFamilyCalendarAction = async (
 
   // Keep the stored URL, just change whether it is used.
   await prisma.userSettings.update({where: {userId}, data: {icalEnabled: enabled}});
+  await syncFamilyCalendar(userId);
   revalidatePath('/', 'layout');
   return successResult(enabled ? 'Family calendar is on.' : 'Family calendar is off.');
 };
@@ -140,17 +147,14 @@ export const saveFamilyCalendarAction = async (
 export const removeFamilyCalendar = async (): Promise<void> => {
   const userId = await requireUserId();
 
-  const existing = await prisma.userSettings.findUnique({
-    where: {userId},
-    select: {icalUrl: true},
-  });
-
-  clearFamilyCalendarCache(existing?.icalUrl);
   await prisma.userSettings.upsert({
     where: {userId},
     update: {icalUrl: null, icalEnabled: false},
     create: {userId, icalUrl: null, icalEnabled: false},
   });
+
+  // Drops the synced rows too: the calendar is gone, not merely switched off.
+  await syncFamilyCalendar(userId);
 
   revalidatePath('/', 'layout');
 };

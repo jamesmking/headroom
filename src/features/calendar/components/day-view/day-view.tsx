@@ -46,7 +46,7 @@ export const DayView = async ({date}: {date: DateKey}) => {
   };
 
   const [calendar, roles, lastRoleId, planned, dueOnDate, overdue] = await Promise.all([
-    getCalendarData(user.id, [date], settings.timeZone),
+    getCalendarData(user.id, [date]),
     getRoleOptions(user.id),
     getLastUsedRoleId(),
     getPlannedTasks(user.id, date),

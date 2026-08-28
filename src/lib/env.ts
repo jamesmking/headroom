@@ -42,8 +42,19 @@ export const env = {
   get familyIcalUrl(): string | null {
     return process.env.FAMILY_ICAL_URL?.trim() || null;
   },
-  get familyIcalCacheSeconds(): number {
-    const parsed = Number.parseInt(process.env.FAMILY_ICAL_CACHE_SECONDS ?? '', 10);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 900;
+  /**
+   * How old the synced family calendar may get before the page says so.
+   *
+   * Generous by default: the refresh runs on a schedule, and a Vercel Hobby
+   * plan only allows a daily cron, so anything under a day would flag every
+   * render as stale. This is a "the schedule has stopped" alarm, not a TTL.
+   */
+  get familySyncMaxAgeSeconds(): number {
+    const parsed = Number.parseInt(process.env.FAMILY_SYNC_MAX_AGE_SECONDS ?? '', 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 26 * 60 * 60;
+  },
+  /** Shared secret Vercel Cron presents when calling the refresh endpoint. */
+  get cronSecret(): string | null {
+    return process.env.CRON_SECRET?.trim() || null;
   },
 };

@@ -2,9 +2,9 @@ import 'server-only';
 
 import type {CalendarEvent} from '@/features/calendar/types';
 import type {MeetingRecord} from '@/features/meetings/queries/get-meetings';
-import {getFamilyCalendar, type FamilyCalendarStatus} from '@/features/family-calendar/ical';
+import {getFamilyEvents} from '@/features/family-calendar/queries/get-family-events';
+import type {FamilyCalendarStatus} from '@/features/family-calendar/sync-status';
 import {getMeetingEventsForDates} from '@/features/meetings/queries/get-meetings';
-import {getIcalUrl} from '@/features/settings/queries/get-settings';
 import type {DateKey} from '@/lib/dates';
 
 export type CalendarData = {
@@ -26,18 +26,21 @@ export type CalendarData = {
 /**
  * Everything on the calendar for a set of days.
  *
- * The two sources are fetched concurrently and the family calendar can never
- * take the page down with it: `getFamilyCalendar` always resolves, and its
- * failure surfaces as a status the UI renders as an inline warning.
+ * Both sources are now database reads, issued concurrently. The family
+ * calendar used to be fetched and parsed from its provider here, which put
+ * about a second of network and CPU on every cold render; it is refreshed on a
+ * schedule instead. See `features/family-calendar/sync.ts`.
+ *
+ * The family calendar still cannot take the page down with it: its status is
+ * reported rather than thrown, and the UI renders it as an inline warning.
  */
 export const getCalendarData = async (
   userId: string,
-  dateKeys: DateKey[],
-  timeZone: string
+  dateKeys: DateKey[]
 ): Promise<CalendarData> => {
   const [meetings, family] = await Promise.all([
     getMeetingEventsForDates(userId, dateKeys),
-    getIcalUrl(userId).then(icalUrl => getFamilyCalendar({icalUrl, dateKeys, timeZone})),
+    getFamilyEvents({userId, dateKeys}),
   ]);
 
   const events = [...meetings.events, ...family.events].sort(

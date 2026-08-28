@@ -21,8 +21,10 @@ export const config = {
      * Everything except:
      *  - /api/auth/*  (the Auth.js endpoints themselves)
      *  - /api/health   (container healthcheck; exposes no user data)
+     *  - /api/cron/*   (scheduled jobs; there is no session to check, so they
+     *                   authenticate themselves against CRON_SECRET instead)
      *  - Next.js internals and static assets
      */
-    '/((?!api/auth|api/health|_next/static|_next/image|favicon.ico|robots.txt|.*\\.(?:png|jpg|jpeg|svg|ico|webp)$).*)',
+    '/((?!api/auth|api/health|api/cron|_next/static|_next/image|favicon.ico|robots.txt|.*\\.(?:png|jpg|jpeg|svg|ico|webp)$).*)',
   ],
 };

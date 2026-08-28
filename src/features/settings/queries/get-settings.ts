@@ -53,16 +53,3 @@ export const getSettings = cache(async (userId: string): Promise<UserSettingsVie
     icalHost: hostOf(settings?.icalUrl ?? null),
   };
 });
-
-/**
- * Server-only accessor for the iCal feed URL. Used exclusively by the family
- * calendar fetcher; the value must never cross into a client payload.
- */
-export const getIcalUrl = cache(async (userId: string): Promise<string | null> => {
-  const settings = await prisma.userSettings.findUnique({
-    where: {userId},
-    select: {icalUrl: true, icalEnabled: true},
-  });
-  if (!settings?.icalEnabled) return null;
-  return settings.icalUrl ?? null;
-});
