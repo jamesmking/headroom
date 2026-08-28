@@ -10,23 +10,49 @@ import styles from './page-skeleton.module.scss';
  * no boundary at all, `<Link>` prefetching does nothing, and every navigation
  * pays for a cold round trip. Adding these turns prefetching back on.
  *
- * The shapes deliberately match the real layouts closely enough that nothing
- * jumps when the content arrives.
+ * The shapes match the real layouts block for block, and the fixed heights
+ * below are measured from the rendered pages rather than guessed. A skeleton
+ * that is merely close is worse than no skeleton at all: the content arrives,
+ * every block moves, and the page reads as broken at the exact moment it
+ * finished working.
+ *
+ * Measured at a desktop width, in device pixels:
+ *
+ *   masthead   46   eyebrow over the title
+ *   nav        30   the date controls, their own row on the real page
+ *   band      142   the shortest a status band gets — see the note on Band
+ *
+ * The columns cannot be matched the same way. What they hold depends entirely
+ * on the day, so they are sized to a typical one and left at that.
  */
+
+/** Real masthead: a 17px eyebrow, 4px of margin, a 25px title. */
+const MASTHEAD_HEIGHT = '2.875rem';
+/** Real date nav: one row of 30px controls. */
+const NAV_HEIGHT = '1.875rem';
 
 const Bar = ({width, height = '0.75rem'}: {width: string; height?: string}) => (
   <span className={styles.Bar} style={{width, height, display: 'block'}} />
 );
 
 const Masthead = () => (
-  <div className={styles.Masthead}>
+  <div className={styles.Masthead} style={{height: MASTHEAD_HEIGHT}}>
     <Bar width="4rem" height="0.6875rem" />
     <Bar width="14rem" height="1.375rem" />
-    <div className={styles.Nav}>
-      <Bar width="7rem" height="1.75rem" />
-      <Bar width="4.5rem" height="1.75rem" />
-      <Bar width="5.5rem" height="1.75rem" />
-    </div>
+  </div>
+);
+
+/**
+ * The date controls, which are a sibling of the masthead on the real page
+ * rather than a child of it. Folding them in here cost 21px of the difference
+ * this component exists to avoid. Only Day and Week have one.
+ */
+const DateNav = () => (
+  <div className={styles.Nav} style={{height: NAV_HEIGHT}}>
+    <Bar width="7rem" height={NAV_HEIGHT} />
+    <Bar width="4.5rem" height={NAV_HEIGHT} />
+    <Bar width="5.5rem" height={NAV_HEIGHT} />
+    <Bar width="6rem" height={NAV_HEIGHT} />
   </div>
 );
 
@@ -42,11 +68,12 @@ const Panel = ({rows}: {rows: number}) => (
 export const DaySkeleton = () => (
   <div className={styles.Page} aria-hidden="true">
     <Masthead />
+    <DateNav />
     <div className={styles.Band} />
     <div className={styles.Columns}>
-      <Panel rows={5} />
+      <Panel rows={7} />
       <div className={styles.Side}>
-        <Panel rows={3} />
+        <Panel rows={4} />
         <Panel rows={2} />
       </div>
     </div>
@@ -56,6 +83,7 @@ export const DaySkeleton = () => (
 export const WeekSkeleton = () => (
   <div className={styles.Page} aria-hidden="true">
     <Masthead />
+    <DateNav />
     <div className={styles.Week}>
       {Array.from({length: 7}, (_, index) => (
         <div key={index} className={styles.WeekDay}>

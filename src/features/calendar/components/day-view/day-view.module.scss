@@ -27,8 +27,23 @@
   margin-bottom: 0.25rem;
 }
 
+/// The clock block has to stay shorter than the date block beside it, or
+/// Today's header is taller than every other day's and paging through dates
+/// makes the whole page jump. Mobile solved this by dropping the label and
+/// shrinking the figure; desktop has the width to keep both, so they sit on
+/// one line instead of stacking. Stacked they came to 52 against the date
+/// block's 46. Side by side they come to 30, which leaves enough room that a
+/// later type change cannot quietly bring the jump back.
 .ClockBlock {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: s.$space-2;
   text-align: right;
+
+  .Eyebrow {
+    margin-bottom: 0;
+  }
 }
 
 /// Two columns: the day on the left, what you have chosen to do on the right.

@@ -28,15 +28,23 @@
   }
 }
 
+/// Height is set inline from the measured constant; the bars are centred in it
+/// rather than filling it, so the block reads as a heading without having to
+/// reproduce the exact type metrics of one.
 .Masthead {
   display: flex;
   flex-direction: column;
-  gap: s.$space-2;
+  justify-content: center;
+  gap: s.$space-1;
 }
 
+/// The shortest a real status band gets. It is not a fixed height on the real
+/// page — a day carrying a longest-free-stretch line runs to 150, and one
+/// carrying a clash warning to 178 — so this matches the floor and accepts
+/// that a busy day still grows into place.
 .Band {
   @include surf.card;
-  height: 7.5rem;
+  height: 8.875rem;
 }
 
 .Nav {
