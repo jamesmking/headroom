@@ -23,8 +23,10 @@ export const config = {
      *  - /api/health   (container healthcheck; exposes no user data)
      *  - /api/cron/*   (scheduled jobs; there is no session to check, so they
      *                   authenticate themselves against CRON_SECRET instead)
+     *  - the web manifest (fetched without credentials, and describes only the
+     *                   application's name and icons)
      *  - Next.js internals and static assets
      */
-    '/((?!api/auth|api/health|api/cron|_next/static|_next/image|favicon.ico|robots.txt|.*\\.(?:png|jpg|jpeg|svg|ico|webp)$).*)',
+    '/((?!api/auth|api/health|api/cron|manifest.webmanifest|_next/static|_next/image|favicon.ico|robots.txt|.*\\.(?:png|jpg|jpeg|svg|ico|webp)$).*)',
   ],
 };

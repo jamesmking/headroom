@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" role="img" aria-label="Headroom">
+  <!--
+    The bracket pair from the wordmark. The empty space between them is the
+    point: it is the headroom. Drawn on a 16-unit grid whose edges all fall on
+    whole pixels at 16px, so the favicon stays sharp at its smallest size.
+
+    Colours match the app header on a dark ground — ink-900 behind, and the
+    same $focus yellow the header gives the brackets.
+  -->
+  <rect width="16" height="16" fill="#131a21" />
+  <g fill="#f2c94c">
+    <path d="M2 2h4v2H4v8h2v2H2z" />
+    <path d="M14 2h-4v2h2v8h-2v2h4z" />
+  </g>
+</svg>
