@@ -190,6 +190,12 @@ https://headroom.cloud/api/auth/callback/google
 
 **4. Attach the domain.** Add `headroom.cloud` under **Settings → Domains** and point DNS at Vercel.
 
+**4a. Keep the functions next to the database.** `vercel.json` pins the region to `fra1`, because
+the Neon database is in Frankfurt. Vercel's default is `iad1` (Washington), which puts the Atlantic
+between every query and its answer: at roughly 90 ms round trip, a cold Postgres connection costs
+about four of those in TLS setup alone, before a row is read. If the database is ever moved, move
+this with it — the two settings only work as a pair.
+
 **5. Apply migrations.** Production deployments apply them automatically, so this is needed only for
 the first deployment, or to adopt a database that predates the migration history:
 
