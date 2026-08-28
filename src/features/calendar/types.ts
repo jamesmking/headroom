@@ -18,6 +18,14 @@ export type RoleSummary = {
 export type RoleOption = RoleSummary & {active: boolean};
 
 /**
+ * How strongly an event lays claim to your time.
+ *
+ * Ordered from most to least demanding, which is also the order events are
+ * drawn in when they collide.
+ */
+export type EventClaim = 'required' | 'optional' | 'informational';
+
+/**
  * A single thing occupying time on a given day.
  *
  * Both manually entered meetings and read-only family calendar events are
@@ -44,13 +52,22 @@ export type CalendarEvent = {
   /** True when this event is one occurrence of a recurring meeting. */
   recurring: boolean;
   /**
-   * An event you would join if you were free.
+   * How much of a claim this event has on your working day.
    *
-   * Optional events are shown in full but never reduce reported availability:
-   * the whole point of marking one is that the time is still yours. Family
-   * calendar events are never optional — a school pickup genuinely blocks you.
+   * - `required` — you are expected there, so the time is gone.
+   * - `optional` — you would join if you were free. Shown in full, but it
+   *   never reduces reported availability: the whole point of marking one is
+   *   that the time is still yours.
+   * - `informational` — someone else's commitment, on your calendar so you
+   *   know about it. It neither takes the time nor competes for it, so it is
+   *   drawn for reference and left out of the day's totals entirely.
+   *
+   * This is deliberately independent of `source`: it describes what the event
+   * does to your day, not where it came from. Family calendar events are
+   * informational today, but that is a mapping decision made where they are
+   * read, not a fact baked into the shape.
    */
-  optional: boolean;
+  claim: EventClaim;
   /** Family calendar events cannot be edited inside the application. */
   readOnly: boolean;
 };

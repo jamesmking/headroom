@@ -5,7 +5,7 @@ import {useCallback, useState} from 'react';
 import {Button} from '@/components/button';
 import {Panel} from '@/components/panel';
 import {TimeText} from '@/components/time-text';
-import {buildDaySummary} from '@/features/availability/availability';
+import {buildDaySummary, isCommitted} from '@/features/availability/availability';
 import {DayTimeline} from '@/features/calendar/components/day-timeline';
 import type {CalendarEvent, RoleOption, WorkingHours} from '@/features/calendar/types';
 import {MeetingForm, type MeetingDraft} from '@/features/meetings/components/meeting-form';
@@ -67,7 +67,9 @@ export const DayBoard = ({
     });
 
   const summary = buildDaySummary(events, workingHours);
-  const meetingCount = events.filter(event => !event.allDay).length;
+  // What "booked" means has to match what "In meetings" measures, or a day
+  // made entirely of family events reads "4 booked · In meetings 0m".
+  const meetingCount = events.filter(event => !event.allDay && isCommitted(event)).length;
 
   const editing =
     editor?.mode === 'edit'

@@ -2,7 +2,7 @@ import {TriangleAlert} from 'lucide-react';
 import {StatusBand, bandStyles as band} from '@/components/status-band';
 import {RoleBadge} from '@/components/role-badge';
 import {TimeText} from '@/components/time-text';
-import {buildDaySummary} from '@/features/availability/availability';
+import {buildDaySummary, isCommitted, isOptional} from '@/features/availability/availability';
 import type {CalendarEvent, WorkingHours} from '@/features/calendar/types';
 import {type DateKey, describeDay} from '@/lib/dates';
 import {formatDuration, formatTime, formatTimeRange} from '@/lib/time';
@@ -24,8 +24,10 @@ type DayShapeProps = {
 export const DayShape = ({date, today, events, workingHours}: DayShapeProps) => {
   const summary = buildDaySummary(events, workingHours);
   const timed = events.filter(event => !event.allDay);
-  // The first thing you are actually expected at sets when the day really starts.
-  const first = timed.find(event => !event.optional) ?? timed[0] ?? null;
+  // The first thing you are actually expected at sets when the day really
+  // starts, falling back to the first thing you might choose to attend. An
+  // informational event never opens the day: it is not yours to turn up to.
+  const first = timed.find(isCommitted) ?? timed.find(isOptional) ?? null;
   const past = date < today;
 
   const longest = summary.freePeriods.reduce<(typeof summary.freePeriods)[number] | null>(

@@ -173,7 +173,12 @@
   display: flex;
   // Top-aligned so the gap label sits level with the start time in the rail.
   align-items: flex-start;
+  // A gap holds however many things happen to sit in it. One or two ride
+  // alongside the label; a school-run afternoon with four wraps onto a second
+  // line rather than squeezing everything, label included, into one.
+  flex-wrap: wrap;
   gap: s.$space-3;
+  row-gap: 0.375rem;
   margin: 0;
   padding: 0.5rem s.$space-2 0;
   min-width: 0;
@@ -423,7 +428,9 @@
   display: flex;
   align-items: flex-start;
   gap: s.$space-3;
-  min-width: 0;
+  // Enough to print "8h 30m clear" in full. Below this the label truncates
+  // mid-word, which is the one thing in the row that must always be readable.
+  min-width: 10rem;
 }
 
 /// Hidden while the rail is showing the same thing.
@@ -441,9 +448,9 @@
   display: flex;
   align-items: center;
   gap: s.$space-2;
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 13rem;
   text-align: left;
-  margin-top: 0.375rem;
   padding: 0.3125rem s.$space-2;
   border: 1px dashed c.$line-strong;
   border-left: 3px dashed var(--role-colour, #{c.$ink-300});
@@ -461,6 +468,39 @@
   &:hover:not(:disabled) {
     background: c.$card-hover;
   }
+}
+
+/// An informational event sitting inside free time. Quieter than its optional
+/// neighbour: no dashed border asking for a decision, just the hatching that
+/// marks it as somebody else's, because there is nothing here to decide.
+.FreeInformational {
+  display: flex;
+  align-items: center;
+  gap: s.$space-2;
+  flex: 1 1 auto;
+  min-width: 11rem;
+  padding: 0.3125rem s.$space-2;
+  border-left: 3px solid var(--role-colour, #{c.$ink-300});
+  border-radius: s.$radius-sm;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(107, 122, 136, 0.05) 0,
+      rgba(107, 122, 136, 0.05) 4px,
+      transparent 4px,
+      transparent 9px
+    ),
+    c.$card;
+  font-size: t.$text-xs;
+  color: c.$ink-600;
+  min-width: 0;
+}
+
+.FreeInformationalTitle {
+  @include ty.truncate;
+  color: c.$ink-700;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .FreeOptionalTitle {
@@ -503,6 +543,14 @@
   .FreeTop {
     flex-wrap: wrap;
     row-gap: 0.25rem;
+  }
+
+  /// There is no room to sit anything beside the gap label on a phone, so
+  /// whatever is in the gap takes its own full-width line underneath it.
+  .FreeOptional,
+  .FreeInformational {
+    flex: 1 1 100%;
+    min-width: 0;
   }
 
   .NowLine {

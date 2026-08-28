@@ -83,7 +83,13 @@ export const WeekGrid = ({
           // than being re-derived here, so a week column and the Day view can
           // never disagree about what overlaps what.
           const timedEntries = summary.timeline.filter(entry => entry.kind !== 'free');
-          const optionalInGaps = summary.freePeriods.flatMap(period => period.optionalEvents);
+          // Both weaker claims ride along in the gap they sit in. A week column
+          // is still a timeline, so leaving family events out would make the
+          // week disagree with the day about what is on.
+          const optionalInGaps = summary.freePeriods.flatMap(period => [
+            ...period.optionalEvents,
+            ...period.informationalEvents,
+          ]);
           const isToday = key === today;
           const past = key < today;
 
@@ -265,7 +271,7 @@ const EventChip = ({
     className={clsx(
       styles.Event,
       event.source === 'family' && styles.Family,
-      event.optional && styles.Optional,
+      event.claim === 'optional' && styles.Optional,
       selected && styles.Selected
     )}
     style={{'--role-colour': event.role.colour} as React.CSSProperties}
@@ -274,7 +280,7 @@ const EventChip = ({
   >
     <span className={styles.EventTime}>
       {formatTime(event.startMinutes)}
-      {event.optional && (
+      {event.claim === 'optional' && (
         <>
           <CircleDashed size={9} aria-hidden="true" className={styles.OptionalIcon} />
           <span className="sr-only"> optional</span>

@@ -70,6 +70,14 @@ describe('parseIcsToEvents', () => {
     expect(event.role).toEqual(FAMILY_ROLE);
   });
 
+  it('treats family events as information rather than commitments', () => {
+    const [event] = parseIcsToEvents(calendar(timedEvent), WEEK, 'Europe/London');
+    // This is the one place the decision is made: everything downstream reads
+    // the claim, not the source, so a family event that should genuinely block
+    // the day would only need changing here.
+    expect(event.claim).toBe('informational');
+  });
+
   it('never lets the Family role collide with a real, stored role id', () => {
     // Role ids are cuids; a short literal cannot be produced by the generator,
     // so this id can never be submitted as one of the user's own roles.

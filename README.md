@@ -358,9 +358,22 @@ two different pieces of information.
 Given the day's events and the configured working hours it:
 
 1. discards all-day events, which occupy no specific slot
-2. clips every event to the working day
-3. merges overlapping and back-to-back events into single busy blocks
-4. subtracts those from the working day to leave the gaps
+2. keeps only events that actually claim the time — see below
+3. clips every event to the working day
+4. merges overlapping and back-to-back events into single busy blocks
+5. subtracts those from the working day to leave the gaps
+
+Every event carries a `claim`, which is what step 2 reads:
+
+| Claim           | Takes the time? | Where it shows                                             |
+| --------------- | --------------- | ---------------------------------------------------------- |
+| `required`      | Yes             | Everywhere. This is what availability is calculated from.   |
+| `optional`      | No              | Drawn inside the gap it competes for, and counted as "optional" time so you can see what is being asked of your free hours. |
+| `informational` | No              | Drawn inside the gap for reference only. Absent from every total and from Now/Next. |
+
+`claim` is deliberately independent of `source`: it says what an event does to your day, not where
+it came from. Meetings derive theirs from the `optional` checkbox; family calendar events are mapped
+to `informational` in `parse-ics.ts`, which is the single place that decision is made.
 
 Time outside working hours is never reported as available, so a free evening does not read as
 capacity. Overlapping meetings are counted once. Back-to-back meetings produce no zero-length gap
@@ -383,6 +396,15 @@ long until it starts, and how much uninterrupted time you have before it.
   warning and everything else — the timeline, availability, tasks — carries on working.
 - Family events are read-only. They are distinguished by a hatched texture and a hollow marker as
   well as by colour, so they are not identified by colour alone.
+- **They are information, not commitments.** A family event never reduces your reported
+  availability, never counts as a clash with a meeting, and never appears in the day's totals or in
+  the Now/Next band. It is drawn on the timeline so you can see it coming, and nothing more. The
+  reasoning: these appointments mirror a calendar you are not the attendee of, so treating them as
+  busy reported the opposite of the truth about your working day.
+- **They are never grouped with a meeting.** A meeting running over the school run is not an overlap
+  worth drawing a box around, so a family event never forms or joins an overlapping cluster. The
+  meeting stays an ordinary block; the family event sits in whichever gap it falls in, or on its own
+  row where the day is too full to have one.
 - `webcal://` URLs are accepted and treated as `https://`.
 
 Saving a URL in Settings fetches it once and reports how many events were found, so a typo is caught

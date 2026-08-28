@@ -104,8 +104,8 @@ const toCalendarEvents = (
               notes,
               role: FAMILY_ROLE,
               recurring: instance.isRecurring,
-              // Imported events cannot be marked optional; they are commitments.
-              optional: false,
+              // Someone else's day, on your calendar so you know about it.
+              claim: 'informational',
               readOnly: true,
             });
           }
@@ -137,7 +137,7 @@ const toCalendarEvents = (
         notes,
         role: FAMILY_ROLE,
         recurring: instance.isRecurring,
-        optional: false,
+        claim: 'informational',
         readOnly: true,
       });
     }

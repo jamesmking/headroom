@@ -15,6 +15,15 @@ export type FreePeriod = Interval & {
    * hidden, so "am I free at 11:15?" can be answered honestly.
    */
   optionalEvents: CalendarEvent[];
+  /**
+   * Informational events sitting inside this gap.
+   *
+   * Held apart from `optionalEvents` rather than filtered out of it at each
+   * call site, so that "how much of my free time has something competing for
+   * it?" cannot accidentally start counting other people's commitments. This
+   * is background detail: nothing downstream has to render it.
+   */
+  informationalEvents: CalendarEvent[];
 };
 
 /** One event's position inside an overlapping group. */
@@ -49,6 +58,7 @@ export type TimelineEntry =
       endMinutes: number;
       durationMinutes: number;
       optionalEvents: CalendarEvent[];
+      informationalEvents: CalendarEvent[];
     };
 
 export type DaySummary = {
@@ -66,7 +76,27 @@ export type DaySummary = {
 };
 
 /** An event that actually blocks the time it occupies. */
-export const isCommitted = (event: CalendarEvent): boolean => !event.optional;
+export const isCommitted = (event: CalendarEvent): boolean => event.claim === 'required';
+
+/** An event competing for free time you could still choose to keep. */
+export const isOptional = (event: CalendarEvent): boolean => event.claim === 'optional';
+
+/**
+ * An event that is not yours to attend.
+ *
+ * It neither takes time nor competes for it, so it stays out of every total.
+ * It is still placed on the timeline, because knowing the school run is at
+ * 15:00 is the reason to have it on the calendar at all.
+ */
+export const isInformational = (event: CalendarEvent): boolean =>
+  event.claim === 'informational';
+
+/** Drawing order when events collide: the most demanding sits leftmost. */
+const CLAIM_ORDER: Record<CalendarEvent['claim'], number> = {
+  required: 0,
+  optional: 1,
+  informational: 2,
+};
 
 /**
  * Collapse overlapping and touching intervals into a minimal covering set.
@@ -146,8 +176,8 @@ export const groupOverlapping = (events: CalendarEvent[]): CalendarEvent[][] => 
  * Assign each event in a group to a column, so none are drawn on top of one
  * another: the first column whose previous event has already finished.
  *
- * Required events win ties on start time, so where a meeting and an optional
- * one begin together the one that takes precedence sits leftmost.
+ * Stronger claims win ties on start time, so where a meeting and a family
+ * event begin together the one that actually takes the time sits leftmost.
  */
 export const placeInColumns = (
   events: CalendarEvent[]
@@ -155,7 +185,7 @@ export const placeInColumns = (
   const sorted = [...events].sort(
     (a, b) =>
       a.startMinutes - b.startMinutes ||
-      Number(a.optional) - Number(b.optional) ||
+      CLAIM_ORDER[a.claim] - CLAIM_ORDER[b.claim] ||
       b.endMinutes - a.endMinutes
   );
 
@@ -186,7 +216,7 @@ export const calculateFreePeriods = (
   busy: Interval[],
   hours: WorkingHours,
   {minimumMinutes = 1}: {minimumMinutes?: number} = {}
-): Omit<FreePeriod, 'optionalEvents'>[] => {
+): Omit<FreePeriod, 'optionalEvents' | 'informationalEvents'>[] => {
   if (hours.endMinutes <= hours.startMinutes) return [];
 
   const blocks = mergeIntervals(
@@ -195,7 +225,7 @@ export const calculateFreePeriods = (
       .filter((i): i is Interval => i !== null)
   );
 
-  const free: Omit<FreePeriod, 'optionalEvents'>[] = [];
+  const free: Omit<FreePeriod, 'optionalEvents' | 'informationalEvents'>[] = [];
   let cursor = hours.startMinutes;
 
   for (const block of blocks) {
@@ -231,7 +261,12 @@ const overlaps = (a: Interval, b: Interval): boolean =>
  *  1. Availability is calculated from *committed* events only. An optional
  *     meeting is one you would join if you were free, so counting it as busy
  *     would report the opposite of the truth. It is never hidden — it is drawn
- *     inside the free time it competes for.
+ *     inside the free time it competes for. An informational event does not
+ *     even compete: it is drawn in the gap purely so you can see it, and is
+ *     kept out of the optional tally.
+ *  3. Informational events are never grouped with anything. A meeting running
+ *     over the school run is not an overlap worth drawing a box around, so the
+ *     meeting stays an ordinary block and the family event sits beside it.
  *  2. Overlapping events are grouped rather than listed. Rendering 10:00–11:00
  *     and 10:30–11:30 as consecutive rows reads as back-to-back meetings, when
  *     in fact they collide.
@@ -251,14 +286,37 @@ export const buildDaySummary = (
   const committed = timed.filter(isCommitted);
 
   const bareFree = calculateFreePeriods(committed, hours, {minimumMinutes: minimumFreeMinutes});
-  const freePeriods: FreePeriod[] = bareFree.map(period => ({...period, optionalEvents: []}));
+  const freePeriods: FreePeriod[] = bareFree.map(period => ({
+    ...period,
+    optionalEvents: [],
+    informationalEvents: [],
+  }));
 
   const entries: TimelineEntry[] = [];
 
-  for (const group of groupOverlapping(timed)) {
+  // Informational events are placed one at a time, before anything is grouped,
+  // and are kept out of the grouping altogether. They do not compete for the
+  // time, so collecting one into a cluster would draw a box around an overlap
+  // that costs nothing — the school run does not make a meeting a problem.
+  // Each sits in the gap it falls in, or stands alone where there is no gap.
+  for (const event of timed.filter(isInformational)) {
+    const host = freePeriods.find(period => overlaps(period, event));
+    if (host) {
+      host.informationalEvents.push(event);
+      continue;
+    }
+    entries.push({
+      kind: 'event',
+      startMinutes: event.startMinutes,
+      endMinutes: event.endMinutes,
+      event,
+    });
+  }
+
+  for (const group of groupOverlapping(timed.filter(event => !isInformational(event)))) {
     // A group with nothing committed in it does not occupy the day; it belongs
     // inside whichever free stretch it is competing for.
-    const host = group.every(event => event.optional)
+    const host = !group.some(isCommitted)
       ? freePeriods.find(period =>
           overlaps(period, {
             startMinutes: group[0].startMinutes,
@@ -301,6 +359,7 @@ export const buildDaySummary = (
       endMinutes: period.endMinutes,
       durationMinutes: period.durationMinutes,
       optionalEvents: period.optionalEvents,
+      informationalEvents: period.informationalEvents,
     });
   }
 
@@ -382,7 +441,10 @@ export const findNextUp = (
     event.startMinutes <= currentMinutes && event.endMinutes > currentMinutes;
 
   const committed = timed.filter(isCommitted);
-  const optional = timed.filter(event => event.optional);
+  // Informational events are deliberately absent from every field below. They
+  // are not yours to attend, so there is no honest way to answer "what's next?"
+  // with one — and saying nothing is better than saying the wrong thing.
+  const optional = timed.filter(isOptional);
 
   const runningCommitted = committed.filter(running);
   const current = runningCommitted[0] ?? null;

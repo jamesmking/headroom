@@ -102,7 +102,10 @@ export const getMeetingEventsForDates = async (
         notes: meeting.notes,
         role: meeting.role,
         recurring: meeting.recurrence !== 'NONE',
-        optional: meeting.optional,
+        // The stored flag is a boolean because a meeting is only ever yours
+        // to attend or yours to skip; the third claim belongs to events that
+        // are not yours at all.
+        claim: meeting.optional ? 'optional' : 'required',
         readOnly: false,
       });
     }

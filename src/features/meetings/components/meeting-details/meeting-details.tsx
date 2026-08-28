@@ -61,7 +61,7 @@ export const MeetingDetails = ({
 
       <div className={styles.Meta}>
         <RoleBadge role={event.role} long hollow={event.source === 'family'} />
-        {event.optional && (
+        {event.claim === 'optional' && (
           <span className={styles.Optional}>
             <CircleDashed size={12} aria-hidden="true" />
             Optional
@@ -75,11 +75,20 @@ export const MeetingDetails = ({
       </div>
 
       <dl className={styles.Facts}>
-        {event.optional && (
+        {event.claim === 'optional' && (
           <>
             <dt className={styles.Term}>Attendance</dt>
             <dd className={styles.Value}>
               Optional — shown in full, but it never counts against your available time.
+            </dd>
+          </>
+        )}
+        {event.claim === 'informational' && (
+          <>
+            <dt className={styles.Term}>Attendance</dt>
+            <dd className={styles.Value}>
+              For information — not yours to attend, so it never counts against your available
+              time or appears in the day&rsquo;s totals.
             </dd>
           </>
         )}

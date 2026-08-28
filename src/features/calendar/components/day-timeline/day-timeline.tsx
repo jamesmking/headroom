@@ -156,6 +156,20 @@ export const DayTimeline = ({
                       <span className={styles.OptionalTag}>Optional</span>
                     </button>
                   ))}
+
+                  {/* Not competing for the gap at all — just visible in it, so
+                      a clear afternoon does not come as a surprise at 15:00.
+                      Nothing to click: there is nothing here to edit. */}
+                  {entry.informationalEvents.map(event => (
+                    <div
+                      key={event.id}
+                      className={styles.FreeInformational}
+                      style={{'--role-colour': event.role.colour} as React.CSSProperties}
+                    >
+                      <TimeText>{formatTimeRange(event.startMinutes, event.endMinutes)}</TimeText>
+                      <span className={styles.FreeInformationalTitle}>{event.title}</span>
+                    </div>
+                  ))}
                 </div>
               )}
 
@@ -270,8 +284,10 @@ const EventBlock = ({
       styles.Event,
       event.source === 'family' && styles.Family,
       // Optional meetings recede: dashed edges and a flatter surface, never
-      // colour alone, and never at the cost of the role marker.
-      event.optional && styles.Optional,
+      // colour alone, and never at the cost of the role marker. Informational
+      // events need no such treatment — the family hatching already says they
+      // are not yours, and stacking both would read as two separate claims.
+      event.claim === 'optional' && styles.Optional,
       compact && styles.Compact,
       current && styles.Current
     )}
@@ -299,7 +315,7 @@ const EventBlock = ({
         {formatTimeRange(event.startMinutes, event.endMinutes)}
       </TimeText>
       <RoleBadge role={event.role} hollow={event.source === 'family'} />
-      {event.optional && (
+      {event.claim === 'optional' && (
         <span className={styles.OptionalTag}>
           <CircleDashed className={styles.TagIcon} aria-hidden="true" />
           Optional

@@ -28,7 +28,7 @@ const event = (
   notes: null,
   role: {id: 'role-a', name: 'Team A', shortName: 'TA', colour: '#1f5f9e'},
   recurring: false,
-  optional: false,
+  claim: 'required',
   readOnly: false,
   ...overrides,
 });
@@ -39,14 +39,34 @@ const optionalEvent = (
   startMinutes: number,
   endMinutes: number,
   overrides: Partial<CalendarEvent> = {}
-): CalendarEvent => event(title, startMinutes, endMinutes, {...overrides, optional: true});
+): CalendarEvent => event(title, startMinutes, endMinutes, {...overrides, claim: 'optional'});
+
+/**
+ * Something on the family calendar: not yours to attend, and read-only, so it
+ * is built the way the iCal reader builds it rather than as a meeting.
+ */
+const familyEvent = (
+  title: string,
+  startMinutes: number,
+  endMinutes: number,
+  overrides: Partial<CalendarEvent> = {}
+): CalendarEvent =>
+  event(title, startMinutes, endMinutes, {
+    source: 'family',
+    meetingId: null,
+    readOnly: true,
+    ...overrides,
+    claim: 'informational',
+  });
 
 /** Describes a timeline entry compactly, for readable assertions. */
 const describeEntry = (entry: ReturnType<typeof buildDaySummary>['timeline'][number]): string => {
   if (entry.kind === 'event') return entry.event.title;
   if (entry.kind === 'free') {
     const optional = entry.optionalEvents.map(e => e.title).join('+');
-    return `free ${entry.durationMinutes}${optional ? ` (${optional})` : ''}`;
+    const info = entry.informationalEvents.map(e => e.title).join('+');
+    const inside = [optional, info && `fyi ${info}`].filter(Boolean).join(', ');
+    return `free ${entry.durationMinutes}${inside ? ` (${inside})` : ''}`;
   }
   return `cluster[${entry.events.map(p => `${p.event.title}@${p.column}`).join(', ')}]${
     entry.clash ? ' CLASH' : ''
@@ -161,7 +181,7 @@ describe('buildDaySummary', () => {
 
   it('excludes all-day events from the timeline', () => {
     const summary = buildDaySummary(
-      [event('School holiday', 0, 1440, {allDay: true, source: 'family'})],
+      [familyEvent('School holiday', 0, 1440, {allDay: true})],
       HOURS
     );
     expect(summary.timeline.every(entry => entry.kind === 'free')).toBe(true);
@@ -336,12 +356,15 @@ describe('buildDaySummary with overlaps', () => {
     expect(summary.clashCount).toBe(0);
   });
 
-  it('counts a genuine collision between a meeting and a family event', () => {
+  // The rule this replaces said the opposite. A family event used to block the
+  // day and therefore collide with a meeting; it is now information, so a
+  // meeting running over the school run is not a diary problem to solve.
+  it('does not call a meeting overlapping a family event a clash', () => {
     const summary = buildDaySummary(
-      [event('Sprint planning', 600, 660), event('School pickup', 630, 690, {source: 'family'})],
+      [event('Sprint planning', 600, 660), familyEvent('School pickup', 630, 690)],
       HOURS
     );
-    expect(summary.clashCount).toBe(1);
+    expect(summary.clashCount).toBe(0);
   });
 });
 
@@ -416,5 +439,97 @@ describe('findNextUp with optional meetings', () => {
     );
     expect(result.current?.title).toBe('Team A');
     expect(result.alsoNow.map(e => e.title)).toEqual(['Team B', 'Team C']);
+  });
+});
+
+describe('buildDaySummary with family events', () => {
+  it('does not let a family event reduce free time', () => {
+    const summary = buildDaySummary([familyEvent('Swimming lesson', 600, 660)], HOURS);
+    expect(summary.totalFreeMinutes).toBe(510);
+    expect(summary.totalBusyMinutes).toBe(0);
+  });
+
+  it('keeps a family event out of the optional tally', () => {
+    // The whole point of the split: "how much of my free time has something
+    // competing for it?" must not start counting other people's commitments.
+    const summary = buildDaySummary([familyEvent('Swimming lesson', 600, 660)], HOURS);
+    expect(summary.totalOptionalMinutes).toBe(0);
+  });
+
+  it('still shows a family event inside the free time it sits in', () => {
+    const summary = buildDaySummary([familyEvent('Swimming lesson', 600, 660)], HOURS);
+    expect(summary.timeline.map(describeEntry)).toEqual(['free 510 (fyi Swimming lesson)']);
+  });
+
+  it('files optional and family events in the same gap separately', () => {
+    const summary = buildDaySummary(
+      [optionalEvent('Catch-up', 600, 660), familyEvent('Swimming lesson', 630, 690)],
+      HOURS
+    );
+    const [gap] = summary.freePeriods;
+    expect(gap.optionalEvents.map(e => e.title)).toEqual(['Catch-up']);
+    expect(gap.informationalEvents.map(e => e.title)).toEqual(['Swimming lesson']);
+    // Only the optional one is asking for the time, so only it is counted.
+    expect(summary.totalOptionalMinutes).toBe(60);
+  });
+
+  it('never groups a family event with a meeting it overlaps', () => {
+    // The meeting stays an ordinary block. Boxing the two together would
+    // highlight an overlap that costs nothing, which is the whole point of
+    // the event being information rather than a commitment.
+    const summary = buildDaySummary(
+      [familyEvent('School pickup', 600, 690), event('Sprint planning', 600, 660)],
+      HOURS
+    );
+    expect(summary.timeline.some(entry => entry.kind === 'cluster')).toBe(false);
+    expect(summary.timeline.map(describeEntry)).toContain('Sprint planning');
+  });
+
+  it('gives a family event its own row when no gap can hold it', () => {
+    // 09:00–17:30 working day, wall-to-wall meetings either side of it, so
+    // there is no free period for the family event to sit inside.
+    const summary = buildDaySummary(
+      [
+        event('Morning block', 540, 690),
+        familyEvent('School pickup', 600, 660),
+        event('Afternoon block', 690, 1050),
+      ],
+      HOURS
+    );
+    expect(summary.timeline.map(describeEntry)).toEqual([
+      'Morning block',
+      'School pickup',
+      'Afternoon block',
+    ]);
+    // It is on the timeline, but it still took nothing.
+    expect(summary.totalFreeMinutes).toBe(0);
+    expect(summary.totalOptionalMinutes).toBe(0);
+  });
+});
+
+describe('findNextUp with family events', () => {
+  const at = (minutes: number, events: CalendarEvent[]) => findNextUp(events, minutes, HOURS);
+
+  it('never reports a family event as the next thing up', () => {
+    const next = at(9 * 60, [familyEvent('School pickup', 900, 960)]);
+    expect(next.next).toBeNull();
+    expect(next.nextOptional).toBeNull();
+  });
+
+  it('stays free while a family event is running', () => {
+    const next = at(920, [familyEvent('School pickup', 900, 960)]);
+    expect(next.current).toBeNull();
+    expect(next.currentOptional).toBeNull();
+    // Clear to the end of the working day, straight through the school run.
+    expect(next.freeRightNowMinutes).toBe(HOURS.endMinutes - 920);
+  });
+
+  it('does not let a family event shorten the run up to the next meeting', () => {
+    const next = at(9 * 60, [
+      familyEvent('School pickup', 600, 660),
+      event('Sprint planning', 780, 840),
+    ]);
+    expect(next.next?.title).toBe('Sprint planning');
+    expect(next.freeRightNowMinutes).toBe(780 - 9 * 60);
   });
 });

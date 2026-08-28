@@ -145,7 +145,9 @@ model Meeting {
   notes        String?    @db.Text
   /// Optional meetings are ones you would join if you were free. They are
   /// shown in full but never reduce reported availability — see the note in
-  /// features/availability/availability.ts.
+  /// features/availability/availability.ts. Read here as a boolean because a
+  /// meeting is only ever yours to attend or yours to skip; it is mapped to
+  /// the wider `claim` in features/meetings/queries/get-meetings.ts.
   optional     Boolean    @default(false)
   recurrence   Recurrence @default(NONE)
   /// Inclusive last date a recurring meeting may occur on. Null = no end.
