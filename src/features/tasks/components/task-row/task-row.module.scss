@@ -173,27 +173,27 @@
   }
 }
 
-/// Fingertip sizing. The status control becomes three equal thirds of the row
-/// rather than three small chips, which is both easier to hit and easier to
-/// read as "which one is current".
-@media (pointer: coarse) {
-  .StatusButton {
-    min-height: b.$touch-target;
-    flex: 1 1 0;
-  }
-
-  .Status {
-    width: 100%;
-  }
-
-  .Action {
-    min-height: b.$touch-target;
-    min-width: b.$touch-target;
-  }
-
-  .Jira {
-    min-height: b.$touch-target;
-    align-items: center;
-    padding-right: 0.5rem;
-  }
-}
+///// Fingertip sizing. The status control becomes three equal thirds of the row
+///// rather than three small chips, which is both easier to hit and easier to
+///// read as "which one is current".
+//@media (pointer: coarse) {
+//  .StatusButton {
+//    min-height: b.$touch-target;
+//    flex: 1 1 0;
+//  }
+//
+//  .Status {
+//    width: 100%;
+//  }
+//
+//  .Action {
+//    min-height: b.$touch-target;
+//    min-width: b.$touch-target;
+//  }
+//
+//  .Jira {
+//    min-height: b.$touch-target;
+//    align-items: center;
+//    padding-right: 0.5rem;
+//  }
+//}
