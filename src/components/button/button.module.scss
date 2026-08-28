@@ -23,10 +23,38 @@
   width: 100%;
 }
 
+/// Busy is drawn over the label, not beside it. Adding the spinner as another
+/// flex item grew the button by the spinner plus the gap at the moment of the
+/// press, so the control moved out from under the cursor.
+.Busy {
+  position: relative;
+  cursor: progress;
+}
+
+/// Centred by `inset` and `margin` rather than a transform, because the
+/// transform property is already spoken for by the spin.
 .Spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
   height: 0.875rem;
   width: 0.875rem;
   animation: spin 0.9s linear infinite;
+}
+
+/// Transparent to layout, so wrapping the label changes nothing about how
+/// these buttons lay their content out.
+.Label {
+  display: contents;
+}
+
+/// Invisible but still laid out and still announced — the button keeps its
+/// size, and an icon-only button keeps its accessible name.
+.LabelHidden {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+  opacity: 0;
 }
 
 @keyframes spin {

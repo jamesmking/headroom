@@ -1,12 +1,18 @@
-@use '@/styles/helpers/utilities' as u;
-
 /// A pressed control stays legible rather than fading out — it should read as
 /// working, not as unavailable.
 .Busy {
   cursor: progress;
+  // The spinner is positioned against the button so that it sits on top of
+  // the label rather than in place of it. See .LabelHidden.
+  position: relative;
 }
 
+/// Centred by `inset` and `margin` rather than a transform, because the
+/// transform property is already spoken for by the spin.
 .Spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
   width: 0.875rem;
   height: 0.875rem;
   animation: spin 0.7s linear infinite;
@@ -24,7 +30,17 @@
   display: contents;
 }
 
-/// Visually gone while the spinner shows, but still announced.
+/// Invisible while the spinner shows, but still laid out and still announced,
+/// so the button keeps the exact size it had before it was pressed. It used to
+/// be `visually-hidden`, which takes the label out of the flow entirely and
+/// collapsed the button to the width of the spinner — the press made the thing
+/// under the cursor jump. `visibility: hidden` would hold the space but drop
+/// the label from the accessibility tree, which is the problem this wrapper
+/// exists to avoid, and `display: contents` cannot carry an opacity of its
+/// own, so the button's own flex layout is mirrored here instead.
 .LabelHidden {
-  @include u.visually-hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+  opacity: 0;
 }

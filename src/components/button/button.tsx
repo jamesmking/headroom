@@ -62,11 +62,14 @@ export const Button = ({
         VARIANTS[variant],
         size === 'small' && styles.Small,
         block && styles.Block,
+        showSpinner && styles.Busy,
         className
       )}
     >
       {showSpinner && <LoaderCircle className={styles.Spinner} aria-hidden="true" />}
-      {children}
+      {/* Hidden rather than replaced, so the button neither changes size nor
+          loses its accessible name at the moment it is pressed. */}
+      <span className={showSpinner ? styles.LabelHidden : styles.Label}>{children}</span>
     </button>
   );
 };
