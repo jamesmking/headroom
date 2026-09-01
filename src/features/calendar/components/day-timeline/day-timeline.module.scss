@@ -245,7 +245,7 @@
   left: 4.25rem;
   right: s.$space-4;
   height: 0;
-  border-top: 2px solid c.$now;
+  border-top: 1px dashed c.$now;
   top: var(--now-offset, 0%);
   pointer-events: none;
   z-index: 2;
@@ -331,7 +331,7 @@
   gap: s.$space-2;
   margin: s.$space-1 (s.$space-3 * -1);
   padding: s.$space-2 s.$space-3;
-  background: c.$paper-sunken;
+  background: c.$paper-raised;
   min-width: 0;
   height: 100%;
   @media (min-width: 560px) {
