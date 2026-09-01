@@ -40,7 +40,7 @@
 
 .Event {
   border: 1px solid c.$line;
-  border-left: 3px solid var(--role-colour, #{c.$ink-300});
+  border-left: 5px solid var(--role-colour, #{c.$ink-300});
   border-radius: s.$radius;
   background: c.$card;
   padding: s.$space-3 s.$space-3 s.$space-3 s.$space-4;
@@ -327,14 +327,13 @@
 .Cluster {
   display: flex;
   flex-direction: column;
-  gap: s.$space-1;
+  gap: s.$space-2;
   margin: 0.25rem 0;
-  padding: s.$space-2;
-  border: 1px solid c.$line-strong;
-  border-radius: s.$radius;
+  padding: s.$space-2 s.$space-2 0;
   background: c.$paper-sunken;
   min-width: 0;
   height: 100%;
+  border-radius: s.$radius-md;
 }
 
 /// Only a collision between things you are actually expected at is a problem.
@@ -347,10 +346,11 @@
 .ClusterHead {
   display: flex;
   align-items: center;
-  gap: s.$space-2;
+  gap: s.$space-1;
   font-size: 0.6875rem;
   color: c.$ink-600;
   flex: none;
+  line-height: 1;
 }
 
 .ClusterIcon {
@@ -407,8 +407,6 @@
 /// and a flatter surface. The role marker keeps its own colour, because role
 /// and attendance are two different pieces of information.
 .Optional {
-  border-style: dashed;
-  border-left-style: dashed;
   background: c.$paper;
 }
 
@@ -452,8 +450,8 @@
   min-width: 13rem;
   text-align: left;
   padding: 0.3125rem s.$space-2;
-  border: 1px dashed c.$line-strong;
-  border-left: 3px dashed var(--role-colour, #{c.$ink-300});
+  border: 1px dotted c.$line-strong;
+  border-left: 5px solid var(--role-colour, #{c.$ink-300});
   border-radius: s.$radius-sm;
   background: c.$card;
   font-size: t.$text-xs;
@@ -480,7 +478,7 @@
   flex: 1 1 auto;
   min-width: 11rem;
   padding: 0.3125rem s.$space-2;
-  border-left: 3px solid var(--role-colour, #{c.$ink-300});
+  border-left: 5px solid var(--role-colour, #{c.$ink-300});
   border-radius: s.$radius-sm;
   background:
     repeating-linear-gradient(

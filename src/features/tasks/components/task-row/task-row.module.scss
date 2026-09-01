@@ -13,7 +13,7 @@
   align-items: center;
   padding: s.$space-3 s.$space-4;
   border-bottom: 1px solid c.$line;
-  border-left: 3px solid var(--role-colour, transparent);
+  border-left: 5px solid var(--role-colour, transparent);
 
   &:last-child {
     border-bottom: none;
@@ -21,6 +21,10 @@
 
   &:hover {
     background: c.$card-hover;
+  }
+
+  &:last-child {
+    border-radius: 0 0 s.$radius-lg s.$radius;
   }
 }
 
